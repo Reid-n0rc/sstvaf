@@ -76,38 +76,38 @@
     <string name="pl_select_bluetooth">请选择可用的 Bluetooth 设备</string>
     <string name="bluetooth_set">Bluetooth 设置</string>
     <string name="spp_device">Bluetooth SPP 设备</string>
-    <string name="headset_device">Bluetooth 耳机</string>>
-    <string name="disconnect_rig">电台连接已断开</string>>
-    <string name="connected_rig">电台连接成功。</string>>
-    <string name="current_frequency">当前频率：%s</string>>
-    <string name="radio_communication_error">与电台通信出错：%s</string>>
-    <string name="does_not_support_recording">Bluetooth 设备不支持录音</string>>
-    <string name="bluetooth_headset_mode">进入 Bluetooth 耳机模式</string>>
-    <string name="bluetooth_Headset_mode_cancelled">退出 Bluetooth 耳机模式</string>>
+    <string name="headset_device">Bluetooth 耳机</string>
+    <string name="disconnect_rig">电台连接已断开</string>
+    <string name="connected_rig">电台连接成功。</string>
+    <string name="current_frequency">当前频率：%s</string>
+    <string name="radio_communication_error">与电台通信出错：%s</string>
+    <string name="does_not_support_recording">Bluetooth 设备不支持录音</string>
+    <string name="bluetooth_headset_mode">进入 Bluetooth 耳机模式</string>
+    <string name="bluetooth_Headset_mode_cancelled">退出 Bluetooth 耳机模式</string>
 
-    <string name="version_info">SSTVAF Ver %s\nKS3CKC\n%s</string>>
+    <string name="version_info">SSTVAF Ver %s\nKS3CKC\n%s</string>
 
 
-    <string name="exit">退出</string>>
-    <string name="cancel">取消</string>>
-    <string name="exit_confirmation">确定要退出吗？</string>>
+    <string name="exit">退出</string>
+    <string name="cancel">取消</string>
+    <string name="exit_confirmation">确定要退出吗？</string>
 
     <!--   FT8Message-->
-    <string name="std_msg">标准消息</string>>
-    <string name="none_std_msg">非标准呼号</string>>
-    <string name="free_text">自由文本</string>>
-    <string name="dXpedition">DXpedition</string>>
-    <string name="field_day">Field Day</string>>
-    <string name="telemetry">遥测</string>>
-    <string name="rtty_ru_msg">RTTY RU</string>>
+    <string name="std_msg">标准消息</string>
+    <string name="none_std_msg">非标准呼号</string>
+    <string name="free_text">自由文本</string>
+    <string name="dXpedition">DXpedition</string>
+    <string name="field_day">Field Day</string>
+    <string name="telemetry">遥测</string>
+    <string name="rtty_ru_msg">RTTY RU</string>
 
 
     <!--   Settings bar-->
-    <string name="offset_time_sec">%.1f 秒</string>>
+    <string name="offset_time_sec">%.1f 秒</string>
 
     <!--   Spectrum chart-->
-    <string name="decoding_takes_milliseconds">解码耗时：%d 毫秒</string>>
-    <string name="sound_frequency_is_set_to">音频频率已设为 %d Hz</string>>
+    <string name="decoding_takes_milliseconds">解码耗时：%d 毫秒</string>
+    <string name="sound_frequency_is_set_to">音频频率已设为 %d Hz</string>
     <string name="de_noise">降噪</string>
     <string name="raw_spectrum_data">原始数据</string>
     <string name="markMessage">显示消息</string>
