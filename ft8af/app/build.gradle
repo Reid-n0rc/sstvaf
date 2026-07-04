@@ -23,7 +23,7 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId "radio.ks3ckc.ft8af"
+        applicationId "radio.ks3ckc.sstvaf"
         minSdk 23
         targetSdk 35
         // Required for the androidTest suite to actually run: our instrumented
@@ -48,11 +48,12 @@ android {
         // again (resetting the counter), bump this offset past the last
         // published versionCode once more.
         def ciRunNumber = System.getenv("GITHUB_RUN_NUMBER")
-        versionCode ciRunNumber ? (ciRunNumber.toInteger() + 1000) : 5
+        versionCode ciRunNumber ? (ciRunNumber.toInteger() + 1000) : 1
         // CI passes -PVERSION_NAME_OVERRIDE derived from the git tag (v1.1.0 ->
         // "1.1.0", dev-42 -> "1.1.0-dev.42"). Local builds use the fallback.
+        // SSTVAF is a new Play listing, so local fallback restarts at 0.1.0.
         def ciVersionName = project.findProperty('VERSION_NAME_OVERRIDE')
-        versionName ciVersionName ?: '1.1.0'
+        versionName ciVersionName ?: '0.1.0'
 
 
         externalNativeBuild {
@@ -158,6 +159,10 @@ android {
             kotlin.srcDirs = ['src/androidTest/kotlin']
         }
     }
+    // Intentionally the legacy namespace: it is invisible to users (only the
+    // applicationId above is), and the JNI FindClass strings in src/main/cpp
+    // plus the R8 keep rules in proguard-rules.pro name classes under the
+    // com.k1af.ft8af Java packages. Do not rename it as part of branding work.
     namespace 'com.k1af.ft8af'
 }
 

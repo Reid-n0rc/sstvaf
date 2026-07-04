@@ -53,7 +53,7 @@
     <string name="main_tx_volume">Гучність TX: %1$d%%</string>
 
     <!-- ===== Exit dialog ===== -->
-    <string name="exit_title">ВИЙТИ З FT8AF?</string>
+    <string name="exit_title">ВИЙТИ З SSTVAF?</string>
     <string name="exit_message">Ви впевнені, що хочете закрити застосунок? Будь-який активний QSO буде скасовано.</string>
 
     <!-- ===== Frequency picker ===== -->

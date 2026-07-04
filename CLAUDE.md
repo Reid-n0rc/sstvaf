@@ -152,21 +152,21 @@ its serial (from `adb devices`). If `adb` isn't on your PATH, it lives at
 ## Debug logs
 
 The app writes a structured event log to
-`/sdcard/Android/data/radio.ks3ckc.ft8af/files/debug.log` via `fileLog()` in
+`/sdcard/Android/data/radio.ks3ckc.sstvaf/files/debug.log` via `fileLog()` in
 `ComposeMainActivity.kt` — CAT serial sends/recvs, USB attach events,
 autoConnect attempts, band/frequency changes, etc. This is usually the most
 useful source. Pull it with:
 
 ```
-adb -s <phone-serial> pull /sdcard/Android/data/radio.ks3ckc.ft8af/files/debug.log /tmp/
+adb -s <phone-serial> pull /sdcard/Android/data/radio.ks3ckc.sstvaf/files/debug.log /tmp/
 ```
 
 For runtime detail not in `debug.log` (audio recording loop, system USB events,
 crashes), use `adb logcat`. Useful tags: `FT8SignalListener`, `MicRecorder`,
 `UsbAudioDevice`, `CableConnector`, `CableSerialPort`, `UsbHostManager`,
-`UsbAlsaManager`. The app's `applicationId` is `radio.ks3ckc.ft8af` (the same
+`UsbAlsaManager`. The app's `applicationId` is `radio.ks3ckc.sstvaf` (the same
 for every contributor — it's set in `ft8af/app/build.gradle`) — pid-filter with
-`adb -s <phone-serial> logcat --pid=$(adb -s <phone-serial> shell pidof radio.ks3ckc.ft8af)`
+`adb -s <phone-serial> logcat --pid=$(adb -s <phone-serial> shell pidof radio.ks3ckc.sstvaf)`
 when you only want app-internal lines.
 
 ## FT8 TX audio pipeline
