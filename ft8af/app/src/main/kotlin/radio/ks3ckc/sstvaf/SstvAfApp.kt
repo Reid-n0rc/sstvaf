@@ -47,6 +47,7 @@ import radio.ks3ckc.sstvaf.ui.gallery.GalleryScreen
 import radio.ks3ckc.sstvaf.ui.logbook.LogbookScreen
 import radio.ks3ckc.sstvaf.ui.rx.RxScreen
 import radio.ks3ckc.sstvaf.ui.settings.SettingsScreen
+import radio.ks3ckc.sstvaf.ui.tx.TxComposeScreen
 import radio.ks3ckc.sstvaf.ui.waterfall.WaterfallScreen
 
 /**
@@ -175,6 +176,7 @@ fun SstvAfApp(mainViewModel: MainViewModel) {
                         onViewInGallery = { activeTab = SstvTab.GALLERY },
                     )
                     SstvTab.GALLERY -> GalleryScreen(mainViewModel)
+                    SstvTab.TX -> TxComposeScreen(mainViewModel)
                     SstvTab.WATERFALL -> WaterfallScreen(mainViewModel)
                     SstvTab.LOG -> LogbookScreen(mainViewModel)
                     SstvTab.SETTINGS -> SettingsScreen(mainViewModel)
