@@ -32,6 +32,20 @@ class SettingsBackupTest {
     }
 
     @Test
+    fun `filterConfig redacts legacy QRZ keys left over from upgraded installs`() {
+        // The QRZ integration was removed, but old installs still have these rows
+        // in the config table; a default export must not leak them.
+        val legacyConfig = linkedMapOf(
+            "callsign" to "K1AF",
+            "qrzApiKey" to "legacy-api-key",
+            "qrzXmlUsername" to "legacy-user",
+            "qrzXmlPassword" to "legacy-pass",
+        )
+        val filtered = SettingsBackup.filterConfig(legacyConfig, includeSensitive = false)
+        assertThat(filtered.keys).containsExactly("callsign")
+    }
+
+    @Test
     fun `filterConfig keeps sensitive keys when opted in`() {
         val filtered = SettingsBackup.filterConfig(sampleConfig, includeSensitive = true)
         assertThat(filtered).containsKey("cloudlogApiKey")
