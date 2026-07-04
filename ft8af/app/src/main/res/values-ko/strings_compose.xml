@@ -37,9 +37,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">디코드</string>
-    <string name="tab_map">지도</string>
     <string name="tab_waterfall">워터폴</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">로그북</string>
     <string name="tab_settings">설정</string>
 
@@ -47,8 +45,6 @@
     <string name="status_new_dxcc">신규 DXCC</string>
     <string name="status_new_grid">신규 GRID</string>
     <string name="status_new_band">신규 BAND</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">신규 POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">필요</string>
     <string name="status_worked">교신함</string>
@@ -157,8 +153,6 @@
     <string name="decode_filter_for_me">나에게</string>
     <string name="decode_empty_cq_title">CQ 호출 없음</string>
     <string name="decode_empty_cq_body">지금 이 밴드에서 CQ를 호출하는 국이 없습니다.</string>
-    <string name="decode_empty_pota_title">POTA 스폿 없음</string>
-    <string name="decode_empty_pota_body">아직 이 밴드에서 디코드된 공원 운용이 없습니다 — 스폿 목록은 POTA → Hunt에서 확인하세요.</string>
     <string name="decode_empty_dxcc_title">신규 DXCC 없음</string>
     <string name="decode_empty_dxcc_body">아직 미교신 DXCC 엔티티가 디코드되지 않았습니다.</string>
     <string name="decode_empty_needed_title">필요한 항목 없음</string>
@@ -239,7 +233,6 @@
     <string name="log_sync_enable_services">설정에서 Cloudlog/Wavelog/Nextlog 또는 QRZ를 활성화한 후 다시 시도하세요.</string>
     <string name="log_sync_progress_count">%2$d개 중 %1$d개 QSO</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d개 수락됨</string>
-    <string name="log_sync_qrz_accepted">QRZ: %1$d개 수락됨</string>
     <string name="log_sync_nothing_to_upload">아직 업로드할 QSO가 로그북에 없습니다.</string>
     <string name="log_sync_working">처리 중…</string>
 
@@ -352,7 +345,6 @@
     <string name="settings_section_decode_highlights">디코드 강조</string>
     <string name="settings_section_callsign_blocklist">콜사인 차단 목록</string>
     <string name="settings_section_decode_filters">디코드 필터</string>
-    <string name="settings_section_needed_dx_alerts">필요 DX 알림</string>
     <string name="settings_section_logging_awards">로깅 &amp; 어워드</string>
     <string name="settings_section_advanced">고급</string>
     <string name="settings_section_about">정보</string>
@@ -423,8 +415,6 @@
     <string name="settings_highlight_new_grid_desc">아직 교신하지 않은 Maidenhead 그리드 강조</string>
     <string name="settings_highlight_new_band">신규 밴드</string>
     <string name="settings_highlight_new_band_desc">다른 밴드에서만 교신한 국 강조</string>
-    <string name="settings_highlight_pota">POTA 운용자</string>
-    <string name="settings_highlight_pota_desc">스폿된 POTA 운용자 강조; 신규 공원이 두드러짐</string>
     <string name="settings_highlight_worked">이전 교신</string>
     <string name="settings_highlight_worked_desc">이미 로그에 있는 국 표시</string>
     <string name="settings_distance_unit">거리를 마일로</string>
@@ -454,22 +444,12 @@
     <string name="settings_hide_directional_cq_desc">당신의 DXCC를 향하지 않는 지역 지정 CQ 숨기기</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">신규 DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">미교신 DXCC 엔티티가 CQ를 호출하면 소리 + 진동 + 알림</string>
-    <string name="settings_alert_new_state">신규 미국 주</string>
-    <string name="settings_alert_new_state_desc">미교신 미국 주의 국이 CQ를 호출하면 소리 + 진동 + 알림 (그리드로 주 판별)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">SWL 디코드 저장</string>
     <string name="settings_save_swl_decodes_desc">디코드된 모든 메시지를 데이터베이스에 기록</string>
     <string name="settings_save_swl_qsos">SWL QSO 저장</string>
     <string name="settings_save_swl_qsos_desc">다른 국 간에 감지된 QSO 기록</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">디코드된 스폿을 pskreporter.info에 업로드</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">QSO를 QRZ 로그북에 자동 업로드</string>
-    <string name="settings_qrz_profile_lookup">QRZ 프로필 조회</string>
-    <string name="settings_qrz_profile_lookup_desc">QRZ XML API용 사용자 이름 + 비밀번호 (아바타)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">QSO를 Cloudlog, Wavelog 또는 Nextlog 인스턴스에 자동 업로드</string>
 
@@ -528,7 +508,6 @@
     <string name="settings_enter_manually">직접 입력</string>
     <string name="settings_choose_from_server">서버에서 선택</string>
     <string name="settings_station_profile">스테이션 프로필</string>
-    <string name="settings_qrz_creds_desc">QRZ XML API를 통해 디코드된 콜사인의 프로필 사진을 가져오는 데 사용됩니다. QRZ XML 구독이 필요합니다.</string>
     <string name="settings_username">사용자 이름</string>
     <string name="settings_username_hint">당신의 QRZ.com 사용자 이름</string>
     <string name="settings_password">비밀번호</string>

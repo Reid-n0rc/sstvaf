@@ -26,9 +26,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">Décodage</string>
-    <string name="tab_map">Carte</string>
     <string name="tab_waterfall">Cascade</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">Journal</string>
     <string name="tab_settings">Réglages</string>
 
@@ -36,8 +34,6 @@
     <string name="status_new_dxcc">NOUVEAU DXCC</string>
     <string name="status_new_grid">NOUVELLE GRILLE</string>
     <string name="status_new_band">NOUVELLE BANDE</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">NOUVEAU POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">REQUIS</string>
     <string name="status_worked">CONTACTÉ</string>
@@ -115,8 +111,6 @@
     <string name="decode_filter_for_me">Pour moi</string>
     <string name="decode_empty_cq_title">Aucun appel CQ</string>
     <string name="decode_empty_cq_body">Aucune station n\'appelle CQ sur cette bande pour le moment.</string>
-    <string name="decode_empty_pota_title">Aucun spot POTA</string>
-    <string name="decode_empty_pota_body">Aucune activation de parc décodée sur cette bande pour l\'instant — ouvrez POTA → Chasse pour la liste des spots.</string>
     <string name="decode_empty_dxcc_title">Aucun nouveau DXCC</string>
     <string name="decode_empty_dxcc_body">Aucune entité DXCC non contactée n\'a encore été décodée.</string>
     <string name="decode_empty_needed_title">Rien de requis</string>
@@ -196,7 +190,6 @@
     <string name="log_sync_enable_services">Activez Cloudlog/Wavelog/Nextlog ou QRZ dans les Réglages, puis réessayez.</string>
     <string name="log_sync_progress_count">%1$d sur %2$d QSOs</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog : %1$d acceptés</string>
-    <string name="log_sync_qrz_accepted">QRZ : %1$d acceptés</string>
     <string name="log_sync_nothing_to_upload">Aucun QSO à envoyer dans le journal pour le moment.</string>
     <string name="log_sync_working">Traitement…</string>
 
@@ -287,7 +280,6 @@
     <string name="settings_section_decode_highlights">MISES EN ÉVIDENCE DE DÉCODAGE</string>
     <string name="settings_section_callsign_blocklist">LISTE DE BLOCAGE D\'INDICATIFS</string>
     <string name="settings_section_decode_filters">FILTRES DE DÉCODAGE</string>
-    <string name="settings_section_needed_dx_alerts">ALERTES DX REQUIS</string>
     <string name="settings_section_logging_awards">JOURNALISATION &amp; DIPLÔMES</string>
     <string name="settings_section_advanced">AVANCÉ</string>
     <string name="settings_section_about">À PROPOS</string>
@@ -346,8 +338,6 @@
     <string name="settings_highlight_new_grid_desc">Mettre en évidence les grilles Maidenhead pas encore contactées</string>
     <string name="settings_highlight_new_band">Nouvelle bande</string>
     <string name="settings_highlight_new_band_desc">Mettre en évidence les stations contactées uniquement sur d\'autres bandes</string>
-    <string name="settings_highlight_pota">Activateurs POTA</string>
-    <string name="settings_highlight_pota_desc">Mettre en évidence les activateurs POTA repérés ; les nouveaux parcs ressortent</string>
     <string name="settings_highlight_worked">Déjà contacté</string>
     <string name="settings_highlight_worked_desc">Marquer les stations déjà présentes dans votre journal</string>
     <string name="settings_distance_unit">Distance en miles</string>
@@ -377,22 +367,12 @@
     <string name="settings_hide_directional_cq_desc">Masquer les CQ dirigés vers une région qui ne ciblent pas votre DXCC</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">Nouveau DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">Son + vibration + notification lorsqu\'une entité DXCC non contactée lance un CQ</string>
-    <string name="settings_alert_new_state">Nouvel état US</string>
-    <string name="settings_alert_new_state_desc">Son + vibration + notification lorsqu\'une station d\'un état US non contacté lance un CQ (état déduit de la grille)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">Enregistrer les décodages SWL</string>
     <string name="settings_save_swl_decodes_desc">Journaliser tous les messages décodés dans la base de données</string>
     <string name="settings_save_swl_qsos">Enregistrer les QSOs SWL</string>
     <string name="settings_save_swl_qsos_desc">Journaliser les QSOs détectés entre d\'autres stations</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">Envoyer les spots décodés vers pskreporter.info</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">Envoyer automatiquement les QSOs vers le journal QRZ</string>
-    <string name="settings_qrz_profile_lookup">Recherche de profil QRZ</string>
-    <string name="settings_qrz_profile_lookup_desc">Nom d\'utilisateur + mot de passe pour l\'API XML QRZ (avatars)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">Envoyer automatiquement les QSOs vers une instance Cloudlog, Wavelog ou Nextlog</string>
 
@@ -450,7 +430,6 @@
     <string name="settings_enter_manually">Saisir manuellement</string>
     <string name="settings_choose_from_server">Choisir depuis le serveur</string>
     <string name="settings_station_profile">Profil de station</string>
-    <string name="settings_qrz_creds_desc">Utilisé pour récupérer les photos de profil des indicatifs décodés via l\'API XML QRZ. Nécessite un abonnement QRZ XML.</string>
     <string name="settings_username">Nom d\'utilisateur</string>
     <string name="settings_username_hint">Votre nom d\'utilisateur QRZ.com</string>
     <string name="settings_password">Mot de passe</string>

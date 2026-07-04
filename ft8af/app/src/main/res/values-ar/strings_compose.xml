@@ -37,9 +37,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">فك التشفير</string>
-    <string name="tab_map">الخريطة</string>
     <string name="tab_waterfall">الشلال</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">السجل</string>
     <string name="tab_settings">الإعدادات</string>
 
@@ -47,8 +45,6 @@
     <string name="status_new_dxcc">DXCC جديد</string>
     <string name="status_new_grid">مربع جديد</string>
     <string name="status_new_band">نطاق جديد</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">POTA جديد</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">مطلوب</string>
     <string name="status_worked">تم الاتصال</string>
@@ -157,8 +153,6 @@
     <string name="decode_filter_for_me">لي</string>
     <string name="decode_empty_cq_title">لا نداءات CQ</string>
     <string name="decode_empty_cq_body">لا توجد محطات تنادي CQ على هذا النطاق الآن.</string>
-    <string name="decode_empty_pota_title">لا رصدات POTA</string>
-    <string name="decode_empty_pota_body">لم تُفك أي تفعيلات حدائق على هذا النطاق بعد — افتح POTA → الصيد لقائمة الرصد.</string>
     <string name="decode_empty_dxcc_title">لا DXCC جديد</string>
     <string name="decode_empty_dxcc_body">لم تُفك أي كيانات DXCC لم يُتصل بها بعد.</string>
     <string name="decode_empty_needed_title">لا شيء مطلوب</string>
@@ -239,7 +233,6 @@
     <string name="log_sync_enable_services">فعِّل Cloudlog/Wavelog/Nextlog أو QRZ في الإعدادات، ثم أعد المحاولة.</string>
     <string name="log_sync_progress_count">%1$d من %2$d QSOs</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d مقبول</string>
-    <string name="log_sync_qrz_accepted">QRZ: %1$d مقبول</string>
     <string name="log_sync_nothing_to_upload">لا QSOs في السجل للرفع بعد.</string>
     <string name="log_sync_working">جارٍ العمل…</string>
 
@@ -352,7 +345,6 @@
     <string name="settings_section_decode_highlights">إبرازات فك التشفير</string>
     <string name="settings_section_callsign_blocklist">قائمة حظر النداءات</string>
     <string name="settings_section_decode_filters">مرشحات فك التشفير</string>
-    <string name="settings_section_needed_dx_alerts">تنبيهات DX المطلوبة</string>
     <string name="settings_section_logging_awards">التسجيل &amp; الجوائز</string>
     <string name="settings_section_advanced">متقدم</string>
     <string name="settings_section_about">حول</string>
@@ -423,8 +415,6 @@
     <string name="settings_highlight_new_grid_desc">إبراز مربعات Maidenhead التي لم يُتصل بها بعد</string>
     <string name="settings_highlight_new_band">نطاق جديد</string>
     <string name="settings_highlight_new_band_desc">إبراز المحطات التي اتُّصل بها على نطاقات أخرى فقط</string>
-    <string name="settings_highlight_pota">مفعِّلو POTA</string>
-    <string name="settings_highlight_pota_desc">إبراز مفعِّلي POTA المرصودين؛ تبرز الحدائق الجديدة</string>
     <string name="settings_highlight_worked">اتُّصل به سابقاً</string>
     <string name="settings_highlight_worked_desc">وسم المحطات الموجودة في سجلك بالفعل</string>
     <string name="settings_distance_unit">المسافة بالأميال</string>
@@ -454,22 +444,12 @@
     <string name="settings_hide_directional_cq_desc">إخفاء CQ الموجَّهة لمنطقة لا تستهدف DXCC الخاص بك</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">DXCC جديد</string>
-    <string name="settings_alert_new_dxcc_desc">صوت + اهتزاز + إشعار عند نداء كيان DXCC لم يُتصل به بـ CQ</string>
-    <string name="settings_alert_new_state">ولاية أمريكية جديدة</string>
-    <string name="settings_alert_new_state_desc">صوت + اهتزاز + إشعار عند نداء محطة من ولاية أمريكية لم يُتصل بها بـ CQ (الولاية من المربع)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">حفظ فك تشفير SWL</string>
     <string name="settings_save_swl_decodes_desc">تسجيل كل الرسائل المفكوكة في قاعدة البيانات</string>
     <string name="settings_save_swl_qsos">حفظ QSOs الخاصة بـ SWL</string>
     <string name="settings_save_swl_qsos_desc">تسجيل QSOs المرصودة بين محطات أخرى</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">رفع الرصدات المفكوكة إلى pskreporter.info</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">رفع QSOs تلقائياً إلى سجل QRZ</string>
-    <string name="settings_qrz_profile_lookup">بحث ملف QRZ الشخصي</string>
-    <string name="settings_qrz_profile_lookup_desc">اسم المستخدم + كلمة المرور لواجهة QRZ XML API (الصور الرمزية)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">رفع QSOs تلقائياً إلى نسخة Cloudlog أو Wavelog أو Nextlog</string>
 
@@ -528,7 +508,6 @@
     <string name="settings_enter_manually">إدخال يدوي</string>
     <string name="settings_choose_from_server">الاختيار من الخادم</string>
     <string name="settings_station_profile">ملف المحطة الشخصي</string>
-    <string name="settings_qrz_creds_desc">يُستخدم لجلب صور الملف الشخصي للنداءات المفكوكة عبر واجهة QRZ XML API. يتطلب اشتراك QRZ XML.</string>
     <string name="settings_username">اسم المستخدم</string>
     <string name="settings_username_hint">اسم مستخدم QRZ.com الخاص بك</string>
     <string name="settings_password">كلمة المرور</string>

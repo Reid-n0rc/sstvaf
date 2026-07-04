@@ -26,9 +26,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">Çözümle</string>
-    <string name="tab_map">Harita</string>
     <string name="tab_waterfall">Şelale</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">Günlük</string>
     <string name="tab_settings">Ayarlar</string>
 
@@ -36,8 +34,6 @@
     <string name="status_new_dxcc">YENİ DXCC</string>
     <string name="status_new_grid">YENİ GRID</string>
     <string name="status_new_band">YENİ BANT</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">YENİ POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">GEREKLİ</string>
     <string name="status_worked">YAPILDI</string>
@@ -146,8 +142,6 @@
     <string name="decode_filter_for_me">Bana</string>
     <string name="decode_empty_cq_title">CQ çağrısı yok</string>
     <string name="decode_empty_cq_body">Şu anda bu bantta CQ çağıran istasyon yok.</string>
-    <string name="decode_empty_pota_title">POTA spotu yok</string>
-    <string name="decode_empty_pota_body">Bu bantta henüz park aktivasyonu çözümlenmedi — spot listesi için POTA → Av\'ı açın.</string>
     <string name="decode_empty_dxcc_title">Yeni DXCC yok</string>
     <string name="decode_empty_dxcc_body">Henüz çözümlenmiş, daha önce yapılmamış DXCC bölgesi yok.</string>
     <string name="decode_empty_needed_title">Gerekli bir şey yok</string>
@@ -228,7 +222,6 @@
     <string name="log_sync_enable_services">Ayarlar\'da Cloudlog/Wavelog/Nextlog veya QRZ\'yi etkinleştirip yeniden deneyin.</string>
     <string name="log_sync_progress_count">%2$d QSO\'dan %1$d</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d kabul edildi</string>
-    <string name="log_sync_qrz_accepted">QRZ: %1$d kabul edildi</string>
     <string name="log_sync_nothing_to_upload">Günlükte henüz yüklenecek QSO yok.</string>
     <string name="log_sync_working">İşleniyor…</string>
 
@@ -341,7 +334,6 @@
     <string name="settings_section_decode_highlights">ÇÖZÜMLEME VURGULARI</string>
     <string name="settings_section_callsign_blocklist">ÇAĞRI İŞARETİ ENGEL LİSTESİ</string>
     <string name="settings_section_decode_filters">ÇÖZÜMLEME FİLTRELERİ</string>
-    <string name="settings_section_needed_dx_alerts">GEREKLİ-DX UYARILARI</string>
     <string name="settings_section_logging_awards">GÜNLÜK &amp; ÖDÜLLER</string>
     <string name="settings_section_advanced">GELİŞMİŞ</string>
     <string name="settings_section_about">HAKKINDA</string>
@@ -412,8 +404,6 @@
     <string name="settings_highlight_new_grid_desc">Henüz yapılmamış Maidenhead grid\'lerini vurgula</string>
     <string name="settings_highlight_new_band">Yeni Bant</string>
     <string name="settings_highlight_new_band_desc">Yalnızca diğer bantlarda yapılmış istasyonları vurgula</string>
-    <string name="settings_highlight_pota">POTA Aktivatörleri</string>
-    <string name="settings_highlight_pota_desc">Spotlanan POTA aktivatörlerini vurgula; yeni parklar öne çıkar</string>
     <string name="settings_highlight_worked">Daha Önce Yapıldı</string>
     <string name="settings_highlight_worked_desc">Günlüğünüzde zaten olan istasyonları işaretle</string>
     <string name="settings_distance_unit">Mesafe Mil Olarak</string>
@@ -443,22 +433,12 @@
     <string name="settings_hide_directional_cq_desc">DXCC\'nizi hedeflemeyen bölgesel CQ\'ları gizle</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">Yeni DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">Yapılmamış bir DXCC bölgesi CQ çağırdığında ses + titreşim + bildirim</string>
-    <string name="settings_alert_new_state">Yeni ABD Eyaleti</string>
-    <string name="settings_alert_new_state_desc">Yapılmamış bir ABD eyaletinden istasyon CQ çağırdığında ses + titreşim + bildirim (eyalet grid\'den)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">SWL Çözümlemelerini Kaydet</string>
     <string name="settings_save_swl_decodes_desc">Çözümlenen tüm mesajları veritabanına kaydet</string>
     <string name="settings_save_swl_qsos">SWL QSO\'larını Kaydet</string>
     <string name="settings_save_swl_qsos_desc">Diğer istasyonlar arasında algılanan QSO\'ları kaydet</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">Çözümlenen spotları pskreporter.info\'ya yükle</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">QSO\'ları QRZ Günlüğü\'ne otomatik yükle</string>
-    <string name="settings_qrz_profile_lookup">QRZ Profil Sorgulama</string>
-    <string name="settings_qrz_profile_lookup_desc">QRZ XML API için kullanıcı adı + parola (avatarlar)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">QSO\'ları bir Cloudlog, Wavelog veya Nextlog örneğine otomatik yükle</string>
 
@@ -517,7 +497,6 @@
     <string name="settings_enter_manually">Elle gir</string>
     <string name="settings_choose_from_server">Sunucudan seç</string>
     <string name="settings_station_profile">İstasyon Profili</string>
-    <string name="settings_qrz_creds_desc">QRZ XML API üzerinden çözümlenen çağrı işaretleri için profil fotoğrafı almakta kullanılır. QRZ XML aboneliği gerektirir.</string>
     <string name="settings_username">Kullanıcı Adı</string>
     <string name="settings_username_hint">QRZ.com kullanıcı adınız</string>
     <string name="settings_password">Parola</string>

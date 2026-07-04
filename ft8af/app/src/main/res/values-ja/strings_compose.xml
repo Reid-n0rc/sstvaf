@@ -26,9 +26,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">デコード</string>
-    <string name="tab_map">マップ</string>
     <string name="tab_waterfall">ウォーターフォール</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">ログブック</string>
     <string name="tab_settings">設定</string>
 
@@ -36,8 +34,6 @@
     <string name="status_new_dxcc">新規 DXCC</string>
     <string name="status_new_grid">新規グリッド</string>
     <string name="status_new_band">新規バンド</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">新規 POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">未交信</string>
     <string name="status_worked">交信済</string>
@@ -115,8 +111,6 @@
     <string name="decode_filter_for_me">自分宛て</string>
     <string name="decode_empty_cq_title">CQ コールなし</string>
     <string name="decode_empty_cq_body">現在このバンドで CQ を出している局はありません。</string>
-    <string name="decode_empty_pota_title">POTA スポットなし</string>
-    <string name="decode_empty_pota_body">このバンドではまだ公園アクティベーションがデコードされていません — POTA → ハント でスポット一覧を表示してください。</string>
     <string name="decode_empty_dxcc_title">新規 DXCC なし</string>
     <string name="decode_empty_dxcc_body">未交信の DXCC エンティティはまだデコードされていません。</string>
     <string name="decode_empty_needed_title">必要な局なし</string>
@@ -196,7 +190,6 @@
     <string name="log_sync_enable_services">設定で Cloudlog/Wavelog/Nextlog または QRZ を有効にして、もう一度お試しください。</string>
     <string name="log_sync_progress_count">%2$d 件中 %1$d 件の QSO</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d 件受理</string>
-    <string name="log_sync_qrz_accepted">QRZ: %1$d 件受理</string>
     <string name="log_sync_nothing_to_upload">アップロードする QSO がログブックにまだありません。</string>
     <string name="log_sync_working">処理中…</string>
 
@@ -287,7 +280,6 @@
     <string name="settings_section_decode_highlights">デコードハイライト</string>
     <string name="settings_section_callsign_blocklist">コールサインブロックリスト</string>
     <string name="settings_section_decode_filters">デコードフィルター</string>
-    <string name="settings_section_needed_dx_alerts">未交信 DX アラート</string>
     <string name="settings_section_logging_awards">ログ &amp; アワード</string>
     <string name="settings_section_advanced">詳細設定</string>
     <string name="settings_section_about">情報</string>
@@ -346,8 +338,6 @@
     <string name="settings_highlight_new_grid_desc">まだ交信していない Maidenhead グリッドをハイライトします</string>
     <string name="settings_highlight_new_band">新規バンド</string>
     <string name="settings_highlight_new_band_desc">他のバンドでのみ交信した局をハイライトします</string>
-    <string name="settings_highlight_pota">POTA アクティベーター</string>
-    <string name="settings_highlight_pota_desc">スポットされた POTA アクティベーターをハイライト。新規公園を目立たせます</string>
     <string name="settings_highlight_worked">交信済</string>
     <string name="settings_highlight_worked_desc">すでにログにある局にタグを付けます</string>
     <string name="settings_distance_unit">マイル表示</string>
@@ -377,22 +367,12 @@
     <string name="settings_hide_directional_cq_desc">自分の DXCC を対象としない地域指向の CQ を非表示にします</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">新規 DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">未交信の DXCC エンティティが CQ を出したら音 + 振動 + 通知</string>
-    <string name="settings_alert_new_state">新規 US 州</string>
-    <string name="settings_alert_new_state_desc">未交信の US 州の局が CQ を出したら音 + 振動 + 通知 (州はグリッドから判定)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">SWL デコードを保存</string>
     <string name="settings_save_swl_decodes_desc">デコードしたすべてのメッセージをデータベースに記録します</string>
     <string name="settings_save_swl_qsos">SWL QSO を保存</string>
     <string name="settings_save_swl_qsos_desc">他局間で検出された QSO を記録します</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">デコードしたスポットを pskreporter.info にアップロードします</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">QSO を QRZ ログブックに自動アップロードします</string>
-    <string name="settings_qrz_profile_lookup">QRZ プロフィール検索</string>
-    <string name="settings_qrz_profile_lookup_desc">QRZ XML API 用のユーザー名 + パスワード (アバター)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">QSO を Cloudlog、Wavelog、または Nextlog のインスタンスに自動アップロードします</string>
 
@@ -450,7 +430,6 @@
     <string name="settings_enter_manually">手動入力</string>
     <string name="settings_choose_from_server">サーバーから選択</string>
     <string name="settings_station_profile">局プロフィール</string>
-    <string name="settings_qrz_creds_desc">QRZ XML API 経由でデコードしたコールサインのプロフィール写真を取得するために使用します。QRZ XML サブスクリプションが必要です。</string>
     <string name="settings_username">ユーザー名</string>
     <string name="settings_username_hint">あなたの QRZ.com ユーザー名</string>
     <string name="settings_password">パスワード</string>

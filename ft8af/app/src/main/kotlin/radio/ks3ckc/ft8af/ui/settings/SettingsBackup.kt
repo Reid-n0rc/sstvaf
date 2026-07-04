@@ -29,6 +29,12 @@ object SettingsBackup {
         "cloudlogApiKey",
         "icomUserName",
         "icomPassword",
+        // Legacy keys from the removed QRZ integration. The app no longer writes
+        // them, but upgraded installs still carry the rows in the config table,
+        // and the export serializes that table verbatim — keep redacting them.
+        "qrzApiKey",
+        "qrzXmlUsername",
+        "qrzXmlPassword",
     )
 
     /** Metadata + config restored from a backup file. */

@@ -26,9 +26,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">Декод</string>
-    <string name="tab_map">Карта</string>
     <string name="tab_waterfall">Водопад</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">Журнал</string>
     <string name="tab_settings">Настройки</string>
 
@@ -36,8 +34,6 @@
     <string name="status_new_dxcc">НОВЫЙ DXCC</string>
     <string name="status_new_grid">НОВЫЙ QTH</string>
     <string name="status_new_band">НОВЫЙ ДИАПАЗОН</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">НОВЫЙ POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">НУЖЕН</string>
     <string name="status_worked">ПРОВЕДЁН</string>
@@ -115,8 +111,6 @@
     <string name="decode_filter_for_me">Для меня</string>
     <string name="decode_empty_cq_title">Нет вызовов CQ</string>
     <string name="decode_empty_cq_body">Сейчас никто не даёт CQ на этом диапазоне.</string>
-    <string name="decode_empty_pota_title">Нет спотов POTA</string>
-    <string name="decode_empty_pota_body">На этом диапазоне пока не декодировано активаций парков — откройте POTA → Охота для списка спотов.</string>
     <string name="decode_empty_dxcc_title">Нет новых DXCC</string>
     <string name="decode_empty_dxcc_body">Непроведённые DXCC-территории пока не декодированы.</string>
     <string name="decode_empty_needed_title">Ничего не нужно</string>
@@ -196,7 +190,6 @@
     <string name="log_sync_enable_services">Включите Cloudlog/Wavelog/Nextlog или QRZ в настройках и повторите.</string>
     <string name="log_sync_progress_count">%1$d из %2$d QSOs</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: принято %1$d</string>
-    <string name="log_sync_qrz_accepted">QRZ: принято %1$d</string>
     <string name="log_sync_nothing_to_upload">В журнале пока нет QSOs для загрузки.</string>
     <string name="log_sync_working">Работа…</string>
 
@@ -287,7 +280,6 @@
     <string name="settings_section_decode_highlights">ПОДСВЕТКА ДЕКОДОВ</string>
     <string name="settings_section_callsign_blocklist">ЧЁРНЫЙ СПИСОК ПОЗЫВНЫХ</string>
     <string name="settings_section_decode_filters">ФИЛЬТРЫ ДЕКОДОВ</string>
-    <string name="settings_section_needed_dx_alerts">ОПОВЕЩЕНИЯ О НУЖНЫХ DX</string>
     <string name="settings_section_logging_awards">ЖУРНАЛ И ДИПЛОМЫ</string>
     <string name="settings_section_advanced">ДОПОЛНИТЕЛЬНО</string>
     <string name="settings_section_about">О ПРИЛОЖЕНИИ</string>
@@ -346,8 +338,6 @@
     <string name="settings_highlight_new_grid_desc">Подсвечивать ещё не проведённые квадраты Maidenhead</string>
     <string name="settings_highlight_new_band">Новый диапазон</string>
     <string name="settings_highlight_new_band_desc">Подсвечивать станции, проведённые только на других диапазонах</string>
-    <string name="settings_highlight_pota">Активаторы POTA</string>
-    <string name="settings_highlight_pota_desc">Подсвечивать заспоченных активаторов POTA; новые парки выделяются</string>
     <string name="settings_highlight_worked">Уже проведён</string>
     <string name="settings_highlight_worked_desc">Отмечать станции, уже имеющиеся в журнале</string>
     <string name="settings_distance_unit">Расстояние в милях</string>
@@ -377,22 +367,12 @@
     <string name="settings_hide_directional_cq_desc">Скрывать региональные CQ, не нацеленные на ваш DXCC</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">Новый DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">Звук + вибрация + уведомление, когда непроведённая DXCC-территория даёт CQ</string>
-    <string name="settings_alert_new_state">Новый штат US</string>
-    <string name="settings_alert_new_state_desc">Звук + вибрация + уведомление, когда станция из непроведённого штата US даёт CQ (штат из QTH)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">Сохранять SWL-декоды</string>
     <string name="settings_save_swl_decodes_desc">Записывать все декодированные сообщения в базу данных</string>
     <string name="settings_save_swl_qsos">Сохранять SWL QSOs</string>
     <string name="settings_save_swl_qsos_desc">Записывать QSO, обнаруженные между другими станциями</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">Загружать декодированные споты на pskreporter.info</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">Автозагрузка QSO в QRZ Logbook</string>
-    <string name="settings_qrz_profile_lookup">Поиск профиля QRZ</string>
-    <string name="settings_qrz_profile_lookup_desc">Имя пользователя + пароль для QRZ XML API (аватары)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">Автозагрузка QSO в экземпляр Cloudlog, Wavelog или Nextlog</string>
 
@@ -450,7 +430,6 @@
     <string name="settings_enter_manually">Ввести вручную</string>
     <string name="settings_choose_from_server">Выбрать с сервера</string>
     <string name="settings_station_profile">Профиль станции</string>
-    <string name="settings_qrz_creds_desc">Используется для получения фото профилей декодированных позывных через QRZ XML API. Требуется подписка QRZ XML.</string>
     <string name="settings_username">Имя пользователя</string>
     <string name="settings_username_hint">Ваше имя пользователя QRZ.com</string>
     <string name="settings_password">Пароль</string>
