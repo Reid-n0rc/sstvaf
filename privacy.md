@@ -43,8 +43,8 @@ calculate distances to other stations.
 
 ### Data Shared with Third-Party Services
 
-If you choose to configure a logging integration, the app will transmit QSO
-data to the service you enable:
+If you choose to configure logging integrations, the app will transmit QSO
+data to the services you enable:
 
 - **Cloudlog / Wavelog / Nextlog** — self-hosted or cloud logging platforms
 
@@ -61,8 +61,8 @@ stored on external servers operated by SSTVAF.
 
 ## Data Sharing
 
-SSTVAF does not share your data with any party except the logging service
-listed above, and only when you explicitly configure it. Anything you transmit
+SSTVAF does not share your data with any party except the logging services
+listed above, and only when you explicitly configure them. Anything you transmit
 over amateur radio is, by the nature of the radio service, public.
 
 ## Children's Privacy

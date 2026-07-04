@@ -125,6 +125,21 @@ public class QSLRecordTest {
     }
 
     @Test
+    public void mapConstructor_nullSubmodeValue_keepsEmptyStringSemantics() {
+        // A map can contain the SUBMODE key with a null value (defensive: ADIF
+        // parsers can produce it); the field must stay "" — never null.
+        HashMap<String, String> map = new HashMap<>();
+        map.put("CALL", "W1AW");
+        map.put("MODE", "SSTV");
+        map.put("SUBMODE", null);
+
+        QSLRecord r = new QSLRecord(map);
+
+        assertThat(r.getSubmode()).isNotNull();
+        assertThat(r.getSubmode()).isEmpty();
+    }
+
+    @Test
     public void mapConstructor_qslAndPotaFields() {
         HashMap<String, String> map = new HashMap<>();
         map.put("CALL", "W1AW");

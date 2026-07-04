@@ -1446,6 +1446,18 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                                 , record.getTime_on()
                                 , record.getMode()});
             }
+            if (record.getSubmode() != null && !record.getSubmode().isEmpty()) {
+                //Backfill SUBMODE on re-import/catch-up sync: legacy rows
+                //upgraded from v19 to v20 carry NULL submode until a record
+                //with a value arrives. An empty incoming submode never
+                //clobbers an existing one (same pattern as the grid updates).
+                db.execSQL("UPDATE  QSLTable  SET submode=? " +
+                                " WHERE (call=?) and (qso_date=?) and(time_on=?) and(mode=?)"
+                        , new Object[]{record.getSubmode(), record.getToCallsign()
+                                , record.getQso_date()
+                                , record.getTime_on()
+                                , record.getMode()});
+            }
             if (record.getSendReport() > -100) {
                 db.execSQL("UPDATE  QSLTable  SET rst_sent=? " +
                                 " WHERE (call=?) and (qso_date=?) and(time_on=?) and(mode=?)"

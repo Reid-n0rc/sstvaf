@@ -142,7 +142,9 @@ public class QSLRecord {
             mode = "";
         }
         if (map.containsKey("SUBMODE")) {//Submode (e.g. SSTV "Scottie 1")
-            submode = map.get("SUBMODE");
+            // Through the setter: a key present with a null value must keep
+            // the field's empty-string semantics, never become null.
+            setSubmode(map.get("SUBMODE"));
         }
         if (map.containsKey("QSO_DATE")) {//QSO date
             qso_date = map.get("QSO_DATE");
