@@ -1,0 +1,41 @@
+name: Native SSTV tests
+
+# Gates on the clean-room SSTV codec host tests (cpp/sstv_lib +
+# cpp/sstvaf_glue/test_sstv_*.c): mode-table/golden-waveform vectors, VIS
+# detection, encode->decode round trips, slant correction, and the Robot 36
+# chroma-parity suite. The build is host-only C11 (seconds), so it runs on
+# every PR to dev/staging/main without a path filter — keeping it a reliable
+# required status check (a path-filtered check that doesn't run would leave
+# branch protection stuck "pending").
+#
+# The check name (= job display name) was "FT8 encode/hash golden vectors"
+# until the SSTVAF release-polish PR. The branch-protection API reported no
+# protected branches at the time of the rename, so nothing depended on the
+# old name; if branch protection is (re)enabled, require the check name
+# "SSTV codec host tests". The job *id* stays `golden-encode` so workflow
+# history and any `jobs.<id>` references remain stable.
+
+on:
+  pull_request:
+    branches: [main, staging, dev]
+  push:
+    branches: [main, staging, dev]
+
+# A new push to the same PR/branch cancels the prior in-flight run.
+concurrency:
+  group: native-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  golden-encode:
+    name: SSTV codec host tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show clang version
+        run: clang --version
+
+      - name: Build & run SSTV host test suites
+        run: bash ft8af/app/src/main/cpp/sstvaf_glue/run_sstv_host_tests.sh

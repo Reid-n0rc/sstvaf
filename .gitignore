@@ -1,0 +1,11 @@
+# Per-contributor Claude Code notes (machine paths, device serials) - see CLAUDE.md
+CLAUDE.local.md
+
+# macOS
+.DS_Store
+
+# iCloud placeholder files
+*.icloud
+
+# Claude Code session state
+.claude/scheduled_tasks.lock
