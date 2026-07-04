@@ -135,12 +135,6 @@ public class MyCallingFragment extends Fragment {
                 mainViewModel.ft8TransmitSignal.transmitNow();
                 break;
 
-            case 5://QRZ for "to"
-                showQrzFragment(ft8Message.getCallsignTo());
-                break;
-            case 6://QRZ for "from"
-                showQrzFragment(ft8Message.getCallsignFrom());
-                break;
             case 7://View "to" log
                 navigateToLogFragment(ft8Message.getCallsignTo());
                 break;
@@ -162,18 +156,6 @@ public class MyCallingFragment extends Fragment {
         NavController navController = Navigation.findNavController(requireActivity()
                 , R.id.fragmentContainerView);
         navController.navigate(R.id.action_menu_nav_mycalling_to_menu_nav_history);//Navigate to log
-    }
-    /**
-     * Query QRZ information
-     *
-     * @param callsign callsign
-     */
-    private void showQrzFragment(String callsign) {
-        NavHostFragment navHostFragment = (NavHostFragment) requireActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
-        assert navHostFragment != null;//Assert not null
-        Bundle bundle = new Bundle();
-        bundle.putString(QRZ_Fragment.CALLSIGN_PARAM, callsign);
-        navHostFragment.getNavController().navigate(R.id.QRZ_Fragment, bundle);
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -27,11 +27,14 @@ object SettingsBackup {
      */
     val SENSITIVE_KEYS: Set<String> = setOf(
         "cloudlogApiKey",
+        "icomUserName",
+        "icomPassword",
+        // Legacy keys from the removed QRZ integration. The app no longer writes
+        // them, but upgraded installs still carry the rows in the config table,
+        // and the export serializes that table verbatim — keep redacting them.
         "qrzApiKey",
         "qrzXmlUsername",
         "qrzXmlPassword",
-        "icomUserName",
-        "icomPassword",
     )
 
     /** Metadata + config restored from a backup file. */

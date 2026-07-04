@@ -64,7 +64,7 @@ internal class QsoSyncGate(private val minIntervalMs: Long = 15_000L) {
  * the manual Sync button.
  *
  * Thin Android wrapper: all the start/skip decisions live in the testable [QsoSyncGate].
- * Scoped to QRZ + Cloudlog (the services with per-QSO sync flags). POTA is excluded.
+ * Scoped to Cloudlog (the service with per-QSO sync flags).
  */
 class QsoAutoSync(private val appContext: Context) {
 
@@ -126,7 +126,7 @@ class QsoAutoSync(private val appContext: Context) {
         // which would otherwise wedge the gate open or shut. (Only used for the
         // interval; the gate compares deltas, never wall-clock dates.)
         val now = SystemClock.elapsedRealtime()
-        val anyEnabled = GeneralVariables.enableCloudlog || GeneralVariables.enableQRZ
+        val anyEnabled = GeneralVariables.enableCloudlog
         if (!gate.tryStart(now, anyEnabled)) {
             log("skip ($reason): enabled=$anyEnabled")
             return
@@ -149,7 +149,7 @@ class QsoAutoSync(private val appContext: Context) {
                 }
                 log("start ($reason): $pending pending")
                 val result = ThirdPartyService.syncAllQSOs(db, null)
-                log("done ($reason): cloudlog=${result.cloudlogOk} qrz=${result.qrzOk} of ${result.total}")
+                log("done ($reason): cloudlog=${result.cloudlogOk} of ${result.total}")
             } catch (e: Exception) {
                 log("error ($reason): ${e.javaClass.simpleName} ${e.message}")
             } finally {

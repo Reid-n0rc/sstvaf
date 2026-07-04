@@ -37,9 +37,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">Dekódování</string>
-    <string name="tab_map">Mapa</string>
     <string name="tab_waterfall">Vodopád</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">Deník</string>
     <string name="tab_settings">Nastavení</string>
 
@@ -47,8 +45,6 @@
     <string name="status_new_dxcc">NOVÉ DXCC</string>
     <string name="status_new_grid">NOVÝ LOKÁTOR</string>
     <string name="status_new_band">NOVÉ PÁSMO</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">NOVÉ POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">POTŘEBA</string>
     <string name="status_worked">SPOJENO</string>
@@ -157,8 +153,6 @@
     <string name="decode_filter_for_me">Pro mě</string>
     <string name="decode_empty_cq_title">Žádná volání CQ</string>
     <string name="decode_empty_cq_body">Na tomto pásmu právě nikdo nevolá CQ.</string>
-    <string name="decode_empty_pota_title">Žádné spoty POTA</string>
-    <string name="decode_empty_pota_body">Na tomto pásmu zatím nebyly dekódovány žádné aktivace parků — otevřete POTA → Lov pro seznam spotů.</string>
     <string name="decode_empty_dxcc_title">Žádné nové DXCC</string>
     <string name="decode_empty_dxcc_body">Zatím nebyly dekódovány žádné nespojené entity DXCC.</string>
     <string name="decode_empty_needed_title">Nic není potřeba</string>
@@ -239,7 +233,6 @@
     <string name="log_sync_enable_services">Povolte Cloudlog/Wavelog/Nextlog nebo QRZ v Nastavení a zkuste to znovu.</string>
     <string name="log_sync_progress_count">%1$d z %2$d QSOs</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d přijato</string>
-    <string name="log_sync_qrz_accepted">QRZ: %1$d přijato</string>
     <string name="log_sync_nothing_to_upload">V deníku zatím nejsou žádná QSOs k nahrání.</string>
     <string name="log_sync_working">Pracuji…</string>
 
@@ -352,7 +345,6 @@
     <string name="settings_section_decode_highlights">ZVÝRAZNĚNÍ DEKÓDŮ</string>
     <string name="settings_section_callsign_blocklist">SEZNAM BLOKOVANÝCH ZNAČEK</string>
     <string name="settings_section_decode_filters">FILTRY DEKÓDŮ</string>
-    <string name="settings_section_needed_dx_alerts">UPOZORNĚNÍ POTŘEBNÉ DX</string>
     <string name="settings_section_logging_awards">LOGOVÁNÍ &amp; DIPLOMY</string>
     <string name="settings_section_advanced">POKROČILÉ</string>
     <string name="settings_section_about">O APLIKACI</string>
@@ -423,8 +415,6 @@
     <string name="settings_highlight_new_grid_desc">Zvýraznit dosud nespojené lokátory Maidenhead</string>
     <string name="settings_highlight_new_band">Nové pásmo</string>
     <string name="settings_highlight_new_band_desc">Zvýraznit stanice spojené jen na jiných pásmech</string>
-    <string name="settings_highlight_pota">Aktivátoři POTA</string>
-    <string name="settings_highlight_pota_desc">Zvýraznit spotované aktivátory POTA; nové parky vyniknou</string>
     <string name="settings_highlight_worked">Dříve spojeno</string>
     <string name="settings_highlight_worked_desc">Označit stanice již ve vašem deníku</string>
     <string name="settings_distance_unit">Vzdálenost v mílích</string>
@@ -454,22 +444,12 @@
     <string name="settings_hide_directional_cq_desc">Skrýt regionálně mířená CQ, která necílí na vaše DXCC</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">Nové DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">Zvuk + vibrace + upozornění, když nespojená entita DXCC volá CQ</string>
-    <string name="settings_alert_new_state">Nový stát USA</string>
-    <string name="settings_alert_new_state_desc">Zvuk + vibrace + upozornění, když stanice z nespojeného státu USA volá CQ (stát z lokátoru)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">Ukládat SWL dekódy</string>
     <string name="settings_save_swl_decodes_desc">Zaznamenávat všechny dekódované zprávy do databáze</string>
     <string name="settings_save_swl_qsos">Ukládat SWL QSOs</string>
     <string name="settings_save_swl_qsos_desc">Zaznamenávat QSOs zjištěná mezi jinými stanicemi</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">Nahrávat dekódované spoty na pskreporter.info</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">Automaticky nahrávat QSOs do QRZ Logbook</string>
-    <string name="settings_qrz_profile_lookup">Vyhledávání profilů QRZ</string>
-    <string name="settings_qrz_profile_lookup_desc">Uživatelské jméno + heslo pro QRZ XML API (avatary)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">Automaticky nahrávat QSOs do instance Cloudlog, Wavelog nebo Nextlog</string>
 
@@ -528,7 +508,6 @@
     <string name="settings_enter_manually">Zadat ručně</string>
     <string name="settings_choose_from_server">Vybrat ze serveru</string>
     <string name="settings_station_profile">Profil stanice</string>
-    <string name="settings_qrz_creds_desc">Slouží k načtení profilových fotek pro dekódované volací značky přes QRZ XML API. Vyžaduje předplatné QRZ XML.</string>
     <string name="settings_username">Uživatelské jméno</string>
     <string name="settings_username_hint">Vaše uživatelské jméno QRZ.com</string>
     <string name="settings_password">Heslo</string>

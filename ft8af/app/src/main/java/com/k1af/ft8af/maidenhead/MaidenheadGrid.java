@@ -12,7 +12,7 @@ import android.location.LocationManager;
 
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.R;
-import com.google.android.gms.maps.model.LatLng;
+import com.k1af.ft8af.maidenhead.LatLng;
 
 import java.util.List;
 

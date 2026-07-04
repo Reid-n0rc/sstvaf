@@ -13,26 +13,23 @@ import org.robolectric.RobolectricTestRunner
  * Coverage for [ThirdPartyService.countUnsyncedQSOs] — the gate the auto-sync uses to
  * decide whether anything is actually pending before spawning an upload pass. It must
  * agree with the WHERE clause [ThirdPartyService.syncAllQSOs] uses, keyed off the
- * per-service enable flags. Drives a real (Robolectric) in-memory SQLite database.
+ * Cloudlog enable flag. Drives a real (Robolectric) in-memory SQLite database.
  */
 @RunWith(RobolectricTestRunner::class)
 class ThirdPartyServiceUnsyncedCountTest {
 
     private lateinit var db: SQLiteDatabase
     private var savedCloudlog = false
-    private var savedQrz = false
 
     @Before
     fun setUp() {
         savedCloudlog = GeneralVariables.enableCloudlog
-        savedQrz = GeneralVariables.enableQRZ
         db = SQLiteDatabase.create(null)
         db.execSQL(
             """
             CREATE TABLE QSLTable (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                synced_cloudlog INTEGER DEFAULT 0,
-                synced_qrz INTEGER DEFAULT 0
+                synced_cloudlog INTEGER DEFAULT 0
             )
             """.trimIndent(),
         )
@@ -42,21 +39,19 @@ class ThirdPartyServiceUnsyncedCountTest {
     fun tearDown() {
         db.close()
         GeneralVariables.enableCloudlog = savedCloudlog
-        GeneralVariables.enableQRZ = savedQrz
     }
 
-    private fun insert(cloudlog: Int, qrz: Int) {
+    private fun insert(cloudlog: Int) {
         db.execSQL(
-            "INSERT INTO QSLTable (synced_cloudlog, synced_qrz) VALUES (?, ?)",
-            arrayOf<Any>(cloudlog, qrz),
+            "INSERT INTO QSLTable (synced_cloudlog) VALUES (?)",
+            arrayOf<Any>(cloudlog),
         )
     }
 
     @Test
-    fun zero_whenNoServiceEnabled() {
+    fun zero_whenCloudlogDisabled() {
         GeneralVariables.enableCloudlog = false
-        GeneralVariables.enableQRZ = false
-        insert(cloudlog = 0, qrz = 0) // pending for both, but nothing is enabled
+        insert(cloudlog = 0) // pending, but the service is disabled
         assertThat(ThirdPartyService.countUnsyncedQSOs(db)).isEqualTo(0)
     }
 
@@ -67,32 +62,11 @@ class ThirdPartyServiceUnsyncedCountTest {
     }
 
     @Test
-    fun countsCloudlogPending_whenOnlyCloudlogEnabled() {
+    fun countsOnlyPendingRows_whenCloudlogEnabled() {
         GeneralVariables.enableCloudlog = true
-        GeneralVariables.enableQRZ = false
-        insert(cloudlog = 0, qrz = 0) // needs cloudlog
-        insert(cloudlog = 1, qrz = 0) // cloudlog done -> not counted (qrz disabled)
-        insert(cloudlog = 0, qrz = 1) // needs cloudlog
+        insert(cloudlog = 0) // needs cloudlog -> counted
+        insert(cloudlog = 1) // already synced -> not counted
+        insert(cloudlog = 0) // needs cloudlog -> counted
         assertThat(ThirdPartyService.countUnsyncedQSOs(db)).isEqualTo(2)
-    }
-
-    @Test
-    fun countsQrzPending_whenOnlyQrzEnabled() {
-        GeneralVariables.enableCloudlog = false
-        GeneralVariables.enableQRZ = true
-        insert(cloudlog = 0, qrz = 0) // needs qrz
-        insert(cloudlog = 0, qrz = 1) // qrz done -> not counted
-        assertThat(ThirdPartyService.countUnsyncedQSOs(db)).isEqualTo(1)
-    }
-
-    @Test
-    fun countsEitherPending_whenBothEnabled() {
-        GeneralVariables.enableCloudlog = true
-        GeneralVariables.enableQRZ = true
-        insert(cloudlog = 1, qrz = 1) // fully synced -> not counted
-        insert(cloudlog = 0, qrz = 1) // needs cloudlog -> counted
-        insert(cloudlog = 1, qrz = 0) // needs qrz -> counted
-        insert(cloudlog = 0, qrz = 0) // needs both -> counted once
-        assertThat(ThirdPartyService.countUnsyncedQSOs(db)).isEqualTo(3)
     }
 }

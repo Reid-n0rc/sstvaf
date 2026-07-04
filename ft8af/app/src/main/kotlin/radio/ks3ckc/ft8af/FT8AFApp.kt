@@ -58,8 +58,6 @@ import radio.ks3ckc.ft8af.ui.components.TxStrip
 import radio.ks3ckc.ft8af.ui.components.selectBandIndex
 import radio.ks3ckc.ft8af.ui.decode.DecodeScreen
 import radio.ks3ckc.ft8af.ui.logbook.LogbookScreen
-import radio.ks3ckc.ft8af.ui.map.MapScreen
-import radio.ks3ckc.ft8af.ui.pota.PotaScreen
 import radio.ks3ckc.ft8af.ui.settings.SettingsScreen
 import radio.ks3ckc.ft8af.ui.waterfall.WaterfallBottomStripHeight
 import radio.ks3ckc.ft8af.ui.waterfall.WaterfallScreen
@@ -71,8 +69,8 @@ import radio.ks3ckc.ft8af.ui.waterfall.WaterfallScreen
  * The Waterfall tab overlays it: docking the panel shrinks the content area,
  * and resizing the waterfall's AndroidView rescales it and wipes its
  * accumulated history (see WaterfallView.onSizeChanged). Floating keeps the
- * waterfall at a constant height. List-style screens (decode, log, settings,
- * POTA, map) dock it, where pushing their content up is harmless.
+ * waterfall at a constant height. List-style screens (decode, log, settings)
+ * dock it, where pushing their content up is harmless.
  */
 internal fun qsoPanelOverlaysContent(tab: FT8AFTab): Boolean = tab == FT8AFTab.WATERFALL
 
@@ -160,15 +158,6 @@ fun FT8AFApp(mainViewModel: MainViewModel) {
 
     // Frequency picker sheet state
     var showFrequencyPicker by rememberSaveable { mutableStateOf(false) }
-
-    // A tapped Needed-DX notification asks us to jump to the Decode tab (DecodeScreen
-    // then scrolls to + highlights the alerted station).
-    val preselectCallsign by mainViewModel.mutablePreselectCallsign.observeAsState()
-    LaunchedEffect(preselectCallsign) {
-        if (!preselectCallsign.isNullOrBlank()) {
-            activeTab = FT8AFTab.DECODE
-        }
-    }
 
     // Wait for config (callsign, autoFollowCQ, etc.) to finish loading from
     // the database before arming Hunt. LaunchedEffect(Unit) would race with
@@ -311,9 +300,7 @@ fun FT8AFApp(mainViewModel: MainViewModel) {
             ) {
                 when (activeTab) {
                     FT8AFTab.DECODE -> DecodeScreen(mainViewModel)
-                    FT8AFTab.MAP -> MapScreen(mainViewModel)
                     FT8AFTab.WATERFALL -> WaterfallScreen(mainViewModel)
-                    FT8AFTab.POTA -> PotaScreen(mainViewModel)
                     FT8AFTab.LOG -> LogbookScreen(mainViewModel)
                     FT8AFTab.SETTINGS -> SettingsScreen(mainViewModel)
                 }

@@ -63,8 +63,6 @@ import radio.ks3ckc.ft8af.ui.components.FT8AFIcons
 import radio.ks3ckc.ft8af.ui.components.GlassCard
 import radio.ks3ckc.ft8af.ui.components.QsoStatus
 import radio.ks3ckc.ft8af.ui.components.StatusPill
-import radio.ks3ckc.ft8af.ui.map.UsStateOutlines
-import radio.ks3ckc.ft8af.ui.map.WorldOutlines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -257,9 +255,8 @@ private fun StationHeader(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Callsign avatar circle (QRZ profile image with initials fallback)
-        QrzAvatar(
-            callsign = callsign,
+        // Callsign avatar circle (initials)
+        CallsignAvatar(
             size = 48.dp,
             fallbackText = callsign.take(2),
         )

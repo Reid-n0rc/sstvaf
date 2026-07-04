@@ -56,7 +56,6 @@ import com.k1af.ft8af.database.OperationBand;
 import com.k1af.ft8af.databinding.MainActivityBinding;
 import com.k1af.ft8af.floatview.FloatView;
 import com.k1af.ft8af.floatview.FloatViewButton;
-import com.k1af.ft8af.grid_tracker.GridTrackerMainActivity;
 import com.k1af.ft8af.log.ImportSharedLogs;
 import com.k1af.ft8af.log.OnShareLogEvents;
 import com.k1af.ft8af.maidenhead.MaidenheadGrid;
@@ -428,17 +427,6 @@ public class MainActivity extends AppCompatActivity {
                         new SetVolumeDialog(binding.container.getContext(), mainViewModel).show();
                     }
                 });
-        //open grid tracker
-        floatView.addButton(R.id.grid_tracker, "grid_tracker", R.drawable.ic_baseline_grid_tracker_24
-                , new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(getApplicationContext(), GridTrackerMainActivity.class);
-                        startActivity(intent);
-                    }
-                });
-
-
 //        floatView.addButton(R.id.flex_radio, "flex_radio", R.drawable.flex_icon
 //                , new View.OnClickListener() {
 //                    @Override

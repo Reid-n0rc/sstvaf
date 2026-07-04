@@ -18,16 +18,9 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-enum ServiceType{
-    Cloudlog,
-    QRZ
-}
 
 public class ThirdPartyService {
     public static String TAG = "ThirdPartyService";
@@ -95,7 +88,7 @@ public class ThirdPartyService {
         return stations;
     }
 
-    private static String QSLRecordToADIF(QSLRecord qslRecord, ServiceType serv){
+    private static String QSLRecordToADIF(QSLRecord qslRecord){
         StringBuilder logStr = new StringBuilder();
         logStr.append(AdifFormat.callField(qslRecord.getToCallsign()));
 
@@ -147,12 +140,8 @@ public class ThirdPartyService {
         }
 
         if (String.valueOf(qslRecord.getBandFreq()) != null) {
-            String freq = "";
             Log.d(TAG,String.valueOf(qslRecord.getBandFreq()));
-            if (serv == ServiceType.Cloudlog || serv == ServiceType.QRZ){
-                double i = (double)qslRecord.getBandFreq() / 1000000;
-                freq = String.valueOf(i);
-            }
+            String freq = String.valueOf((double) qslRecord.getBandFreq() / 1000000);
 
             logStr.append(String.format("<freq:%d>%s "
                     , freq.length()
@@ -182,7 +171,7 @@ public class ThirdPartyService {
     }
     public static boolean UploadToCloudLog(QSLRecord qslRecord){
         // Convert to ADIF format
-        String logStr = QSLRecordToADIF(qslRecord,ServiceType.Cloudlog);
+        String logStr = QSLRecordToADIF(qslRecord);
         return uploadAdifToCloudlog(logStr);
     }
 
@@ -239,130 +228,48 @@ public class ThirdPartyService {
         }
     }
 
-    public static boolean CheckQRZConnection(){
-        String apiKey = GeneralVariables.getQrzApiKey();
-        try{
-            // POST so the API key is in the body rather than the URL, where it could leak
-            // via proxies, server access logs, or our own logcat.
-            String body = "KEY=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8.name())
-                    + "&ACTION=STATUS";
-            String result = sendPostFormRequest("https://logbook.qrz.com/api", body);
-            if (result == null) {
-                Log.d(TAG, "QRZ connection failed: no response");
-                return false;
-            }
-            String qrzResult = parseQrzResult(result);
-            Log.d(TAG, "QRZ status RESULT=" + qrzResult);
-            return "OK".equals(qrzResult);
-        }catch (Exception e){
-            Log.d(TAG, "QRZ status error: " + e.getClass().getSimpleName());
-            return false;
-        }
-    }
-
-    public static boolean UploadToQRZ(QSLRecord qslRecord){
-        // Convert to ADIF format
-        String logStr = QSLRecordToADIF(qslRecord, ServiceType.QRZ);
-        return uploadAdifToQrz(logStr);
-    }
-
-    /**
-     * Posts a single ADIF record to QRZ. Returns true if QRZ returned RESULT=OK or
-     * RESULT=REPLACE (the latter means the QSO already existed and was updated —
-     * still a success from a "the record is now on QRZ" standpoint).
-     */
-    public static boolean uploadAdifToQrz(String adif) {
-        String apikey = GeneralVariables.getQrzApiKey();
-        if (apikey == null || apikey.isEmpty()) return false;
-        try {
-            // POST keeps both the API key and the ADIF payload out of the URL.
-            String body = "KEY=" + URLEncoder.encode(apikey, StandardCharsets.UTF_8.name())
-                    + "&ACTION=INSERT"
-                    + "&ADIF=" + URLEncoder.encode(adif, StandardCharsets.UTF_8.name());
-            String result = sendPostFormRequest("https://logbook.qrz.com/api", body);
-            Log.d(TAG, "QRZ upload " + (result != null ? "succeeded" : "failed"));
-            if (result == null) return false;
-            // QRZ encodes status as RESULT=OK|FAIL|REPLACE within an &-separated body
-            String qrzResult = parseQrzResult(result);
-            return "OK".equals(qrzResult) || "REPLACE".equals(qrzResult);
-        }catch (Exception k){
-            Log.d(TAG, "QRZ upload error: " + k.getClass().getSimpleName());
-            return false;
-        }
-    }
-
-    /**
-     * Extracts the {@code RESULT} value from a QRZ logbook API response. QRZ
-     * replies with an {@code &}-separated body of {@code KEY=VALUE} pairs (e.g.
-     * {@code RESULT=OK&COUNT=1...}); this returns the value of the {@code RESULT}
-     * field, or {@code null} if the response is null/empty or has no such field.
-     */
-    static String parseQrzResult(String response) {
-        if (response == null || response.isEmpty()) return null;
-        for (String s : response.split("&")) {
-            String[] split = s.split("=", 2);
-            if (split.length > 1 && "RESULT".equals(split[0])) {
-                return split[1];
-            }
-        }
-        return null;
-    }
-
     /**
      * Progress callback used during a batch re-upload.
      */
     public interface SyncProgress {
-        void onProgress(int done, int total, int cloudlogOk, int qrzOk);
+        void onProgress(int done, int total, int cloudlogOk);
     }
 
     public static class SyncResult {
         public final int total;
         public final int cloudlogOk;
-        public final int qrzOk;
         public final boolean cloudlogAttempted;
-        public final boolean qrzAttempted;
 
-        SyncResult(int total, int cloudlogOk, int qrzOk,
-                   boolean cloudlogAttempted, boolean qrzAttempted) {
+        SyncResult(int total, int cloudlogOk, boolean cloudlogAttempted) {
             this.total = total;
             this.cloudlogOk = cloudlogOk;
-            this.qrzOk = qrzOk;
             this.cloudlogAttempted = cloudlogAttempted;
-            this.qrzAttempted = qrzAttempted;
         }
     }
 
     /**
      * The {@code WHERE} clause (with a leading space) selecting QSLTable rows that
-     * still need an upload to at least one enabled service. Returns an empty string
-     * when neither service is enabled (caller should not query in that case). Single
-     * source of truth shared by {@link #syncAllQSOs} and {@link #countUnsyncedQSOs}.
+     * still need an upload to Cloudlog. Returns an empty string when the service is
+     * disabled (caller should not query in that case). Single source of truth shared
+     * by {@link #syncAllQSOs} and {@link #countUnsyncedQSOs}.
      */
-    private static String unsyncedFilter(boolean cloudlog, boolean qrz) {
-        if (cloudlog && qrz) {
-            return " where synced_cloudlog = 0 or synced_qrz = 0";
-        } else if (cloudlog) {
-            return " where synced_cloudlog = 0";
-        } else if (qrz) {
-            return " where synced_qrz = 0";
-        }
-        return "";
+    private static String unsyncedFilter(boolean cloudlog) {
+        return cloudlog ? " where synced_cloudlog = 0" : "";
     }
 
     /**
-     * Number of QSLTable rows still awaiting upload to an enabled service. Returns 0
-     * when neither Cloudlog nor QRZ is enabled (nothing to do). Lets the auto-sync
-     * skip spawning upload work when there's nothing pending. Uses the same filter as
-     * {@link #syncAllQSOs} so the count and the actual sync always agree.
+     * Number of QSLTable rows still awaiting upload to Cloudlog. Returns 0 when
+     * Cloudlog is disabled (nothing to do). Lets the auto-sync skip spawning upload
+     * work when there's nothing pending. Uses the same filter as {@link #syncAllQSOs}
+     * so the count and the actual sync always agree.
      */
     public static int countUnsyncedQSOs(SQLiteDatabase db) {
         boolean cl = GeneralVariables.enableCloudlog;
-        boolean qrz = GeneralVariables.enableQRZ;
-        if (db == null || (!cl && !qrz)) return 0;
+        if (db == null || !cl) return 0;
         Cursor cursor = null;
         try {
             cursor = db.rawQuery(
-                    "select count(*) from QSLTable" + unsyncedFilter(cl, qrz), null);
+                    "select count(*) from QSLTable" + unsyncedFilter(cl), null);
             if (cursor.moveToFirst()) {
                 return cursor.getInt(0);
             }
@@ -375,68 +282,57 @@ public class ThirdPartyService {
     }
 
     /**
-     * Re-upload every QSO in QSLTable to whichever third-party services the user has
-     * enabled. Services dedupe by callsign+date+time+mode so repeated calls are safe.
+     * Re-upload every QSO in QSLTable to Cloudlog if the user has it enabled.
+     * The service dedupes by callsign+date+time+mode so repeated calls are safe.
      *
      * Blocks the calling thread — invoke from a background thread/coroutine.
      */
     public static SyncResult syncAllQSOs(SQLiteDatabase db, SyncProgress progress) {
         boolean cl = GeneralVariables.enableCloudlog;
-        boolean qrz = GeneralVariables.enableQRZ;
         int total = 0;
         int cloudlogOk = 0;
-        int qrzOk = 0;
-        if (db == null || (!cl && !qrz)) {
-            return new SyncResult(0, 0, 0, cl, qrz);
+        if (db == null || !cl) {
+            return new SyncResult(0, 0, cl);
         }
         Cursor cursor = null;
         try {
-            // Skip rows already accepted by every enabled service. The user can still
-            // tell something happened via the dialog's row counts, and a re-press isn't
-            // wasted on already-confirmed records.
+            // Skip rows already accepted. The user can still tell something happened
+            // via the dialog's row counts, and a re-press isn't wasted on
+            // already-confirmed records.
             cursor = db.rawQuery(
-                    "select * from QSLTable" + unsyncedFilter(cl, qrz) + " order by id asc", null);
+                    "select * from QSLTable" + unsyncedFilter(cl) + " order by id asc", null);
             total = cursor.getCount();
-            if (progress != null) progress.onProgress(0, total, 0, 0);
+            if (progress != null) progress.onProgress(0, total, 0);
             int idCol = cursor.getColumnIndex("id");
             int syncedClCol = cursor.getColumnIndex("synced_cloudlog");
-            int syncedQrzCol = cursor.getColumnIndex("synced_qrz");
             int done = 0;
             while (cursor.moveToNext()) {
                 long rowId = idCol >= 0 ? cursor.getLong(idCol) : -1;
                 boolean alreadyCl = syncedClCol >= 0 && cursor.getInt(syncedClCol) == 1;
-                boolean alreadyQrz = syncedQrzCol >= 0 && cursor.getInt(syncedQrzCol) == 1;
-                if (cl && !alreadyCl) {
-                    String adif = buildAdifFromCursor(cursor, ServiceType.Cloudlog);
+                if (!alreadyCl) {
+                    String adif = buildAdifFromCursor(cursor);
                     if (uploadAdifToCloudlog(adif)) {
                         cloudlogOk++;
                         if (rowId >= 0) markRowSynced(db, rowId, "synced_cloudlog");
                     }
                 }
-                if (qrz && !alreadyQrz) {
-                    String adif = buildAdifFromCursor(cursor, ServiceType.QRZ);
-                    if (uploadAdifToQrz(adif)) {
-                        qrzOk++;
-                        if (rowId >= 0) markRowSynced(db, rowId, "synced_qrz");
-                    }
-                }
                 done++;
-                if (progress != null) progress.onProgress(done, total, cloudlogOk, qrzOk);
+                if (progress != null) progress.onProgress(done, total, cloudlogOk);
             }
         } catch (Exception e) {
             Log.e(TAG, "syncAllQSOs error: " + e.getClass().getSimpleName() + " " + e.getMessage());
         } finally {
             if (cursor != null) cursor.close();
         }
-        return new SyncResult(total, cloudlogOk, qrzOk, cl, qrz);
+        return new SyncResult(total, cloudlogOk, cl);
     }
 
     /**
      * Builds a single-record ADIF body from a QSLTable cursor row. Mirrors the field
-     * set produced by {@link #QSLRecordToADIF} so Cloudlog/QRZ see identical payloads
+     * set produced by {@link #QSLRecordToADIF} so Cloudlog sees identical payloads
      * to the immediate-after-QSO upload path.
      */
-    private static String buildAdifFromCursor(Cursor c, ServiceType serv) {
+    private static String buildAdifFromCursor(Cursor c) {
         StringBuilder s = new StringBuilder();
         appendAdif(s, "call", colStr(c, "call"));
         appendAdif(s, "gridsquare", colStr(c, "gridsquare"));
@@ -449,9 +345,9 @@ public class ThirdPartyService {
         appendAdif(s, "qso_date_off", colStr(c, "qso_date_off"));
         appendAdif(s, "time_off", colStr(c, "time_off"));
 
-        // QSLTable stores freq as a string; QSLRecordToADIF outputs MHz floats for
-        // both Cloudlog and QRZ. The DB column is already in MHz form (set by the
-        // ADIF export path) so we can pass it through verbatim.
+        // QSLTable stores freq as a string; QSLRecordToADIF outputs MHz floats.
+        // The DB column is already in MHz form (set by the ADIF export path) so we
+        // can pass it through verbatim.
         appendAdif(s, "freq", colStr(c, "freq"));
 
         appendAdif(s, "station_callsign", colStr(c, "station_callsign"));
@@ -489,17 +385,11 @@ public class ThirdPartyService {
      * carry the row id. Safe to call from a background thread.
      */
     public static void markQsoSynced(SQLiteDatabase db, QSLRecord r,
-                                     boolean cloudlogOk, boolean qrzOk) {
+                                     boolean cloudlogOk) {
         if (db == null || r == null) return;
-        if (!cloudlogOk && !qrzOk) return;
+        if (!cloudlogOk) return;
         try {
-            StringBuilder set = new StringBuilder();
-            if (cloudlogOk) set.append("synced_cloudlog = 1");
-            if (qrzOk) {
-                if (set.length() > 0) set.append(", ");
-                set.append("synced_qrz = 1");
-            }
-            db.execSQL("update QSLTable set " + set
+            db.execSQL("update QSLTable set synced_cloudlog = 1"
                             + " where [call] = ? and qso_date = ? and time_on = ? and mode = ?",
                     new Object[]{
                             r.getToCallsign(),
@@ -592,44 +482,6 @@ public class ThirdPartyService {
         Log.d(TAG, "POST " + url + " exceeded redirect limit");
         return null;
     }
-    public static String sendPostFormRequest(String url, String formBody) throws IOException {
-        HttpURLConnection conn = null;
-        BufferedReader reader = null;
-        try {
-            URL urlObj = new URL(url);
-            conn = (HttpURLConnection) urlObj.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setDoOutput(true);
-
-            OutputStream os = conn.getOutputStream();
-            os.write(formBody.getBytes(StandardCharsets.UTF_8));
-            os.flush();
-            os.close();
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK
-                    || responseCode == HttpURLConnection.HTTP_CREATED) {
-                reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),
-                        StandardCharsets.UTF_8));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                return response.toString();
-            }
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-            if (reader != null) {
-                reader.close();
-            }
-        }
-        return null;
-    }
-
     public static String sendGetRequest(String url) throws IOException {
         HttpURLConnection conn = null;
         BufferedReader reader = null;

@@ -22,7 +22,6 @@ import radio.ks3ckc.ft8af.ui.components.QsoStatus
 class QslDisplayFreshnessTest {
 
     private var savedCallsign: String? = null
-    private var savedHighlightPota = false
     private var savedHighlightNewDxcc = false
     private var savedHighlightNewGrid = false
     private var savedHighlightNewBand = false
@@ -32,7 +31,6 @@ class QslDisplayFreshnessTest {
     @Before
     fun setUp() {
         savedCallsign = GeneralVariables.myCallsign
-        savedHighlightPota = GeneralVariables.highlightPota
         savedHighlightNewDxcc = GeneralVariables.highlightNewDxcc
         savedHighlightNewGrid = GeneralVariables.highlightNewGrid
         savedHighlightNewBand = GeneralVariables.highlightNewBand
@@ -43,7 +41,6 @@ class QslDisplayFreshnessTest {
         GeneralVariables.QSL_Callsign_list.clear()
         // Disable all highlight toggles except "worked" so the when-chain
         // falls through to the WORKED branch we're testing.
-        GeneralVariables.highlightPota = false
         GeneralVariables.highlightNewDxcc = false
         GeneralVariables.highlightNewGrid = false
         GeneralVariables.highlightNewBand = false
@@ -53,7 +50,6 @@ class QslDisplayFreshnessTest {
     @After
     fun tearDown() {
         GeneralVariables.myCallsign = savedCallsign
-        GeneralVariables.highlightPota = savedHighlightPota
         GeneralVariables.highlightNewDxcc = savedHighlightNewDxcc
         GeneralVariables.highlightNewGrid = savedHighlightNewGrid
         GeneralVariables.highlightNewBand = savedHighlightNewBand

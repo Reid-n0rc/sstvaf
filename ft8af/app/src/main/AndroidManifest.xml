@@ -22,9 +22,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Observe connectivity so offline-logged QSOs auto-upload when the network returns. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- Needed-DX alerts: post notifications (Android 13+) and vibrate. -->
+    <!-- Foreground RX service notification (Android 13+). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Foreground RX service: keep FT8 decode + mic capture alive in the background
          (Android 14 mutes background mic without a microphone-typed foreground service). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -74,14 +73,6 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-
-        <activity
-            android:name=".FAQActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".grid_tracker.GridTrackerMainActivity"
-            android:exported="false" />
 
         <service
             android:name=".bluetooth.BluetoothSerialService"

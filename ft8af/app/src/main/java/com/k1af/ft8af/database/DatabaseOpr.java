@@ -100,9 +100,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
         //Create SWL-related tables
         createSWLTables(sqLiteDatabase);
 
-        //Create POTA activation history table
-        createPotaTables(sqLiteDatabase);
-
         //Create indexes
         createIndex(sqLiteDatabase);
 
@@ -127,9 +124,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
 
         //Create SWL-related tables
         createSWLTables(sqLiteDatabase);
-
-        //Create POTA activation history table
-        createPotaTables(sqLiteDatabase);
 
         //Create indexes
         createIndex(sqLiteDatabase);
@@ -470,22 +464,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
     }
 
 
-    /**
-     * Create POTA activation history table. Each row is one activation session
-     * (start to end) so users can re-export a single activation's ADIF later.
-     */
-    private void createPotaTables(SQLiteDatabase sqLiteDatabase) {
-        if (!checkTableExists(sqLiteDatabase, "pota_activation")) {
-            sqLiteDatabase.execSQL("CREATE TABLE pota_activation (\n" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
-                    "park_ref TEXT NOT NULL,\n" +
-                    "operator TEXT,\n" +
-                    "started_at INTEGER NOT NULL,\n" +//epoch millis
-                    "ended_at INTEGER,\n" +//null while in progress
-                    "qso_count INTEGER DEFAULT 0,\n" +
-                    "notes TEXT)");
-        }
-    }
 
     /**
      * Create indexes to improve import speed
@@ -1328,13 +1306,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
             }
             return false;
         }
-        // POTA: if an activation is running, stamp MY_SIG/MY_SIG_INFO; if the worked
-        // station is currently spotted on pota.app, stamp SIG/SIG_INFO too (P2P case).
-        // No-op when no activation/spot, so non-POTA contacts are unaffected.
-        radio.ks3ckc.ft8af.pota.PotaSessionManager.stampQso(
-                record,
-                radio.ks3ckc.ft8af.pota.PotaSpotsRepository.parkRefFor(record.getToCallsign()));
-
         String querySQL;
         if (!checkQSLCallsign(record)) {//If record doesn't exist, add it
             querySQL = "INSERT INTO  QslCallsigns (callsign" +
@@ -1408,12 +1379,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     , record.getMySigInfo()
                     , record.getSig()
                     , record.getSigInfo()});
-            // If this QSO was logged during an active POTA activation, bump its qso_count.
-            if (record.getMySigInfo() != null && !record.getMySigInfo().isEmpty()) {
-                db.execSQL("UPDATE pota_activation SET qso_count = qso_count + 1 "
-                        + "WHERE park_ref = ? AND ended_at IS NULL"
-                        , new Object[]{record.getMySigInfo()});
-            }
             if (afterInsertQSLData!=null){
                 afterInsertQSLData.doAfterInsert(false,true);//New QSL
             }
@@ -2099,7 +2064,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     ",q.qso_date as last_time ,q.mode ,q.isQSL,q.isLotW_QSL\n" +
                     ",max(" + normTimeOn + ") as last_time_on\n" +
                     ",max(q.synced_cloudlog) as synced_cloudlog\n" +
-                    ",max(q.synced_qrz) as synced_qrz\n" +
                     "from QSLTable q inner join QSLTable q2 ON q.id =q2.id \n" +
                     "where (q.[call] like ?)\n" +
                     filterStr +
@@ -2121,9 +2085,7 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     record.isQSL = cursor.getInt(cursor.getColumnIndex("isQSL")) == 1;
                     record.isLotW_QSL = cursor.getInt(cursor.getColumnIndex("isLotW_QSL")) == 1;
                     int idxCl = cursor.getColumnIndex("synced_cloudlog");
-                    int idxQrz = cursor.getColumnIndex("synced_qrz");
                     record.syncedCloudlog = idxCl >= 0 && cursor.getInt(idxCl) == 1;
-                    record.syncedQrz = idxQrz >= 0 && cursor.getInt(idxQrz) == 1;
                     record.setLastTime(cursor.getString(cursor.getColumnIndex("last_time")));
                     int idxTimeOn = cursor.getColumnIndex("last_time_on");
                     if (idxTimeOn >= 0) {
@@ -2206,25 +2168,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 cursor.close();
             }
             GeneralVariables.QSL_Grid_list = grids;
-
-            // Load distinct hunted POTA park refs (any band) into in-memory set.
-            // sig/sig_info may be absent on some upgraded installs (see note in
-            // onUpgrade), so guard the query defensively.
-            try {
-                Cursor potaCursor = db.rawQuery("select distinct upper(sig_info) as p from QSLTable" +
-                        " where sig='POTA' and sig_info is not null and sig_info<>''", null);
-                java.util.HashSet<String> parks = new java.util.HashSet<>();
-                while (potaCursor.moveToNext()) {
-                    String p = potaCursor.getString(0);
-                    if (p != null && !p.isEmpty()) {
-                        parks.add(p);
-                    }
-                }
-                potaCursor.close();
-                GeneralVariables.QSL_Pota_list = parks;
-            } catch (Exception ignored) {
-                GeneralVariables.QSL_Pota_list = new java.util.HashSet<>();
-            }
         }
 
     }
@@ -2657,18 +2600,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 if (name.equalsIgnoreCase("filterDirectionalCQ")) {//Directional CQ: hide from decode list
                     GeneralVariables.filterDirectionalCQ = result.equals("1");
                 }
-                if (name.equalsIgnoreCase("alertNewDxcc")) {//Needed-DX alert: new DXCC entity
-                    GeneralVariables.alertNewDxcc = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("alertNewState")) {//Needed-DX alert: new US state
-                    GeneralVariables.alertNewState = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("alertOnCqReply")) {//Alert when someone replies to my CQ
-                    GeneralVariables.alertOnCqReply = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("alertOnQsoComplete")) {//Alert when a QSO completes
-                    GeneralVariables.alertOnQsoComplete = result.equals("1");
-                }
                 if (name.equalsIgnoreCase("flexMaxRfPower")) {//Flex max RF power
                     GeneralVariables.flexMaxRfPower = result.equals("") ? 10 : Integer.parseInt(result);
                 }
@@ -2735,26 +2666,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     GeneralVariables.cloudlogStationID = result;
                 }
 
-                //QRZ
-                if (name.equalsIgnoreCase("enableQRZ")) {
-                    GeneralVariables.enableQRZ = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("qrzApiKey")) {
-                    GeneralVariables.qrzApiKey = result;
-                }
-                if (name.equalsIgnoreCase("enablePskReporter")) {
-                    GeneralVariables.enablePskReporter = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("qrzXmlUsername")) {
-                    GeneralVariables.qrzXmlUsername = result;
-                }
-                if (name.equalsIgnoreCase("qrzXmlPassword")) {
-                    GeneralVariables.qrzXmlPassword = result;
-                }
-                if (name.equalsIgnoreCase("pskOverlayEnabled")) {
-                    GeneralVariables.pskOverlayEnabled = result.equals("1");
-                }
-
                 if (name.equalsIgnoreCase("swrSwitch")) {
                     GeneralVariables.swr_switch_on = result.equals("1");
                 }
@@ -2792,9 +2703,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 }
                 if (name.equalsIgnoreCase("highlightWorked")) {
                     GeneralVariables.highlightWorked = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("highlightPota")) {
-                    GeneralVariables.highlightPota = result.equals("1");
                 }
 
                 if (name.equalsIgnoreCase("distanceInMiles")) {

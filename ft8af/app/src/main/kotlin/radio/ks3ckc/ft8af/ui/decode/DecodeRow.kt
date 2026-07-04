@@ -345,7 +345,7 @@ private fun MetaText(text: String) {
  * mid-QSO with someone else who isn't new in any dimension) — the caller
  * should skip rendering the pill in that case.
  *
- * Priority (highest first): calling me, POTA/SOTA activation, new DXCC,
+ * Priority (highest first): calling me, SOTA activation, new DXCC,
  * new grid, new band, plain CQ, already worked.
  */
 internal fun resolveQsoStatus(message: Ft8Message): QsoStatus? {
@@ -365,20 +365,10 @@ internal fun resolveQsoStatus(message: Ft8Message): QsoStatus? {
     val newBand = !isWorked &&
         GeneralVariables.checkQSLCallsign_OtherBand(message.callsignFrom ?: "")
 
-    // Spotted-on-pota.app activators frequently CQ without the "POTA" suffix
-    // because their full call already eats the budget. Treat them as POTA so
-    // hunters can recognise them at a glance. When we have the park ref and it's
-    // not in the hunted log, surface it as a distinct NEW POTA.
-    val parkRef = radio.ks3ckc.ft8af.pota.PotaSpotsRepository.parkRefFor(message.callsignFrom)
-    val isPota = isCQ && (modifier == "POTA" || parkRef != null)
-    val newPota = isPota && parkRef != null && !GeneralVariables.checkQSLPark(parkRef)
-
     // Each worked-before category is gated by a user toggle (Settings → Decode
     // Highlights). A disabled category falls through to the next in priority.
     return when {
         isToMe -> QsoStatus.PENDING
-        GeneralVariables.highlightPota && isPota ->
-            if (newPota) QsoStatus.NEW_POTA else QsoStatus.POTA
         isCQ && modifier == "SOTA" -> QsoStatus.SOTA
         GeneralVariables.highlightNewDxcc && message.fromDxcc -> QsoStatus.NEW
         GeneralVariables.highlightNewGrid && newGrid -> QsoStatus.NEW_GRID

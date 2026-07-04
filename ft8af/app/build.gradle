@@ -171,14 +171,11 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.navigation:navigation-fragment:2.5.3'
     implementation 'androidx.navigation:navigation-ui:2.5.3'
-    implementation 'com.google.android.gms:play-services-maps:18.1.0'
 
     implementation 'com.google.guava:guava:31.1-android'//Used for HashTable (multi-key HashMap)
 
     implementation files('src/libs/MPAndroidChartv_3.1.0.jar')
     implementation files('src/libs/commons-net-3.6.jar')////Used for time synchronization
-    implementation files('src/libs/nanohttpd-2.2.0.jar')
-    implementation files('src/libs/osmdroid-android-6.1.14.aar')//Map widget
 
     // Compose BOM
     def composeBom = platform('androidx.compose:compose-bom:2024.02.00')
@@ -195,18 +192,8 @@ dependencies {
     implementation 'androidx.compose.runtime:runtime-livedata'
     debugImplementation 'androidx.compose.ui:ui-tooling'
 
-    // Image loading for QRZ profile avatars
+    // Image loading (kept for the upcoming SSTV gallery)
     implementation 'io.coil-kt:coil-compose:2.6.0'
-
-    // AWS Cognito user-pool SRP login — used only to mint a pota.app ID token for
-    // in-app POTA log upload (POST api.pota.app/adif). POTA's user pool/client IDs
-    // are public (shipped in pota.app's JS). cognitoidentityprovider pulls in
-    // aws-android-sdk-core transitively; no other AWS modules are needed.
-    implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.76.0'
-
-    // Keystore-backed EncryptedSharedPreferences for the POTA refresh token —
-    // a long-lived credential that must not sit in plaintext app storage.
-    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
 
     // --- JVM unit + Robolectric tests ---
     testImplementation 'junit:junit:4.13.2'

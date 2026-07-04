@@ -178,17 +178,6 @@ public class LogCallsignAdapter extends RecyclerView.Adapter<LogCallsignAdapter.
             callsignQSOIsQSLextView=itemView.findViewById(R.id.callsignQSOIsQSLextView);
             isQSLModeDistTextView=itemView.findViewById(R.id.isQSLModeDistTextView);
             callsignDxccZoneTextView=itemView.findViewById(R.id.callsignDxccZoneTextView);
-
-            itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                @Override
-                public void onCreateContextMenu(ContextMenu contextMenu, View view
-                        , ContextMenu.ContextMenuInfo contextMenuInfo) {
-                    view.setTag(getAdapterPosition());
-                    contextMenu.add(0,2,0
-                            ,String.format(GeneralVariables.getStringFromResource(R.string.qsl_qrz_confirmation_s)
-                                    ,record.getCallsign())).setActionView(view);
-                }
-            });
         }
     }
 }

@@ -272,16 +272,13 @@ fun LogbookScreen(mainViewModel: MainViewModel) {
                         onClick = {
                             if (syncDialogState?.inProgress == true) return@IconButton
                             val cl = GeneralVariables.enableCloudlog
-                            val qrz = GeneralVariables.enableQRZ
-                            if (!cl && !qrz) {
+                            if (!cl) {
                                 syncDialogState = SyncDialogState(
                                     inProgress = false,
                                     done = 0,
                                     total = 0,
                                     cloudlogOk = 0,
-                                    qrzOk = 0,
                                     cloudlogAttempted = false,
-                                    qrzAttempted = false,
                                     finished = true,
                                     noServicesEnabled = true,
                                 )
@@ -292,9 +289,7 @@ fun LogbookScreen(mainViewModel: MainViewModel) {
                                 done = 0,
                                 total = 0,
                                 cloudlogOk = 0,
-                                qrzOk = 0,
                                 cloudlogAttempted = cl,
-                                qrzAttempted = qrz,
                                 finished = false,
                                 noServicesEnabled = false,
                             )
@@ -302,13 +297,12 @@ fun LogbookScreen(mainViewModel: MainViewModel) {
                                 val result = withContext(Dispatchers.IO) {
                                     val db = mainViewModel.databaseOpr?.db
                                         ?: return@withContext null
-                                    ThirdPartyService.syncAllQSOs(db) { done, total, ok1, ok2 ->
+                                    ThirdPartyService.syncAllQSOs(db) { done, total, ok ->
                                         // Marshal back to main thread for state update
                                         syncDialogState = syncDialogState?.copy(
                                             done = done,
                                             total = total,
-                                            cloudlogOk = ok1,
-                                            qrzOk = ok2,
+                                            cloudlogOk = ok,
                                         )
                                     }
                                 }
@@ -317,10 +311,9 @@ fun LogbookScreen(mainViewModel: MainViewModel) {
                                     finished = true,
                                     total = result?.total ?: 0,
                                     cloudlogOk = result?.cloudlogOk ?: 0,
-                                    qrzOk = result?.qrzOk ?: 0,
                                 )
                                 // Re-query QSLTable so the row chips pick up the
-                                // newly-set synced_cloudlog / synced_qrz flags.
+                                // newly-set synced_cloudlog flags.
                                 refreshKey++
                             }
                         },
@@ -434,9 +427,7 @@ private data class SyncDialogState(
     val done: Int,
     val total: Int,
     val cloudlogOk: Int,
-    val qrzOk: Int,
     val cloudlogAttempted: Boolean,
-    val qrzAttempted: Boolean,
     val finished: Boolean,
     val noServicesEnabled: Boolean,
 )
@@ -1269,7 +1260,6 @@ private fun QsoRow(
             // Sync-to-service indicator chips (independent of QSL state)
             SyncChips(
                 cloudlog = record.syncedCloudlog,
-                qrz = record.syncedQrz,
                 cloudlogLabel = cloudlogFamilyLabel(GeneralVariables.cloudlogServerAddress),
             )
 
@@ -1325,19 +1315,18 @@ private fun QsoRow(
 }
 
 // ---------------------------------------------------------------------------
-// Sync-to-service chips ("CL" for Cloudlog/Wavelog/Nextlog, "QRZ" for QRZ)
+// Sync-to-service chips ("CL" for Cloudlog/Wavelog/Nextlog)
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun SyncChips(cloudlog: Boolean, qrz: Boolean, cloudlogLabel: String) {
-    if (!cloudlog && !qrz) return
+private fun SyncChips(cloudlog: Boolean, cloudlogLabel: String) {
+    if (!cloudlog) return
     Row(
         modifier = Modifier.padding(start = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (cloudlog) SyncChip(label = cloudlogLabel)
-        if (qrz) SyncChip(label = "QRZ")
+        SyncChip(label = cloudlogLabel)
     }
 }
 
@@ -1844,14 +1833,6 @@ private fun CatchUpSyncDialog(
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = stringResource(R.string.log_sync_cloudlog_accepted, state.cloudlogOk),
-                        color = TextMuted,
-                        fontSize = 12.sp,
-                    )
-                }
-                if (state.qrzAttempted) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.log_sync_qrz_accepted, state.qrzOk),
                         color = TextMuted,
                         fontSize = 12.sp,
                     )

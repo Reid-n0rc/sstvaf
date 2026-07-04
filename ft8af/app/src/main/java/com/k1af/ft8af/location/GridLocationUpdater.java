@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.MainViewModel;
 import com.k1af.ft8af.maidenhead.MaidenheadGrid;
-import com.google.android.gms.maps.model.LatLng;
+import com.k1af.ft8af.maidenhead.LatLng;
 
 /**
  * Subscribes to system location updates while {@link GeneralVariables#autoUpdateGridFromGPS}

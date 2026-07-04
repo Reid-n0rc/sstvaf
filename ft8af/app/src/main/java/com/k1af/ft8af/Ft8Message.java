@@ -23,7 +23,7 @@ import com.k1af.ft8af.ft8transmit.TransmitCallsign;
 import com.k1af.ft8af.maidenhead.MaidenheadGrid;
 import com.k1af.ft8af.rigs.BaseRigOperation;
 import com.k1af.ft8af.timer.UtcTimer;
-import com.google.android.gms.maps.model.LatLng;
+import com.k1af.ft8af.maidenhead.LatLng;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

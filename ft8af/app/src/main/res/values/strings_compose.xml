@@ -38,9 +38,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">Decode</string>
-    <string name="tab_map">Map</string>
     <string name="tab_waterfall">Waterfall</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">Logbook</string>
     <string name="tab_settings">Settings</string>
 
@@ -48,8 +46,6 @@
     <string name="status_new_dxcc">NEW DXCC</string>
     <string name="status_new_grid">NEW GRID</string>
     <string name="status_new_band">NEW BAND</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">NEW POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">NEEDED</string>
     <string name="status_worked">WORKED</string>
@@ -161,8 +157,6 @@
     <string name="decode_filter_for_me">For Me</string>
     <string name="decode_empty_cq_title">No CQ calls</string>
     <string name="decode_empty_cq_body">No stations are calling CQ on this band right now.</string>
-    <string name="decode_empty_pota_title">No POTA spots</string>
-    <string name="decode_empty_pota_body">No park activations decoded on this band yet — open POTA → Hunt for the spot list.</string>
     <string name="decode_empty_dxcc_title">No new DXCC</string>
     <string name="decode_empty_dxcc_body">No unworked DXCC entities have been decoded yet.</string>
     <string name="decode_empty_needed_title">Nothing needed</string>
@@ -240,10 +234,9 @@
     <string name="log_sync_title_no_services">NO SERVICES ENABLED</string>
     <string name="log_sync_title_syncing">SYNCING…</string>
     <string name="log_sync_title_complete">SYNC COMPLETE</string>
-    <string name="log_sync_enable_services">Enable Cloudlog/Wavelog/Nextlog or QRZ in Settings, then try again.</string>
+    <string name="log_sync_enable_services">Enable Cloudlog/Wavelog/Nextlog in Settings, then try again.</string>
     <string name="log_sync_progress_count">%1$d of %2$d QSOs</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d accepted</string>
-    <string name="log_sync_qrz_accepted">QRZ: %1$d accepted</string>
     <string name="log_sync_nothing_to_upload">No QSOs in the logbook to upload yet.</string>
     <string name="log_sync_working">Working…</string>
 
@@ -373,7 +366,6 @@
     <string name="settings_section_decode_highlights">DECODE HIGHLIGHTS</string>
     <string name="settings_section_callsign_blocklist">CALLSIGN BLOCKLIST</string>
     <string name="settings_section_decode_filters">DECODE FILTERS</string>
-    <string name="settings_section_needed_dx_alerts">NEEDED-DX ALERTS</string>
     <string name="settings_section_logging_awards">LOGGING &amp; AWARDS</string>
     <string name="settings_section_advanced">ADVANCED</string>
     <string name="settings_section_about">ABOUT</string>
@@ -491,8 +483,6 @@
     <string name="settings_highlight_new_grid_desc">Highlight not-yet-worked Maidenhead grids</string>
     <string name="settings_highlight_new_band">New Band</string>
     <string name="settings_highlight_new_band_desc">Highlight stations worked only on other bands</string>
-    <string name="settings_highlight_pota">POTA Activators</string>
-    <string name="settings_highlight_pota_desc">Highlight spotted POTA activators; new parks stand out</string>
     <string name="settings_highlight_worked">Worked Before</string>
     <string name="settings_highlight_worked_desc">Tag stations already in your log</string>
     <string name="settings_distance_unit">Distance in Miles</string>
@@ -522,14 +512,6 @@
     <string name="settings_hide_directional_cq_desc">Hide region-directed CQs that don\'t target your DXCC</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">New DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">Sound + vibrate + notify when an unworked DXCC entity calls CQ</string>
-    <string name="settings_alert_new_state">New US State</string>
-    <string name="settings_alert_new_state_desc">Sound + vibrate + notify when a station from an unworked US state calls CQ (state from grid)</string>
-    <string name="settings_alert_cq_reply">CQ reply</string>
-    <string name="settings_alert_cq_reply_desc">Sound + vibrate + notify when a station calls you (any message addressed to your callsign)</string>
-    <string name="settings_alert_qso_complete">QSO complete</string>
-    <string name="settings_alert_qso_complete_desc">Sound + vibrate + notify when a QSO is logged</string>
     <string name="alert_cq_reply_title">Calling you: %1$s</string>
     <string name="alert_qso_complete_title">QSO complete</string>
     <string name="rx_service_channel_name">Background receiving</string>
@@ -542,15 +524,6 @@
     <string name="settings_save_swl_decodes_desc">Log all decoded messages to the database</string>
     <string name="settings_save_swl_qsos">Save SWL QSOs</string>
     <string name="settings_save_swl_qsos_desc">Log QSOs detected between other stations</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">Upload decoded spots to pskreporter.info</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">Auto-upload QSOs to QRZ Logbook (requires a Logbook API key)</string>
-    <string name="settings_qrz_logbook">QRZ Logbook</string>
-    <string name="settings_qrz_logbook_desc">Logbook API key from QRZ Logbook → Settings (not your account password).</string>
-    <string name="settings_qrz_api_key_hint">Your QRZ Logbook API key</string>
-    <string name="settings_qrz_profile_lookup">QRZ Profile Lookup</string>
-    <string name="settings_qrz_profile_lookup_desc">Username + password for QRZ XML API (avatars)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">Auto-upload QSOs to a Cloudlog, Wavelog, or Nextlog instance</string>
 
@@ -612,7 +585,6 @@
     <string name="settings_enter_manually">Enter manually</string>
     <string name="settings_choose_from_server">Choose from server</string>
     <string name="settings_station_profile">Station Profile</string>
-    <string name="settings_qrz_creds_desc">Used to fetch profile photos for decoded callsigns via the QRZ XML API. Requires a QRZ XML subscription.</string>
     <string name="settings_username">Username</string>
     <string name="settings_username_hint">Your QRZ.com username</string>
     <string name="settings_password">Password</string>

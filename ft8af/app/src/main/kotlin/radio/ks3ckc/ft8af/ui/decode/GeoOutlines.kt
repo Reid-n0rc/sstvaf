@@ -1,4 +1,4 @@
-package radio.ks3ckc.ft8af.ui.map
+package radio.ks3ckc.ft8af.ui.decode
 
 import android.content.Context
 import org.json.JSONArray

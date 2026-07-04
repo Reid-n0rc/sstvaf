@@ -20,7 +20,6 @@ public class QSLCallsignRecordTest {
         assertThat(r.isQSL).isFalse();
         assertThat(r.isLotW_QSL).isFalse();
         assertThat(r.syncedCloudlog).isFalse();
-        assertThat(r.syncedQrz).isFalse();
     }
 
     @Test
@@ -60,11 +59,11 @@ public class QSLCallsignRecordTest {
         QSLCallsignRecord r = new QSLCallsignRecord();
         r.id = 42;
         r.isQSL = true;
-        r.syncedQrz = true;
+        r.syncedCloudlog = true;
         r.dxccStr = "United States";
         assertThat(r.id).isEqualTo(42);
         assertThat(r.isQSL).isTrue();
-        assertThat(r.syncedQrz).isTrue();
+        assertThat(r.syncedCloudlog).isTrue();
         assertThat(r.dxccStr).isEqualTo("United States");
     }
 }

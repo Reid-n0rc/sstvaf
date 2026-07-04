@@ -16,7 +16,6 @@ import com.k1af.ft8af.connector.ConnectMode;
 import com.k1af.ft8af.database.ControlMode;
 import com.k1af.ft8af.database.DatabaseOpr;
 import com.k1af.ft8af.ft8transmit.QslRecordList;
-import com.k1af.ft8af.html.HtmlContext;
 import com.k1af.ft8af.rigs.BaseRigOperation;
 import com.k1af.ft8af.timer.UtcTimer;
 
@@ -40,8 +39,6 @@ public class GeneralVariables {
     public static boolean saveSWLMessage = false;//Save decoded messages switch
     public static boolean saveSWL_QSO = false;//Save QSOs from decoded messages switch
     public static boolean enableCloudlog = false;//Whether Cloudlog auto-sync is enabled
-    public static boolean enableQRZ = false;//Whether QRZ auto-sync is enabled
-    public static boolean enablePskReporter = true;//Whether PSKReporter spot upload is enabled
 
     public static boolean distanceInMiles = true;//Display distances in miles (true) or kilometers (false)
 
@@ -103,7 +100,7 @@ public class GeneralVariables {
     //Save TX output level per band (issue #355), defaults off (global level only).
     // volatile: written from DatabaseOpr's background config-load thread and the
     // Settings toggle, read from UI + MeterProtectionController threads (same
-    // convention as zoneMapReady/huntPotaOnly/perBandOutputLevels below).
+    // convention as zoneMapReady/perBandOutputLevels below).
     public static volatile boolean savePerBandOutputLevel = false;
     //Serialized band=level CSV ("20m=60,40m=85"); parsed/updated in PerBandOutputLevel.kt.
     public static volatile String perBandOutputLevels = "";
@@ -410,10 +407,6 @@ public class GeneralVariables {
     public static String cloudlogServerAddress = "";//Cloudlog server address
     public static String cloudlogApiKey = "";//Cloudlog API key
     public static String cloudlogStationID = "";//Cloudlog station ID
-    public static String qrzApiKey = ""; //QRZ API key
-    public static String qrzXmlUsername = ""; //QRZ XML API username (for callsign lookups)
-    public static String qrzXmlPassword = ""; //QRZ XML API password
-    public static boolean pskOverlayEnabled = false; //PSK Reporter map overlay (issue #33)
     public static boolean synFrequency = false;//Same-frequency transmit
     public static boolean holdTxFreq = false;//Hold TX freq: don't move the TX offset to a station you answer (WSJT-X "Hold Tx Freq")
     public static int transmitDelay = 500;//Transmit delay; also allows decoding time for the previous cycle
@@ -464,9 +457,6 @@ public class GeneralVariables {
 
     public static boolean autoFollowCQ = false;//Auto-follow CQ
     public static boolean huntCallsCQ = false;//Hunt+CQ hybrid: call CQ when idle, answer CQs when heard
-    // volatile: written from the Compose UI thread (DecodeScreen) and read from the
-    // transmit/decode processing thread (FT8TransmitSignal), like zoneMapReady above.
-    public static volatile boolean huntPotaOnly = false;//Mirror of the "CQ POTA" decode filter: Hunt only calls POTA CQs (issue #333)
     public static boolean autoCallFollow = true;//Auto-call followed callsigns
     public static boolean autoUpdateGridFromGPS = false;//Use device GPS to keep Maidenhead grid current
     public static boolean disciplineClockFromGPS = false;//Discipline the app clock (UtcTimer.delay) from GPS satellite time (issue #373). Off by default — consensual.
@@ -481,7 +471,6 @@ public class GeneralVariables {
     public static ArrayList<String> QSL_Callsign_list = new ArrayList<>();//Successfully QSL'd callsigns
     public static ArrayList<String> QSL_Callsign_list_other_band = new ArrayList<>();//Successfully QSL'd callsigns on other bands
     public static HashSet<String> QSL_Grid_list = new HashSet<>();//Distinct worked 4-char Maidenhead grids (any band)
-    public static HashSet<String> QSL_Pota_list = new HashSet<>();//Distinct hunted POTA park refs (UPPER), any band
 
     // Decode-list highlight toggles (Settings → Decode Highlights). Gate the
     // status pill shown for each worked-before category in resolveQsoStatus().
@@ -489,7 +478,6 @@ public class GeneralVariables {
     public static boolean highlightNewGrid = false;//Off by default — most grids are "new", so it's noisy
     public static boolean highlightNewBand = true;//Highlight stations worked only on other bands
     public static boolean highlightWorked = true;//Tag stations already worked
-    public static boolean highlightPota = true;//Highlight spotted POTA activators (new parks stand out)
 
     // Decode-list display filters (Settings → Decode Filters). Persistent
     // "show only" filters applied to the decode list in DecodeScreen.filterMessages().
@@ -515,21 +503,6 @@ public class GeneralVariables {
     //   - filterDirectionalCQ: hide those same CQs from the decode list.
     public static boolean respectDirectionalCQ = false;
     public static boolean filterDirectionalCQ = false;
-
-    // Needed-DX alerts (Settings → Needed-DX Alerts). Opt-in, default off. When enabled,
-    // a station calling CQ that is a NEW unworked entity/state triggers a sound + vibrate
-    // notification (DxAlertNotifier). Categories are independent.
-    //   - alertNewDxcc:  alert on a new (unworked) DXCC entity   (uses Ft8Message.fromDxcc)
-    //   - alertNewState: alert on a new (unworked) US state       (uses Ft8Message.fromNewState)
-    public static boolean alertNewDxcc = false;
-    public static boolean alertNewState = false;
-
-    // QSO & CQ alerts (Settings → Needed-DX Alerts). Opt-in, default off.
-    //   - alertOnCqReply:     notify when any decoded message is addressed to my callsign
-    //                         (someone calling me). Own-TX echoes are already filtered out.
-    //   - alertOnQsoComplete: notify when a QSO is logged (DxAlertNotifier.notifyQsoComplete).
-    public static boolean alertOnCqReply = false;
-    public static boolean alertOnQsoComplete = false;
 
     // Geographic continent-directed CQ tokens — matched against myContinent.
     private static final java.util.Set<String> CONTINENT_CODES =
@@ -633,11 +606,6 @@ public class GeneralVariables {
         return cloudlogApiKey;
     }
 
-    public static String getQrzApiKey() {
-        return qrzApiKey;
-    }
-
-
     @SuppressLint("DefaultLocale")
     public static String getBaseFrequencyStr() {
         return String.format("%.0f", baseFrequency);
@@ -682,14 +650,6 @@ public class GeneralVariables {
     public static boolean checkQSLGrid(String grid) {
         if (grid == null || grid.length() < 4) return false;
         return QSL_Grid_list.contains(grid.substring(0, 4).toUpperCase());
-    }
-
-    /**
-     * Check if a POTA park reference (e.g. "K-1234") has been previously hunted (any band).
-     */
-    public static boolean checkQSLPark(String ref) {
-        if (ref == null || ref.isEmpty()) return false;
-        return QSL_Pota_list.contains(ref.toUpperCase());
     }
 
     /**
@@ -1083,21 +1043,6 @@ public class GeneralVariables {
             db.getCallsignQTH(callsign);
             return "";
         }
-    }
-
-    /**
-     * Traverse the callsign-grid lookup table and generate HTML.
-     *
-     * @return HTML
-     */
-    public static String getCallsignAndGridToHTML() {
-        StringBuilder result = new StringBuilder();
-        int order = 0;
-        for (String key : callsignAndGrids.keySet()) {
-            order++;
-            HtmlContext.tableKeyRow(result, order % 2 != 0, key, callsignAndGrids.get(key));
-        }
-        return result.toString();
     }
 
     public static synchronized void deleteArrayListMore(ArrayList<Ft8Message> list) {
