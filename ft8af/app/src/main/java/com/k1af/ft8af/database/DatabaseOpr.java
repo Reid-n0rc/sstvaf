@@ -55,7 +55,7 @@ public class DatabaseOpr extends SQLiteOpenHelper {
 
     public static synchronized DatabaseOpr getInstance(@Nullable Context context, @Nullable String databaseName) {
         if (instance == null) {
-            instance = new DatabaseOpr(context, databaseName, null, 18);
+            instance = new DatabaseOpr(context, databaseName, null, 19);
         }
         return instance;
     }
@@ -97,6 +97,9 @@ public class DatabaseOpr extends SQLiteOpenHelper {
         //Create SWL-related tables
         createSWLTables(sqLiteDatabase);
 
+        //Create SSTV image metadata table (DB v19)
+        createSstvImagesTable(sqLiteDatabase);
+
         //Create indexes
         createIndex(sqLiteDatabase);
 
@@ -121,6 +124,9 @@ public class DatabaseOpr extends SQLiteOpenHelper {
 
         //Create SWL-related tables
         createSWLTables(sqLiteDatabase);
+
+        //Create SSTV image metadata table (v18 -> v19)
+        createSstvImagesTable(sqLiteDatabase);
 
         //Create indexes
         createIndex(sqLiteDatabase);
@@ -461,6 +467,29 @@ public class DatabaseOpr extends SQLiteOpenHelper {
     }
 
 
+
+    /**
+     * Create the SSTV image metadata table (DB v19, SSTVAF transformation PR 6).
+     * One row per saved image; the PNG itself lives in filesDir/sstv_images/.
+     * Follows the same idempotent create-if-missing pattern as the other
+     * tables so onCreate and onUpgrade share it.
+     */
+    private void createSstvImagesTable(SQLiteDatabase sqLiteDatabase) {
+        if (!checkTableExists(sqLiteDatabase, "sstv_images")) {
+            sqLiteDatabase.execSQL("CREATE TABLE sstv_images (\n" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                    "fileName TEXT,\n" +
+                    "direction TEXT,\n" +//RX or TX
+                    "mode TEXT,\n" +//SSTV mode display name, e.g. "Scottie 1"
+                    "freqHz INTEGER,\n" +//dial frequency at decode/transmit time
+                    "utcMillis INTEGER,\n" +//wall-clock UTC of completion
+                    "width INTEGER,\n" +
+                    "height INTEGER,\n" +
+                    "complete INTEGER,\n" +//1 = full decode, 0 = partial
+                    "quality REAL,\n" +
+                    "notes TEXT DEFAULT '')");
+        }
+    }
 
     /**
      * Create indexes to improve import speed
@@ -2331,6 +2360,9 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 if (name.equalsIgnoreCase("showTxVolumeSlider")) {//Inline TX volume slider visibility
                     GeneralVariables.showTxVolumeSlider = !result.equals("0");
                     GeneralVariables.mutableShowTxVolumeSlider.postValue(GeneralVariables.showTxVolumeSlider);
+                }
+                if (name.equalsIgnoreCase("saveRxToPhotos")) {//Also save received SSTV images to Photos (default on)
+                    GeneralVariables.saveRxToPhotos = !result.equals("0");
                 }
                 if (name.equalsIgnoreCase("perBandOutputLevel")) {//Save TX output level per band, defaults off
                     GeneralVariables.savePerBandOutputLevel = result.equals("1");

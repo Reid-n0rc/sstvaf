@@ -85,6 +85,12 @@ public class GeneralVariables {
     public static boolean showTxVolumeSlider = true;//Show inline TX volume slider on main screen
     public static MutableLiveData<Boolean> mutableShowTxVolumeSlider = new MutableLiveData<>(true);
 
+    //Also export completed received SSTV images to the system Photos app
+    //(MediaStore, Pictures/SSTVAF, API 29+ only). Config key "saveRxToPhotos".
+    // volatile: written from DatabaseOpr's background config-load thread and the
+    // Settings toggle, read from the image auto-save thread.
+    public static volatile boolean saveRxToPhotos = true;
+
     //Save TX output level per band (issue #355), defaults off (global level only).
     // volatile: written from DatabaseOpr's background config-load thread and the
     // Settings toggle, read from UI + MeterProtectionController threads (same
