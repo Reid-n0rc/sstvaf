@@ -54,6 +54,10 @@ class SstvSignalListener @JvmOverloads constructor(
 
     private var decodeThread: Thread? = null
 
+    /** The registered recorder tap; kept so [detachFromRecorder] can remove it. */
+    private var tapRecorder: HamRecorder? = null
+    private var tapMonitor: HamRecorder.VoiceDataMonitor? = null
+
     /** Set after a DONE/ABORTED so the post-reset IDLE doesn't clobber it. */
     private var holdTerminalState = false
     private var visLockLogged = false
@@ -70,6 +74,7 @@ class SstvSignalListener @JvmOverloads constructor(
     /** Stop the decode thread; the thread closes the session on its way out. */
     fun stop() {
         if (!running.compareAndSet(true, false)) return
+        detachFromRecorder()
         decodeThread?.interrupt()
         decodeThread = null
         queue.clear()
@@ -86,18 +91,33 @@ class SstvSignalListener @JvmOverloads constructor(
     /**
      * Register the persistent audio tap: a looping voice-data monitor that
      * forwards every [MONITOR_BUFFER_MS] chunk into the decode queue.
+     * Idempotent — re-attaching first removes the previous tap, so two
+     * monitors can never double-feed the queue.
      */
     fun attachToRecorder(recorder: HamRecorder) {
-        // getVoiceData no-ops (returns null) when the recorder isn't running;
-        // its VoiceDataMonitor return type is package-private, so check the
-        // running state up front instead of the return value.
         if (!recorder.isRunning) {
             log("SSTV RX: recorder not running; audio tap NOT attached")
             return
         }
-        recorder.getVoiceData(MONITOR_BUFFER_MS, false) { data ->
+        detachFromRecorder()
+        val monitor = recorder.getVoiceData(MONITOR_BUFFER_MS, false) { data ->
             onAudioBuffer(data, data.size)
         }
+        if (monitor == null) {
+            // Recorder stopped between the check above and registration.
+            log("SSTV RX: recorder stopped during attach; audio tap NOT attached")
+            return
+        }
+        tapRecorder = recorder
+        tapMonitor = monitor
+    }
+
+    /** Remove the audio tap from the recorder fan-out; no-op when detached. */
+    fun detachFromRecorder() {
+        val monitor = tapMonitor ?: return
+        tapRecorder?.deleteVoiceDataMonitor(monitor)
+        tapMonitor = null
+        tapRecorder = null
     }
 
     /**

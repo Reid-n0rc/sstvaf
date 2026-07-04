@@ -236,4 +236,47 @@ class SstvSignalListenerTest {
         val out = IntArray(10)
         assertThat(listener.readNewRows(0, 1, out)).isEqualTo(0)
     }
+
+    // -- recorder tap lifecycle --
+
+    /** A HamRecorder whose running flag is forced on, without real audio. */
+    private fun runningRecorder(): HamRecorder {
+        val recorder = HamRecorder(null)
+        HamRecorder::class.java.getDeclaredField("isRunning").apply {
+            isAccessible = true
+        }.setBoolean(recorder, true)
+        return recorder
+    }
+
+    @Test
+    fun attachIsIdempotentAndStopDetachesTheTap() {
+        val recorder = runningRecorder()
+        val listener = newListener()
+        listener.startDirect()
+
+        listener.attachToRecorder(recorder)
+        assertThat(recorder.voiceDataMonitors).hasSize(1)
+
+        // Re-attaching replaces the tap instead of stacking a second one
+        // (two taps would double-feed audio into the decode queue).
+        listener.attachToRecorder(recorder)
+        assertThat(recorder.voiceDataMonitors).hasSize(1)
+
+        // Stop unregisters, so a stopped listener costs the recorder nothing.
+        listener.stop()
+        assertThat(recorder.voiceDataMonitors).isEmpty()
+    }
+
+    @Test
+    fun attachWithoutRunningRecorderRegistersNothing() {
+        val recorder = HamRecorder(null) // isRunning stays false
+        val listener = newListener()
+        listener.startDirect()
+
+        listener.attachToRecorder(recorder)
+
+        assertThat(recorder.voiceDataMonitors).isEmpty()
+        assertThat(logs.any { it.contains("NOT attached") }).isTrue()
+        listener.stop()
+    }
 }

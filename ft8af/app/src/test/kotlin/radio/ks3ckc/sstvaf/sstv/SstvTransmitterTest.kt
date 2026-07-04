@@ -173,6 +173,73 @@ class SstvTransmitterTest {
     }
 
     @Test
+    fun cancelDuringEncodeNeverKeysTheRig() {
+        lateinit var tx: SstvTransmitter
+        val player = FakePlayer(events)
+        // The sink resets its own cancelled flag on play() entry, so a cancel
+        // landing while the waveform is still being generated must be caught
+        // by the transmitter's flag before keying.
+        val cancellingCodec = object : SstvCodec {
+            override fun encode(
+                pixels: IntArray,
+                width: Int,
+                height: Int,
+                mode: SstvMode,
+                sampleRate: Int,
+            ): FloatArray {
+                tx.cancel()
+                return codec.encode(pixels, width, height, mode, sampleRate)
+            }
+
+            override fun newDecoderSession(sampleRate: Int) = codec.newDecoderSession(sampleRate)
+        }
+        tx = SstvTransmitter(
+            cancellingCodec,
+            keyer,
+            player,
+            { false },
+            { 12000 },
+            { 0L },
+            { logs += it },
+            { 42L },
+            { body -> body.run() },
+        )
+
+        transmitRobot36(tx)
+
+        // The player's cancel bookkeeping fires, but the rig is never keyed
+        // and nothing plays.
+        assertThat(events.filter { it != "cancel" }).isEmpty()
+        assertThat(logs.any { it.contains("cancelled before keying") }).isTrue()
+        assertThat(tx.isTransmittingNow()).isFalse()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertThat(tx.txProgress.value).isEqualTo(0f)
+    }
+
+    @Test
+    fun cancelDuringPttSettleSkipsPlayButUnkeys() {
+        lateinit var tx: SstvTransmitter
+        val player = FakePlayer(events)
+        tx = SstvTransmitter(
+            codec,
+            keyer,
+            player,
+            { false },
+            { 12000 },
+            { tx.cancel(); 0L }, // cancel lands while PTT is settling
+            { logs += it },
+            { 42L },
+            { body -> body.run() },
+        )
+
+        transmitRobot36(tx)
+
+        assertThat(events).containsExactly("keyDown", "cancel", "keyUp").inOrder()
+        assertThat(logs.any { it.contains("cancelled during PTT settle") }).isTrue()
+        assertThat(tx.isTransmittingNow()).isFalse()
+    }
+
+    @Test
     fun cancelWithoutActiveTransmissionIsANoOp() {
         val player = FakePlayer(events)
         val tx = newTransmitter(player)

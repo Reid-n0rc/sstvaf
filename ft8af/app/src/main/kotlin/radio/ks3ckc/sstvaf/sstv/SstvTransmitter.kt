@@ -111,10 +111,23 @@ class SstvTransmitter @JvmOverloads constructor(
                     " samples=${audio.size} rate=$sampleRate durationMs=$durationMs",
             )
 
+            // A cancel that lands during encode would otherwise be lost: the
+            // sink clears its own cancelled flag on play() entry, so the
+            // transmitter must gate keying/playback on its own flag.
+            if (cancelled.get()) {
+                log("SSTV TX: cancelled before keying")
+                return
+            }
+
             keyer.keyDown()
             keyed = true
             val settleMs = settleDelayMsSource()
             if (settleMs > 0) Thread.sleep(settleMs)
+
+            if (cancelled.get()) {
+                log("SSTV TX: cancelled during PTT settle")
+                return
+            }
 
             val ticker = startProgressTicker(durationMs)
             try {
@@ -171,15 +184,25 @@ class SstvTransmitter @JvmOverloads constructor(
             start()
         }
 
-        /** Deterministic stop: no posts can land after this returns. */
+        /**
+         * Deterministic stop: no posts can land after this returns. The join
+         * is unbounded on purpose — the loop body cannot block (interruptible
+         * sleep + non-blocking postValue), so the join is bounded in practice
+         * by a single tick, and a timed join would silently void the
+         * no-post-after-return guarantee this class is documented to give.
+         */
         fun stop() {
             keepRunning.set(false)
             thread.interrupt()
-            try {
-                thread.join(TICKER_JOIN_MS)
-            } catch (ie: InterruptedException) {
-                Thread.currentThread().interrupt()
+            var interrupted = false
+            while (thread.isAlive) {
+                try {
+                    thread.join()
+                } catch (ie: InterruptedException) {
+                    interrupted = true
+                }
             }
+            if (interrupted) Thread.currentThread().interrupt()
         }
     }
 
@@ -188,7 +211,6 @@ class SstvTransmitter @JvmOverloads constructor(
 
     companion object {
         internal const val PROGRESS_TICK_MS = 200L
-        internal const val TICKER_JOIN_MS = 1000L
 
         /**
          * Elapsed/duration as a 0..1 fraction, capped just below 1 — only a
