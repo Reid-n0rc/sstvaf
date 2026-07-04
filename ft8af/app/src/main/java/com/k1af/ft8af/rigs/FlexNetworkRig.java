@@ -3,12 +3,11 @@ package com.k1af.ft8af.rigs;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
-import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.connector.FlexConnector;
 import com.k1af.ft8af.flex.FlexCommand;
 import com.k1af.ft8af.flex.FlexRadio;
-import com.k1af.ft8af.ft8transmit.GenerateFT8;
+import com.k1af.ft8af.wave.FT8Resample;
 
 public class FlexNetworkRig extends BaseRig {
     private static final String TAG = "FlexNetworkRig";
@@ -84,11 +83,13 @@ public class FlexNetworkRig extends BaseRig {
     }
 
     @Override
-    public void sendWaveData(Ft8Message message) {
+    public void sendWaveData(float[] wave, int sampleRate) {
 
         if (getConnector() != null) {
-            float[] data = GenerateFT8.generateFt8(message, GeneralVariables.getBaseFrequency()
-                    , 24000);//Flex audio sample rate is 24000
+            float[] data = wave;
+            if (sampleRate != 24000) {//Flex audio sample rate is 24000
+                data = FT8Resample.get32Resample32(wave, sampleRate, 24000, 1);
+            }
             if (data == null) {
                 setPTT(false);
                 return;

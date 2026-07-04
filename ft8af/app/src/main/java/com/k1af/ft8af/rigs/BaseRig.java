@@ -2,7 +2,6 @@ package com.k1af.ft8af.rigs;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.connector.BaseRigConnector;
 
 /**
@@ -46,11 +45,16 @@ public abstract class BaseRig {
         }
     }
 
-//    public void sendWaveData(float[] data) {
-//        //reserved for ICOM rig use
-//    }
-    public void sendWaveData(Ft8Message message) {
-        //reserved for ICOM rig use
+    /**
+     * Send a TX waveform through the rig's own audio transport (network rigs,
+     * truSDX audio-over-CAT). Implementations resample from {@code sampleRate}
+     * to their transport's native rate. Base implementation is a no-op.
+     *
+     * @param wave       mono float waveform (full scale)
+     * @param sampleRate waveform sample rate in Hz
+     */
+    public void sendWaveData(float[] wave, int sampleRate) {
+        //reserved for network / audio-over-CAT rigs
     }
 
     public long getFreq() {

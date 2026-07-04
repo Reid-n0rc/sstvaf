@@ -2,10 +2,9 @@ package com.k1af.ft8af.rigs;
 
 import android.util.Log;
 
-import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.connector.X6100Connector;
-import com.k1af.ft8af.ft8transmit.GenerateFT8;
+import com.k1af.ft8af.wave.FT8Resample;
 
 /**
  * XieGu6100 ft8cns mode, only supports network mode. Ensure proper validation when setting up baseRig.
@@ -57,18 +56,17 @@ public class XieGu6100NetRig extends BaseRig {
     }
 
     @Override
-    public void sendWaveData(Ft8Message message) {//send audio data to rig, for network mode
-        if (getConnector() != null) {//pass generated audio data to Connector
-            //if ft8cns mode, transmit a91 data packet
-            if (GeneralVariables.instructionSet == InstructionSet.XIEGU_6100_FT8CNS){
-                //Log.e(TAG,"generate A91");
-                getConnector().sendFt8A91(GenerateFT8.generateA91(message,true)
-                        ,GeneralVariables.getBaseFrequency());
-            }else {//otherwise transmit audio data normally
-                float[] data = GenerateFT8.generateFt8(message, GeneralVariables.getBaseFrequency()
-                        , 12000);//rig audio sample rate is 12000
-                getConnector().sendWaveData(data);
+    public void sendWaveData(float[] wave, int sampleRate) {//send audio data to rig, for network mode
+        if (getConnector() != null) {//pass audio data to Connector
+            float[] data = wave;
+            if (sampleRate != 12000) {//rig audio sample rate is 12000
+                data = FT8Resample.get32Resample32(wave, sampleRate, 12000, 1);
             }
+            if (data == null) {
+                setPTT(false);
+                return;
+            }
+            getConnector().sendWaveData(data);
         }
     }
 

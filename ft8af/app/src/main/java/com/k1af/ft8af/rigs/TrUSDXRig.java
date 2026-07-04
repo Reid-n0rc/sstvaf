@@ -15,11 +15,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.R;
 import com.k1af.ft8af.database.ControlMode;
-import com.k1af.ft8af.ft8transmit.GenerateFT8;
 import com.k1af.ft8af.ui.ToastMessage;
 import com.k1af.ft8af.wave.FT8Resample;
 
@@ -262,13 +260,10 @@ public class TrUSDXRig extends BaseRig {
     }
 
     @Override
-    public void sendWaveData(Ft8Message message) {
+    public void sendWaveData(float[] wave, int sampleRate) {
         if (getConnector() == null) {
             return;
         }
-        float[] wave = GenerateFT8.generateFt8(message, GeneralVariables.getBaseFrequency()
-                , 24000);
-
         if (wave == null) {
             setPTT(false);
             return;
@@ -278,16 +273,8 @@ public class TrUSDXRig extends BaseRig {
         // attenuates the in-progress over instead of only the next one. Real-time
         // granularity is bounded by the serial buffer depth rather than the cycle.
 
-//
-//        byte[] pcm16 = toWaveFloatToPCM16(wave);
-//        Resample txResample = new Resample(Resample.ConverterType.SRC_SINC_FASTEST, 1
-//                , 24000, txSampling);
-//        byte[] resampled = txResample.processCopy(pcm16);
-//        txResample.close();
-//        byte[] pcm8 = toWaveSamples16To8(resampled);
-
         // Full-scale 8-bit unsigned PCM (zero == 128); volume applied per chunk below.
-        byte[] pcm8 = FT8Resample.get8Resample32(wave, 24000, txSampling, 1);
+        byte[] pcm8 = FT8Resample.get8Resample32(wave, sampleRate, txSampling, 1);
 
         // Send in 256-byte chunks, scaling each chunk by the *current* volume so a
         // mid-over slider move takes effect within a serial-buffer's worth of audio.
