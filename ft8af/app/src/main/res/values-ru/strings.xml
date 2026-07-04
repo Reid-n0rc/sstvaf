@@ -76,38 +76,38 @@
     <string name="pl_select_bluetooth">Выберите доступное Bluetooth-устройство</string>
     <string name="bluetooth_set">Настройки Bluetooth</string>
     <string name="spp_device">Bluetooth SPP-устройство</string>
-    <string name="headset_device">Bluetooth-гарнитура</string>>
-    <string name="disconnect_rig">Соединение с трансивером разорвано</string>>
-    <string name="connected_rig">Подключение к трансиверу выполнено.</string>>
-    <string name="current_frequency">Текущая частота: %s</string>>
-    <string name="radio_communication_error">Ошибка связи с трансивером: %s</string>>
-    <string name="does_not_support_recording">Bluetooth-устройство не поддерживает запись</string>>
-    <string name="bluetooth_headset_mode">Включён режим Bluetooth-гарнитуры</string>>
-    <string name="bluetooth_Headset_mode_cancelled">Выключен режим Bluetooth-гарнитуры</string>>
+    <string name="headset_device">Bluetooth-гарнитура</string>
+    <string name="disconnect_rig">Соединение с трансивером разорвано</string>
+    <string name="connected_rig">Подключение к трансиверу выполнено.</string>
+    <string name="current_frequency">Текущая частота: %s</string>
+    <string name="radio_communication_error">Ошибка связи с трансивером: %s</string>
+    <string name="does_not_support_recording">Bluetooth-устройство не поддерживает запись</string>
+    <string name="bluetooth_headset_mode">Включён режим Bluetooth-гарнитуры</string>
+    <string name="bluetooth_Headset_mode_cancelled">Выключен режим Bluetooth-гарнитуры</string>
 
-    <string name="version_info">SSTVAF Ver %s\nKS3CKC\n%s</string>>
+    <string name="version_info">SSTVAF Ver %s\nKS3CKC\n%s</string>
 
 
-    <string name="exit">Выход</string>>
-    <string name="cancel">Отмена</string>>
-    <string name="exit_confirmation">Вы уверены, что хотите выйти?</string>>
+    <string name="exit">Выход</string>
+    <string name="cancel">Отмена</string>
+    <string name="exit_confirmation">Вы уверены, что хотите выйти?</string>
 
     <!--   FT8Message-->
-    <string name="std_msg">Стд. сообщение</string>>
-    <string name="none_std_msg">Нестд. позывной</string>>
-    <string name="free_text">Свободный текст</string>>
-    <string name="dXpedition">DXpedition</string>>
-    <string name="field_day">Field Day</string>>
-    <string name="telemetry">Телеметрия</string>>
-    <string name="rtty_ru_msg">RTTY RU</string>>
+    <string name="std_msg">Стд. сообщение</string>
+    <string name="none_std_msg">Нестд. позывной</string>
+    <string name="free_text">Свободный текст</string>
+    <string name="dXpedition">DXpedition</string>
+    <string name="field_day">Field Day</string>
+    <string name="telemetry">Телеметрия</string>
+    <string name="rtty_ru_msg">RTTY RU</string>
 
 
     <!--   Settings bar-->
-    <string name="offset_time_sec">%.1f сек</string>>
+    <string name="offset_time_sec">%.1f сек</string>
 
     <!--   Spectrum chart-->
-    <string name="decoding_takes_milliseconds">Декодировано: %d мс</string>>
-    <string name="sound_frequency_is_set_to">Звуковая частота: %d Гц</string>>
+    <string name="decoding_takes_milliseconds">Декодировано: %d мс</string>
+    <string name="sound_frequency_is_set_to">Звуковая частота: %d Гц</string>
     <string name="de_noise">Шумоподавление</string>
     <string name="raw_spectrum_data">Исходный</string>
     <string name="markMessage">Показать сообщ.</string>
