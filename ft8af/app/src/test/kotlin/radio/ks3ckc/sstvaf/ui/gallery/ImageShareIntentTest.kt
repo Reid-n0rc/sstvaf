@@ -55,7 +55,7 @@ class ImageShareIntentTest {
         @Suppress("DEPRECATION")
         val stream = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
         assertThat(stream).isEqualTo(uri)
-        assertThat(stream!!.authority).isEqualTo("radio.ks3ckc.sstvaf.fileprovider")
+        assertThat(stream!!.authority).isEqualTo(SSTV_FILE_PROVIDER_AUTHORITY)
     }
 
     @Test

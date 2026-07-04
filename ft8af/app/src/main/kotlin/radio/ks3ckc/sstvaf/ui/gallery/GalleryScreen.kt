@@ -40,6 +40,7 @@ import coil.compose.AsyncImage
 import com.k1af.ft8af.MainViewModel
 import com.k1af.ft8af.R
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import radio.ks3ckc.sstvaf.gallery.ImageDirection
@@ -81,6 +82,16 @@ fun GalleryScreen(mainViewModel: MainViewModel) {
 
     var filter by rememberSaveable { mutableStateOf(GalleryFilter.ALL) }
     val shown = filterGalleryImages(images, filter)
+
+    // Clock for the cells' relative ages ("2 h ago"): ticks once a minute so
+    // labels don't go stale while the screen stays open.
+    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(60_000)
+            nowMs = System.currentTimeMillis()
+        }
+    }
 
     // Viewer sheet: entry outlives visibility so the slide-out animation still
     // has content to draw after dismiss.
@@ -137,6 +148,7 @@ fun GalleryScreen(mainViewModel: MainViewModel) {
                     GalleryCell(
                         entry = entry,
                         imageFile = store.imageFile(entry),
+                        nowMs = nowMs,
                         onClick = {
                             viewerEntry = entry
                             viewerVisible = true
@@ -191,6 +203,7 @@ internal fun GalleryFilter.labelRes(): Int = when (this) {
 private fun GalleryCell(
     entry: SavedImage,
     imageFile: java.io.File,
+    nowMs: Long,
     onClick: () -> Unit,
 ) {
     Column(modifier = Modifier.clickable(onClick = onClick)) {
@@ -214,7 +227,7 @@ private fun GalleryCell(
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = galleryCellMeta(entry, System.currentTimeMillis()),
+            text = galleryCellMeta(entry, nowMs),
             color = TextMuted,
             fontFamily = GeistMonoFamily,
             fontSize = 10.sp,

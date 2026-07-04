@@ -14,6 +14,7 @@ import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
+import com.k1af.ft8af.BuildConfig;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.R;
 import com.k1af.ft8af.ui.ToastMessage;
@@ -326,7 +327,7 @@ public class ShareLogs {
                 if (!isCancel) {
                     Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                     Uri fileUri = FileProvider.getUriForFile(context.getApplicationContext()
-                            , "radio.ks3ckc.sstvaf.fileprovider", file);
+                            , BuildConfig.APPLICATION_ID + ".fileprovider", file);
                     sharingIntent.setType("application/octet-stream");
                     sharingIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
                     sharingIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

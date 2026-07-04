@@ -4,10 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.content.FileProvider
+import com.k1af.ft8af.BuildConfig
 import java.io.File
 
-/** The FileProvider authority from AndroidManifest.xml (see res/xml/filepaths.xml). */
-internal const val SSTV_FILE_PROVIDER_AUTHORITY = "radio.ks3ckc.sstvaf.fileprovider"
+/**
+ * The single source of truth for the FileProvider authority. Derived from the
+ * applicationId to match `${applicationId}.fileprovider` in
+ * AndroidManifest.xml; public so every share path (images here, debug logs in
+ * ShareLogs.java via the same derivation) stays in lockstep.
+ */
+const val SSTV_FILE_PROVIDER_AUTHORITY = BuildConfig.APPLICATION_ID + ".fileprovider"
 
 /**
  * Content URI for a saved SSTV PNG under `filesDir/sstv_images/` (the
