@@ -446,6 +446,37 @@ object SstvAfIcons {
         }
     }
 
+    /**
+     * Image frame with scanlines filling from the top — the SSTV RX tab.
+     * A rounded rectangle with three progressively shorter horizontal lines,
+     * echoing an image forming line-by-line.
+     */
+    @Composable
+    fun RxImage(
+        modifier: Modifier = Modifier,
+        color: Color = Color.Unspecified,
+        size: Dp = 22.dp,
+        strokeWidth: Float = 1.6f,
+    ) {
+        val tint = if (color == Color.Unspecified) androidx.compose.material3.MaterialTheme.colorScheme.onSurface else color
+        Canvas(modifier = modifier.then(Modifier.sizeOf(size))) {
+            val s = this.size.width / 24f
+            val stroke = strokeStyle(strokeWidth * s)
+            // Image frame
+            drawRoundRect(
+                tint,
+                topLeft = Offset(3.5f * s, 4.5f * s),
+                size = Size(17f * s, 15f * s),
+                cornerRadius = CornerRadius(2f * s, 2f * s),
+                style = stroke,
+            )
+            // Scanlines: full, full, partial — an image mid-decode.
+            drawLine(tint, Offset(6.5f * s, 8.5f * s), Offset(17.5f * s, 8.5f * s), stroke.width, StrokeCap.Round)
+            drawLine(tint, Offset(6.5f * s, 12f * s), Offset(17.5f * s, 12f * s), stroke.width, StrokeCap.Round)
+            drawLine(tint, Offset(6.5f * s, 15.5f * s), Offset(12.5f * s, 15.5f * s), stroke.width, StrokeCap.Round)
+        }
+    }
+
     /** Triangular pine tree on a small trunk — POTA tab. */
     @Composable
     fun Tree(

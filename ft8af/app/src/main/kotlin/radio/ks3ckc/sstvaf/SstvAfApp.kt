@@ -44,19 +44,20 @@ import radio.ks3ckc.sstvaf.ui.components.TransmitGlow
 import radio.ks3ckc.sstvaf.ui.components.TxStrip
 import radio.ks3ckc.sstvaf.ui.components.selectBandIndex
 import radio.ks3ckc.sstvaf.ui.logbook.LogbookScreen
+import radio.ks3ckc.sstvaf.ui.rx.RxScreen
 import radio.ks3ckc.sstvaf.ui.settings.SettingsScreen
 import radio.ks3ckc.sstvaf.ui.waterfall.WaterfallScreen
 
 /**
- * The app shell: WATERFALL / LOG / SETTINGS tabs above the TX strip and tab
- * bar. The FT8 decode/QSO engine is gone (SSTVAF transformation PR 3); the
- * only transmitter for now is the Tune carrier, and SSTV RX/TX land in later
- * PRs on top of the same rig/audio plumbing.
+ * The app shell: RX / WATERFALL / LOG / SETTINGS tabs above the TX strip and
+ * tab bar. RX (the live SSTV decode view, PR 6) is the landing tab; the only
+ * transmitter for now is the Tune carrier, and SSTV TX lands in PR 8 on top
+ * of the same rig/audio plumbing.
  */
 @Composable
 fun SstvAfApp(mainViewModel: MainViewModel) {
     val context = LocalContext.current
-    var activeTab by rememberSaveable { mutableStateOf(SstvTab.WATERFALL) }
+    var activeTab by rememberSaveable { mutableStateOf(SstvTab.RX) }
 
     // Tune carrier state — the only TX source in the radio shell.
     val isTuning by mainViewModel.tuneOperator.mutableIsTuning.observeAsState(false)
@@ -167,6 +168,7 @@ fun SstvAfApp(mainViewModel: MainViewModel) {
                     .fillMaxWidth(),
             ) {
                 when (activeTab) {
+                    SstvTab.RX -> RxScreen(mainViewModel)
                     SstvTab.WATERFALL -> WaterfallScreen(mainViewModel)
                     SstvTab.LOG -> LogbookScreen(mainViewModel)
                     SstvTab.SETTINGS -> SettingsScreen(mainViewModel)

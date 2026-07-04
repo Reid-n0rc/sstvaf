@@ -101,6 +101,24 @@ fun LoggingSettings(
                         showChevron = true,
                         onClick = { showCloudlog = true },
                     )
+                    SectionDivider()
+                    run {
+                        var saveToPhotos by remember {
+                            mutableStateOf(GeneralVariables.saveRxToPhotos)
+                        }
+                        SettingsRow(
+                            label = stringResource(R.string.settings_save_rx_photos),
+                            description = stringResource(R.string.settings_save_rx_photos_desc),
+                            toggle = saveToPhotos,
+                            onToggleChange = { enabled ->
+                                saveToPhotos = enabled
+                                GeneralVariables.saveRxToPhotos = enabled
+                                mainViewModel.databaseOpr.writeConfig(
+                                    "saveRxToPhotos", if (enabled) "1" else "0", null,
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }

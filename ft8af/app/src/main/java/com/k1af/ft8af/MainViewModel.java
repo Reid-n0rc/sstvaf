@@ -96,6 +96,8 @@ import com.k1af.ft8af.x6100.X6100Radio;
 
 import radio.ks3ckc.sstvaf.UsbPermissionIntentsKt;
 import radio.ks3ckc.sstvaf.sstv.NativeSstvCodec;
+import radio.ks3ckc.sstvaf.gallery.ReceivedImageStore;
+import radio.ks3ckc.sstvaf.gallery.RxAutoSaveController;
 import radio.ks3ckc.sstvaf.sstv.SstvSignalListener;
 import radio.ks3ckc.sstvaf.sstv.SstvTransmitter;
 
@@ -142,6 +144,10 @@ public class MainViewModel extends ViewModel {
     // with the recorder, fed by the same fan-out, RxForegroundService unchanged.
     public SstvSignalListener sstvSignalListener;//continuous SSTV RX decode engine
     public SstvTransmitter sstvTransmitter;//SSTV image transmitter (PTT + audio sink)
+
+    // Received-image persistence (PR 6): PNG + metadata row per completed decode.
+    public ReceivedImageStore receivedImageStore;//saved SSTV images (app storage + Photos)
+    public RxAutoSaveController rxAutoSaveController;//auto-saves Complete decodes
 
     // Transmit plumbing, extracted from the retired FT8 engine (PR 3).
     public PttController pttController;//rig keying (CAT/RTS/DTR + SCO) around a TX
@@ -449,6 +455,16 @@ public class MainViewModel extends ViewModel {
         sstvSignalListener = new SstvSignalListener(sstvCodec);
         sstvSignalListener.start();
         sstvSignalListener.attachToRecorder(hamRecorder);
+
+        // Auto-save completed decodes (PR 6): every Complete transition pulls
+        // the LastDecodedImage snapshot and persists it (PNG + sstv_images row
+        // + optional Photos copy). observeForever is fine: both objects live
+        // exactly as long as this ViewModel. Constructor runs on the main
+        // thread (ViewModelProvider), which observeForever requires.
+        receivedImageStore = new ReceivedImageStore(
+                GeneralVariables.getMainContext(), databaseOpr.getDb());
+        rxAutoSaveController = new RxAutoSaveController(receivedImageStore);
+        rxAutoSaveController.attach(sstvSignalListener.getRxState());
 
         sstvTransmitter = new SstvTransmitter(sstvCodec,
                 new SstvTransmitter.Keyer() {
