@@ -129,6 +129,38 @@ class RxImageAssemblerTest {
     }
 
     @Test
+    fun snapshot_reusesBuffersAlternately() {
+        val assembler = RxImageAssembler()
+        assembler.ensureSize(2, 2)
+
+        val s1 = assembler.snapshotBitmap()!!
+        val s2 = assembler.snapshotBitmap()!!
+        val s3 = assembler.snapshotBitmap()!!
+        val s4 = assembler.snapshotBitmap()!!
+
+        // Steady state allocates nothing: the two buffers alternate A,B,A,B.
+        assertThat(s3).isSameInstanceAs(s1)
+        assertThat(s4).isSameInstanceAs(s2)
+        assertThat(s2).isNotSameInstanceAs(s1)
+    }
+
+    @Test
+    fun snapshot_recycledBufferCarriesLatestRows() {
+        val assembler = RxImageAssembler()
+        assembler.ensureSize(2, 2)
+        assembler.applyRows(0, 1, rowPixels(2, 1, red))
+
+        val s1 = assembler.snapshotBitmap()!!
+        assembler.snapshotBitmap() // second buffer
+        assembler.applyRows(1, 1, rowPixels(2, 1, green))
+        val s3 = assembler.snapshotBitmap()!! // first buffer recycled
+
+        assertThat(s3).isSameInstanceAs(s1)
+        assertThat(s3.getPixel(0, 0)).isEqualTo(red)
+        assertThat(s3.getPixel(0, 1)).isEqualTo(green)
+    }
+
+    @Test
     fun reset_dropsCanvas() {
         val assembler = RxImageAssembler()
         assembler.ensureSize(2, 2)

@@ -16,8 +16,11 @@ fun interface FrameSaver {
  * the [FrameSaver] (in the app: [ReceivedImageStore.save] with direction RX).
  *
  * - Partial ([SstvRxState.Aborted]) frames are NOT saved.
- * - The same snapshot is never saved twice (identity + utcMillis guard) —
- *   LiveData can re-deliver the terminal Complete state (e.g. on re-observe).
+ * - The same snapshot is never saved twice (identity guard) — LiveData can
+ *   re-deliver the terminal Complete state (e.g. on re-observe), but it
+ *   re-delivers the same Frame object, so identity is the right key; a
+ *   timestamp guard could wrongly skip a distinct frame sharing a coarse
+ *   clock value.
  * - The save itself (PNG encode + DB insert + MediaStore) runs off the calling
  *   thread via [dispatch]; the double-save guard is taken synchronously first.
  */
@@ -45,7 +48,6 @@ class RxAutoSaveController(
     )
 
     private var lastSavedFrame: LastDecodedImage.Frame? = null
-    private var lastSavedUtcMillis = Long.MIN_VALUE
 
     /** Observe forever — the controller lives as long as the ViewModel. Main thread only. */
     fun attach(rxState: LiveData<SstvRxState>) {
@@ -57,9 +59,8 @@ class RxAutoSaveController(
         if (state !is SstvRxState.Complete || !state.frameAvailable) return
         val frame = LastDecodedImage.frame ?: return
         if (!frame.complete) return
-        if (frame === lastSavedFrame || frame.utcMillis == lastSavedUtcMillis) return
+        if (frame === lastSavedFrame) return
         lastSavedFrame = frame
-        lastSavedUtcMillis = frame.utcMillis
         dispatch {
             try {
                 saver.save(frame)

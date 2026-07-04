@@ -1,12 +1,13 @@
 package radio.ks3ckc.sstvaf.ui.rx
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
 
 /**
  * Assembles the in-progress RX image: owns a mutable ARGB_8888 [Bitmap] sized
  * on VIS lock from the mode dimensions and paints decoded rows into it as they
  * arrive. NOT a composable — [RxScreen] feeds it from `rxState` transitions and
- * renders [snapshotBitmap] copies, so Compose never observes the mutable
+ * renders [snapshotBitmap] frames, so Compose never observes the working
  * bitmap directly.
  *
  * Not thread-safe by design: all calls happen on the UI thread (LiveData
@@ -20,6 +21,17 @@ class RxImageAssembler {
         private set
 
     private var bitmap: Bitmap? = null
+
+    // Snapshot double-buffer: [snapshotBitmap] alternates between two reused
+    // bitmaps instead of allocating a fresh copy per call — a multi-minute
+    // PD120 decode at ~4 updates/s would otherwise churn ~5 MB/s of garbage.
+    // The frame handed out is not rewritten until the next-but-one snapshot;
+    // by then Compose is already displaying the newer frame, and since SSTV
+    // rows only ever append, a late read of a recycled frame shows at worst a
+    // few additional completed rows.
+    private var snapshotA: Bitmap? = null
+    private var snapshotB: Bitmap? = null
+    private var nextSnapshotIsA = true
 
     /**
      * Size (or re-size) the canvas for a newly locked mode. Returns true when
@@ -50,12 +62,32 @@ class RxImageAssembler {
         b.setPixels(pixels, 0, width, 0, firstRow, width, rows)
     }
 
-    /** Immutable copy for Compose; later [applyRows] calls don't affect it. */
-    fun snapshotBitmap(): Bitmap? = bitmap?.copy(Bitmap.Config.ARGB_8888, false)
+    /**
+     * A frame for Compose reflecting the rows applied so far. The returned
+     * bitmap stays stable through the NEXT [snapshotBitmap] call (the two
+     * snapshot buffers alternate); it is recycled for reuse after that.
+     */
+    fun snapshotBitmap(): Bitmap? {
+        val src = bitmap ?: return null
+        val reuse = if (nextSnapshotIsA) snapshotA else snapshotB
+        val dst = if (reuse != null && reuse.width == src.width && reuse.height == src.height) {
+            reuse
+        } else {
+            Bitmap.createBitmap(src.width, src.height, Bitmap.Config.ARGB_8888).also {
+                if (nextSnapshotIsA) snapshotA = it else snapshotB = it
+            }
+        }
+        Canvas(dst).drawBitmap(src, 0f, 0f, null)
+        nextSnapshotIsA = !nextSnapshotIsA
+        return dst
+    }
 
-    /** Drop the canvas (back to hunting). */
+    /** Drop the canvas and snapshot buffers (back to hunting). */
     fun reset() {
         bitmap = null
+        snapshotA = null
+        snapshotB = null
+        nextSnapshotIsA = true
         width = 0
         height = 0
     }
