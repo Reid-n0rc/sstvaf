@@ -95,6 +95,9 @@ import com.k1af.ft8af.wave.HamRecorder;
 import com.k1af.ft8af.x6100.X6100Radio;
 
 import radio.ks3ckc.sstvaf.UsbPermissionIntentsKt;
+import radio.ks3ckc.sstvaf.sstv.NativeSstvCodec;
+import radio.ks3ckc.sstvaf.sstv.SstvSignalListener;
+import radio.ks3ckc.sstvaf.sstv.SstvTransmitter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -134,6 +137,11 @@ public class MainViewModel extends ViewModel {
 
     public HamRecorder hamRecorder;//recording object
     public SpectrumListener spectrumListener;//object for drawing the spectrum/waterfall
+
+    // SSTV engine (PR 5): lives where the FT8SignalListener used to — started
+    // with the recorder, fed by the same fan-out, RxForegroundService unchanged.
+    public SstvSignalListener sstvSignalListener;//continuous SSTV RX decode engine
+    public SstvTransmitter sstvTransmitter;//SSTV image transmitter (PTT + audio sink)
 
     // Transmit plumbing, extracted from the retired FT8 engine (PR 3).
     public PttController pttController;//rig keying (CAT/RTS/DTR + SCO) around a TX
@@ -430,11 +438,62 @@ public class MainViewModel extends ViewModel {
         tuneOperator.setCatAudioRouteCheck(() -> GeneralVariables.controlMode == ControlMode.CAT
                 && baseRig != null && baseRig.isConnected() && baseRig.supportWaveOverCAT());
 
-        //an SWR halt stops the active transmission (currently: the tune carrier)
+        // ===== SSTV engine (PR 5): continuous RX decode + image TX =====
+        // One codec instance is shared: it is stateless apart from the decoder
+        // sessions it hands out. The listener owns its decode thread and taps
+        // the recorder fan-out (same mechanism as SpectrumListener); its
+        // fileLog lines (VIS lock / image complete) come from its default
+        // logger. The transmitter adapts the extracted PTT + audio-sink
+        // plumbing exactly the way TuneOperator composes them.
+        NativeSstvCodec sstvCodec = new NativeSstvCodec();
+        sstvSignalListener = new SstvSignalListener(sstvCodec);
+        sstvSignalListener.start();
+        sstvSignalListener.attachToRecorder(hamRecorder);
+
+        sstvTransmitter = new SstvTransmitter(sstvCodec,
+                new SstvTransmitter.Keyer() {
+                    @Override
+                    public void keyDown() {
+                        pttController.keyDown();
+                    }
+
+                    @Override
+                    public void keyUp() {
+                        pttController.keyUp();
+                    }
+                },
+                new SstvTransmitter.Player() {
+                    @Override
+                    public boolean play(float[] buffer, int sampleRate) {
+                        return transmitAudioSink.play(buffer, sampleRate,
+                                GeneralVariables.audioOutput32Bit,
+                                () -> GeneralVariables.volumePercent)
+                                == TransmitAudioSink.PlayResult.COMPLETED;
+                    }
+
+                    @Override
+                    public void cancel() {
+                        transmitAudioSink.cancel();
+                    }
+                },
+                () -> tuneOperator.isTuning());
+
+        //an SWR halt stops the active transmission (tune carrier + SSTV TX)
         meterProtectionController.setOnSwrHalt(() -> {
             tuneOperator.stopTune();
+            sstvTransmitter.cancel();
             transmitAudioSink.cancel();
         });
+    }
+
+    /** The continuous SSTV receive engine (decode state via {@code getRxState()}). */
+    public SstvSignalListener getSstvSignalListener() {
+        return sstvSignalListener;
+    }
+
+    /** The SSTV image transmitter. */
+    public SstvTransmitter getSstvTransmitter() {
+        return sstvTransmitter;
     }
 
     /**
