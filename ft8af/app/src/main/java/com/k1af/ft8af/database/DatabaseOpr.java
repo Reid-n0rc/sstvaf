@@ -55,7 +55,8 @@ public class DatabaseOpr extends SQLiteOpenHelper {
 
     public static synchronized DatabaseOpr getInstance(@Nullable Context context, @Nullable String databaseName) {
         if (instance == null) {
-            instance = new DatabaseOpr(context, databaseName, null, 19);
+            // v20: QSLTable gains a submode column (SSTV mode name, e.g. "Scottie 1").
+            instance = new DatabaseOpr(context, databaseName, null, 20);
         }
         return instance;
     }
@@ -258,6 +259,10 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     , "sig TEXT");
             alterTable(sqLiteDatabase, "QSLTable", "sig_info"
                     , "sig_info TEXT");
+            // ADIF SUBMODE (v19 -> v20). For SSTV QSOs mode is "SSTV" and submode
+            // carries the SSTV mode display name (e.g. "Scottie 1").
+            alterTable(sqLiteDatabase, "QSLTable", "submode"
+                    , "submode TEXT");
 
         } else {
             sqLiteDatabase.execSQL("CREATE TABLE QSLTable (\n" +
@@ -272,6 +277,8 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     "call TEXT,\n" +
                     "gridsquare TEXT,\n" +
                     "mode TEXT,\n" +
+                    "submode TEXT,\n" +//ADIF SUBMODE, e.g. SSTV "Scottie 1"
+
                     "rst_sent TEXT,\n" +
                     "rst_rcvd TEXT,\n" +
                     "qso_date TEXT,\n" +
@@ -1367,9 +1374,9 @@ public class DatabaseOpr extends SQLiteOpenHelper {
 
 
         if (!checkIsQSL(record)) {//If log data doesn't exist, add it
-            querySQL = "INSERT INTO QSLTable(call, isQSL,isLotW_import,isLotW_QSL,gridsquare, mode, rst_sent, rst_rcvd, qso_date, " +
+            querySQL = "INSERT INTO QSLTable(call, isQSL,isLotW_import,isLotW_QSL,gridsquare, mode, submode, rst_sent, rst_rcvd, qso_date, " +
                     "time_on, qso_date_off, time_off, band, freq, station_callsign, my_gridsquare," +
-                    "comment,my_sig,my_sig_info,sig,sig_info)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "comment,my_sig,my_sig_info,sig,sig_info)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
             db.execSQL(querySQL, new String[]{record.getToCallsign()
                     , String.valueOf(record.isQSL ? 1 : 0)
@@ -1377,6 +1384,7 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     , String.valueOf(record.isLotW_QSL ? 1 : 0)
                     , record.getToMaidenGrid()
                     , record.getMode()
+                    , record.getSubmode()
                     , AdifFormat.formatReport(record.getSendReport())
                     , AdifFormat.formatReport(record.getReceivedReport())
                     , record.getQso_date()

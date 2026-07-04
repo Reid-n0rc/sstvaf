@@ -78,4 +78,20 @@ public class AdifFormatTest {
         assertThat(AdifFormat.formatReport(-100)).isEqualTo("-100");
         assertThat(AdifFormat.formatReport(-120)).isEqualTo("-120");
     }
+
+    @Test
+    public void formatReport_rendersRsvStyleReportsAsPlainDigits() {
+        // SSTV RSV convention: three plain digits, no sign — "+595" would be wrong
+        // in the DB, the logbook UI, and every ADIF consumer.
+        assertThat(AdifFormat.formatReport(595)).isEqualTo("595");
+        assertThat(AdifFormat.formatReport(599)).isEqualTo("599");
+        assertThat(AdifFormat.formatReport(111)).isEqualTo("111");
+    }
+
+    @Test
+    public void formatReport_snrStyleStaysSignedBelowRstThreshold() {
+        // The boundary: 99 is still (theoretically) an SNR, 100 is RST/RSV territory.
+        assertThat(AdifFormat.formatReport(99)).isEqualTo("+99");
+        assertThat(AdifFormat.formatReport(100)).isEqualTo("100");
+    }
 }

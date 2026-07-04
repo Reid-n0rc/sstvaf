@@ -37,6 +37,9 @@ public class QSLRecord {
     private int sendReport;//Report received by other party (i.e., signal strength I sent)
     private int receivedReport;//Report I received from other party (i.e., SNR)
     private String mode = "FT8";
+    // ADIF SUBMODE. For SSTV QSOs mode is "SSTV" and submode carries the SSTV
+    // mode's display name (e.g. "Scottie 1"). Empty when not applicable.
+    private String submode = "";
     private String bandLength = "";
     private long bandFreq;//Transmit band frequency
     private int wavFrequency;//Transmit audio frequency
@@ -94,8 +97,8 @@ public class QSLRecord {
             distance = MaidenheadGrid.getDistStrEN(myMaidenGrid, toMaidenGrid);
         }
         this.comment =
-                distance.equals("") ? "QSO by FT8AF"
-                        : String.format("Distance: %s, QSO by FT8AF", distance);
+                distance.equals("") ? "QSO by SSTVAF"
+                        : String.format("Distance: %s, QSO by SSTVAF", distance);
     }
 
     public void update(QSLRecord record) {
@@ -137,6 +140,9 @@ public class QSLRecord {
             mode = map.get("MODE");
         } else {
             mode = "";
+        }
+        if (map.containsKey("SUBMODE")) {//Submode (e.g. SSTV "Scottie 1")
+            submode = map.get("SUBMODE");
         }
         if (map.containsKey("QSO_DATE")) {//QSO date
             qso_date = map.get("QSO_DATE");
@@ -298,6 +304,14 @@ public class QSLRecord {
         return mode;
     }
 
+    public String getSubmode() {
+        return submode;
+    }
+
+    public void setSubmode(String submode) {
+        this.submode = submode == null ? "" : submode;
+    }
+
     public long getBandFreq() {
         return bandFreq;
     }
@@ -353,6 +367,10 @@ public class QSLRecord {
 
     public String getComment() {
         return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
 

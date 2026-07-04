@@ -122,7 +122,7 @@ public class ShareLogs {
         int position = 0;
         try {
             fileOutputStream = new FileOutputStream(adiFile, true);
-            fileOutputStream.write("FT8AF ADIF Export<eoh>\n".getBytes());
+            fileOutputStream.write("SSTVAF ADIF Export<eoh>\n".getBytes());
             cursor.moveToPosition(-1);
             while (cursor.moveToNext()) {
                 position++;
@@ -161,6 +161,11 @@ public class ShareLogs {
                             , cursor.getString(cursor.getColumnIndex("mode")).length()
                             , cursor.getString(cursor.getColumnIndex("mode"))).getBytes());
                 }
+
+                // ADIF 3.x SUBMODE — for SSTV QSOs mode is "SSTV" and submode carries
+                // the SSTV mode display name (e.g. "Scottie 1"). Only emitted when
+                // populated, so legacy FT8 records stay byte-identical.
+                writeAdifField(fileOutputStream, cursor, "submode", "SUBMODE");
 
                 if (cursor.getString(cursor.getColumnIndex("rst_sent")) != null) {
                     fileOutputStream.write(String.format("<rst_sent:%d>%s "
@@ -231,10 +236,10 @@ public class ShareLogs {
                 }
                 // POTA fields. Only emit when populated so non-POTA QSOs stay
                 // byte-identical to the prior export format.
-                writePotaField(fileOutputStream, cursor, "my_sig", "MY_SIG");
-                writePotaField(fileOutputStream, cursor, "my_sig_info", "MY_SIG_INFO");
-                writePotaField(fileOutputStream, cursor, "sig", "SIG");
-                writePotaField(fileOutputStream, cursor, "sig_info", "SIG_INFO");
+                writeAdifField(fileOutputStream, cursor, "my_sig", "MY_SIG");
+                writeAdifField(fileOutputStream, cursor, "my_sig_info", "MY_SIG_INFO");
+                writeAdifField(fileOutputStream, cursor, "sig", "SIG");
+                writeAdifField(fileOutputStream, cursor, "sig_info", "SIG_INFO");
                 String comment = cursor.getString(cursor.getColumnIndex("comment"));
                 if (comment == null) comment = "";
 
@@ -347,7 +352,7 @@ public class ShareLogs {
     }
 
     /**
-     * Copy {@code source} into the user's Downloads/FT8AF directory.
+     * Copy {@code source} into the user's Downloads/SSTVAF directory.
      * Returns the user-visible relative path on success, or null on failure.
      */
     public static String saveToDownloads(Context context, File source, String displayName) {
@@ -357,7 +362,7 @@ public class ShareLogs {
                 values.put(MediaStore.Downloads.DISPLAY_NAME, displayName);
                 values.put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream");
                 values.put(MediaStore.Downloads.RELATIVE_PATH,
-                        Environment.DIRECTORY_DOWNLOADS + "/FT8AF");
+                        Environment.DIRECTORY_DOWNLOADS + "/SSTVAF");
                 Uri uri = context.getContentResolver().insert(
                         MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
                 if (uri == null) return null;
@@ -366,10 +371,10 @@ public class ShareLogs {
                     if (os == null) return null;
                     copyStream(is, os);
                 }
-                return "Download/FT8AF/" + displayName;
+                return "Download/SSTVAF/" + displayName;
             } else {
                 File downloads = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS), "FT8AF");
+                        Environment.DIRECTORY_DOWNLOADS), "SSTVAF");
                 if (!downloads.exists()) {
                     //noinspection ResultOfMethodCallIgnored
                     downloads.mkdirs();
@@ -379,7 +384,7 @@ public class ShareLogs {
                      FileOutputStream os = new FileOutputStream(out)) {
                     copyStream(is, os);
                 }
-                return "Download/FT8AF/" + displayName;
+                return "Download/SSTVAF/" + displayName;
             }
         } catch (IOException e) {
             Log.e(TAG, "saveToDownloads failed: " + e.getMessage());
@@ -403,9 +408,9 @@ public class ShareLogs {
     /**
      * Emit a single ADIF field from a cursor column. Silently skips when the
      * column doesn't exist (pre-migration DB) or the value is null/empty so
-     * POTA fields stay invisible for ordinary non-POTA contacts.
+     * optional fields (POTA, SUBMODE) stay invisible when not applicable.
      */
-    private static void writePotaField(
+    private static void writeAdifField(
             FileOutputStream out, android.database.Cursor cursor,
             String column, String adifName) throws IOException {
         int idx = cursor.getColumnIndex(column);

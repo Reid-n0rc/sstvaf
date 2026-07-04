@@ -104,6 +104,13 @@ public class ThirdPartyService {
                     , qslRecord.getMode()));
         }
 
+        // ADIF 3.x SUBMODE (SSTV mode display name, e.g. "Scottie 1"); only when set.
+        if (qslRecord.getSubmode() != null && !qslRecord.getSubmode().isEmpty()) {
+            logStr.append(String.format("<submode:%d>%s "
+                    , qslRecord.getSubmode().length()
+                    , qslRecord.getSubmode()));
+        }
+
         String rstSent = AdifFormat.formatReport(qslRecord.getSendReport());
         logStr.append(String.format("<rst_sent:%d>%s ", rstSent.length(), rstSent));
 
@@ -337,6 +344,7 @@ public class ThirdPartyService {
         appendAdif(s, "call", colStr(c, "call"));
         appendAdif(s, "gridsquare", colStr(c, "gridsquare"));
         appendAdif(s, "mode", colStr(c, "mode"));
+        appendAdif(s, "submode", colStr(c, "submode"));
         appendAdif(s, "rst_sent", colStr(c, "rst_sent"));
         appendAdif(s, "rst_rcvd", colStr(c, "rst_rcvd"));
         appendAdif(s, "qso_date", colStr(c, "qso_date"));
