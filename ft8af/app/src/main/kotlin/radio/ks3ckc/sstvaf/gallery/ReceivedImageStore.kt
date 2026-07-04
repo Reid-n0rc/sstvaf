@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import com.k1af.ft8af.GeneralVariables
 import radio.ks3ckc.sstvaf.sstv.SstvMode
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -139,6 +140,10 @@ class ReceivedImageStore @JvmOverloads constructor(
      * (RX + setting + API 29+) a copy into the system Photos app.
      *
      * @param pixels 0xAARRGGBB row-major, `width * height` long.
+     * @throws java.io.IOException when the PNG can't be encoded/written or the
+     *   metadata row can't be inserted (low storage, I/O error). Nothing is
+     *   left behind on failure — a caller must never believe a save happened
+     *   when it didn't.
      */
     fun save(
         pixels: IntArray,
@@ -158,8 +163,18 @@ class ReceivedImageStore @JvmOverloads constructor(
         val bitmap = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
 
         val file = File(imagesDir(), fileName)
-        file.outputStream().use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        var written = false
+        try {
+            file.outputStream().use { out ->
+                if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                    throw IOException("PNG encode failed for $fileName")
+                }
+            }
+            written = true
+        } finally {
+            // Never leave a truncated/corrupt PNG behind (encode failure or
+            // an IOException out of the stream itself).
+            if (!written) file.delete()
         }
 
         val values = imageMetadataValues(
@@ -167,6 +182,10 @@ class ReceivedImageStore @JvmOverloads constructor(
             width, height, complete, quality,
         )
         val id = db.insert(SSTV_IMAGES_TABLE, null, values)
+        if (id == -1L) {
+            file.delete()
+            throw IOException("sstv_images insert failed for $fileName")
+        }
 
         if (shouldExportToPhotos(direction, saveToPhotosEnabled(), Build.VERSION.SDK_INT)) {
             try {
@@ -258,8 +277,11 @@ class ReceivedImageStore @JvmOverloads constructor(
             put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
             put(MediaStore.Images.Media.MIME_TYPE, "image/png")
             put(MediaStore.Images.Media.DATE_TAKEN, utcMillis)
-            // String constant, safe to reference below Q; only used on Q+.
+            // String constants, safe to reference below Q; only used on Q+.
             put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/SSTVAF")
+            // Keep the row invisible to Photos until the pixels are written,
+            // so a crash or write failure never surfaces a blank image.
+            put(MediaStore.Images.Media.IS_PENDING, 1)
         }
         val resolver = context.contentResolver
         val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
@@ -267,8 +289,27 @@ class ReceivedImageStore @JvmOverloads constructor(
             log("SSTV image store: Photos export insert returned null for $fileName")
             return
         }
-        resolver.openOutputStream(uri)?.use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        var written = false
+        try {
+            val out = resolver.openOutputStream(uri)
+            if (out == null) {
+                log("SSTV image store: Photos export stream was null for $fileName")
+            } else {
+                out.use { written = bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                if (!written) {
+                    log("SSTV image store: Photos export encode failed for $fileName")
+                }
+            }
+        } finally {
+            if (written) {
+                val publish = ContentValues().apply {
+                    put(MediaStore.Images.Media.IS_PENDING, 0)
+                }
+                resolver.update(uri, publish, null, null)
+            } else {
+                // Never leave a hidden/empty orphan row in MediaStore.
+                resolver.delete(uri, null, null)
+            }
         }
     }
 }

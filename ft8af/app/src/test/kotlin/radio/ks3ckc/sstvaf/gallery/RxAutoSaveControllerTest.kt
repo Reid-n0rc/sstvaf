@@ -88,6 +88,20 @@ class RxAutoSaveControllerTest {
     }
 
     @Test
+    fun distinctFramesSharingAUtcMillis_bothSave() {
+        // Regression: the guard must key on snapshot identity, not timestamp —
+        // two different frames can share a coarse clock value.
+        val c = controller()
+        LastDecodedImage.frame = frame(utcMillis = 5_000L)
+        c.onState(completeState())
+
+        LastDecodedImage.frame = frame(utcMillis = 5_000L) // new object, same clock
+        c.onState(completeState())
+
+        assertThat(savedFrames).hasSize(2)
+    }
+
+    @Test
     fun abortedTransition_savesNothing() {
         val c = controller()
         // Even with a (partial) snapshot present, Aborted must not save.
