@@ -35,7 +35,6 @@ import androidx.lifecycle.Observer;
 
 import com.k1af.ft8af.wave.UsbAudioDevice;
 
-import com.k1af.ft8af.FAQActivity;
 import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.MainViewModel;
@@ -239,26 +238,6 @@ public class ConfigFragment extends Fragment {
         }
     };
 
-    // QRZ API key
-    private final TextWatcher onQrzApiKeyChanged=new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            GeneralVariables.qrzApiKey = editable.toString();
-            writeConfig("qrzApiKey", GeneralVariables.getQrzApiKey());
-        }
-    };
-
-
     // Excluded callsign prefixes
     private final TextWatcher onExcludedCallsigns=new TextWatcher() {
         @Override
@@ -437,14 +416,8 @@ public class ConfigFragment extends Fragment {
             }
         });
 
-        // FAQ button onClick
-        binding.faqButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(requireContext(), FAQActivity.class);
-                startActivity(intent);
-            }
-        });
+        // The FAQ screen was removed; hide its button.
+        binding.faqButton.setVisibility(View.GONE);
 
         // Maidenhead grid
         binding.inputMyGridEdit.removeTextChangedListener(onGridEditorChanged);
@@ -495,10 +468,6 @@ public class ConfigFragment extends Fragment {
         binding.cloudlogStationIdEdit.setText(GeneralVariables.getCloudlogStationID());
         binding.cloudlogStationIdEdit.addTextChangedListener(onCloudlogStationIDChanged);
 
-        // QRZ configuration
-        binding.qrzApiKeyTextEdit.removeTextChangedListener(onQrzApiKeyChanged);
-        binding.qrzApiKeyTextEdit.setText(GeneralVariables.getQrzApiKey());
-        binding.qrzApiKeyTextEdit.addTextChangedListener(onQrzApiKeyChanged);
 
 
         // Set same-frequency transmit switch
@@ -666,26 +635,8 @@ public class ConfigFragment extends Fragment {
             }
         });
 
-        // Set enable QRZ option
-        binding.enableQrzSwitch.setOnCheckedChangeListener(null);
-        binding.enableQrzSwitch.setChecked(GeneralVariables.enableQRZ);
-        binding.enableQrzSwitch.setText(
-                GeneralVariables.getStringFromResource(R.string.config_enable_qrz)
-                        +(GeneralVariables.enableQRZ?"(On)":"(Off)"));
-        binding.enableQrzSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                GeneralVariables.enableQRZ = binding.enableQrzSwitch.isChecked();
-                if (binding.enableQrzSwitch.isChecked()) {
-                    mainViewModel.databaseOpr.writeConfig("enableQRZ", "1", null);
-                } else {
-                    mainViewModel.databaseOpr.writeConfig("enableQRZ", "0", null);
-                }
-                binding.enableQrzSwitch.setText(
-                        GeneralVariables.getStringFromResource(R.string.config_enable_qrz)
-                                +(GeneralVariables.enableQRZ?"(On)":"(Off)"));
-            }
-        });
+        // QRZ upload support was removed; hide its switch.
+        binding.enableQrzSwitch.setVisibility(View.GONE);
 
 
         // Get Maidenhead grid
@@ -1579,16 +1530,6 @@ public class ConfigFragment extends Fragment {
                         , true).show();
             }
         });
-        // QRZ help
-        binding.qrzSettingsImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new HelpDialog(requireContext(), requireActivity()
-                        , GeneralVariables.getStringFromResource(R.string.qrz_help)
-                        , true).show();
-            }
-        });
-
         // Maidenhead grid help
         binding.maidenGridImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1823,38 +1764,6 @@ public class ConfigFragment extends Fragment {
                     }
                 }).start();}
         });
-        // QRZ test...
-        binding.testQrzButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                binding.testQrzButton.setEnabled(false);
-                binding.testQrzButton.setText(getResources().getString(R.string.testing));
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean result = ThirdPartyService.CheckQRZConnection();
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (result) {
-                                    binding.testQrzButton.setText(getResources().getString(R.string.pass));
-                                } else {
-                                    binding.testQrzButton.setText(getResources().getString(R.string.fail));
-                                }
-                                // Clear text
-                                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        binding.testQrzButton.setEnabled(true);
-                                        binding.testQrzButton.setText(getResources().getString(R.string.test));
-                                    }
-                                }, 3000);
-                            }
-                        });
-                    }
-                }).start();}
-        });
-
         binding.clearFollowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

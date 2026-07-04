@@ -55,7 +55,6 @@ import com.k1af.ft8af.wave.UsbAudioNative
 import com.k1af.ft8af.log.OnShareLogEvents
 import com.k1af.ft8af.maidenhead.MaidenheadGrid
 import com.k1af.ft8af.ui.ToastMessage
-import radio.ks3ckc.ft8af.pota.PotaSessionManager
 import radio.ks3ckc.ft8af.theme.FT8AFTheme
 import radio.ks3ckc.ft8af.theme.applyTheme
 import radio.ks3ckc.ft8af.theme.loadTheme
@@ -161,7 +160,7 @@ class ComposeMainActivity : AppCompatActivity() {
         // ATTACH event can rebind cleanly.
         registerUsbDetachReceiver()
 
-        // Auto-upload QSOs that failed to reach QRZ/Cloudlog while offline: listen for
+        // Auto-upload QSOs that failed to reach Cloudlog while offline: listen for
         // connectivity returning and flush the unsynced rows, and flush once on start
         // (covers a QSO logged offline before the app was last closed). No-op unless a
         // service is enabled and rows are actually pending.
@@ -230,22 +229,6 @@ class ComposeMainActivity : AppCompatActivity() {
         } else {
             doReceiveShareFile(intent)
         }
-
-        // Handle a tapped Needed-DX alert (cold start).
-        handleAlertIntent(intent)
-    }
-
-    /**
-     * If [intent] came from a tapped Needed-DX notification, publish the alerted callsign
-     * so the Decode screen can switch to itself and scroll to + highlight that station.
-     */
-    private fun handleAlertIntent(intent: Intent?) {
-        val callsign = intent?.getStringExtra(
-            com.k1af.ft8af.alert.DxAlertNotifier.EXTRA_CALLSIGN,
-        ) ?: return
-        if (callsign.isBlank()) return
-        fileLog("handleAlertIntent: preselect $callsign")
-        mainViewModel.mutablePreselectCallsign.postValue(callsign)
     }
 
     private fun buildPermissionsList(): Array<String> {
@@ -391,9 +374,6 @@ class ComposeMainActivity : AppCompatActivity() {
                 // persisted operating mode is known, rebuild them for it and sync the UI.
                 mainViewModel.applyLoadedOperatingMode()
 
-                // Resume any POTA activation that was interrupted by app close
-                PotaSessionManager.resume()
-
                 // Scan for USB devices AFTER config is loaded
                 fileLog("initData: scanning USB devices")
                 mainViewModel.getUsbDevice()
@@ -532,8 +512,6 @@ class ComposeMainActivity : AppCompatActivity() {
         } else {
             setIntent(intent)
             doReceiveShareFile(intent)
-            // Handle a tapped Needed-DX alert (app already running).
-            handleAlertIntent(intent)
         }
     }
 

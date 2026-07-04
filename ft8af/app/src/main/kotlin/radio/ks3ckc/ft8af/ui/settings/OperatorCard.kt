@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.k1af.ft8af.R
 import radio.ks3ckc.ft8af.theme.*
-import radio.ks3ckc.ft8af.ui.decode.QrzAvatar
+import radio.ks3ckc.ft8af.ui.decode.CallsignAvatar
 
 /**
  * Operator identity card with amber gradient background, callsign avatar,
@@ -89,8 +89,8 @@ fun OperatorCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // Callsign avatar (QRZ photo with initials fallback)
-                QrzAvatar(callsign = callsign, size = 56.dp, fallbackText = initials)
+                // Callsign avatar (initials)
+                CallsignAvatar(size = 56.dp, fallbackText = initials)
 
                 // Callsign + grid
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

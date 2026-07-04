@@ -78,12 +78,6 @@ public class CallingListAdapter extends RecyclerView.Adapter<CallingListAdapter.
                                 .setActionView(view);
 
                     }
-                    if (showMode!=ShowMode.TRACKER) {
-                        contextMenu.add(0, 5, 0
-                                , String.format(GeneralVariables.getStringFromResource(R.string.qsl_qrz_confirmation_s)
-                                        , ft8Message.getCallsignTo())).setActionView(view);
-                    }
-
                     // Add query log entry
                     contextMenu.add(0, 7, 0
                             , String.format(GeneralVariables.getStringFromResource(R.string.qsl_query_log_menu)
@@ -106,12 +100,6 @@ public class CallingListAdapter extends RecyclerView.Adapter<CallingListAdapter.
                                 GeneralVariables.getStringFromResource(R.string.calling)
                                 , ft8Message.getCallsignFrom(), ft8Message.fromWhere))
                         .setActionView(view);
-                if (showMode!=ShowMode.TRACKER) {
-                    contextMenu.add(1, 6, 0
-                            , String.format(GeneralVariables.getStringFromResource(R.string.qsl_qrz_confirmation_s)
-                                    , ft8Message.getCallsignFrom())).setActionView(view);
-                }
-
                 // Add query log entry
                 contextMenu.add(0, 8, 0
                         , String.format(GeneralVariables.getStringFromResource(R.string.qsl_query_log_menu)

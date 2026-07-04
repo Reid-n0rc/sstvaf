@@ -406,12 +406,6 @@ public class CallingListFragment extends Fragment {
                 GeneralVariables.resetLaunchSupervision();// Reset transmit supervision
                 navigateToMyCallFragment();// Navigate to the transmit view
                 break;
-            case 5:// QRZ for 'to'
-                showQrzFragment(ft8Message.getCallsignTo());
-                break;
-            case 6:// QRZ for 'from'
-                showQrzFragment(ft8Message.getCallsignFrom());
-                break;
             case 7:// Query 'to' log
                 navigateToLogFragment(ft8Message.getCallsignTo());
                 break;
@@ -422,19 +416,6 @@ public class CallingListFragment extends Fragment {
         }
 
         return super.onContextItemSelected(item);
-    }
-
-    /**
-     * Show QRZ query view.
-     *
-     * @param callsign Callsign
-     */
-    private void showQrzFragment(String callsign) {
-        NavHostFragment navHostFragment = (NavHostFragment) requireActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
-        assert navHostFragment != null;// Assert not null
-        Bundle bundle = new Bundle();
-        bundle.putString(QRZ_Fragment.CALLSIGN_PARAM, callsign);
-        navHostFragment.getNavController().navigate(R.id.QRZ_Fragment, bundle);
     }
 
     @Override

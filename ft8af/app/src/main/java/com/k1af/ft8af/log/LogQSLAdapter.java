@@ -219,17 +219,6 @@ public class LogQSLAdapter extends RecyclerView.Adapter<LogQSLAdapter.LogQSLItem
                                 , String.format(GeneralVariables.getStringFromResource(R.string.qsl_manual_confirmation_s)
                                         , record.getCall())).setActionView(view);
                     }
-                    contextMenu.add(0, 2, 0
-                            , String.format(GeneralVariables.getStringFromResource(R.string.qsl_qrz_confirmation_s)
-                                    , record.getCall())).setActionView(view);
-
-                    if (record.getGridsquare() != null && !record.getGridsquare().equals("")
-                            && record.getMy_gridsquare() != null && !record.getMy_gridsquare().equals("")) {
-                        contextMenu.add(0, 3, 0
-                                        , GeneralVariables.getStringFromResource(R.string.log_menu_location))
-                                .setActionView(view);
-                    }
-
                     contextMenu.add(0, 4, 0, "Edit QSO").setActionView(view);
                 }
             });

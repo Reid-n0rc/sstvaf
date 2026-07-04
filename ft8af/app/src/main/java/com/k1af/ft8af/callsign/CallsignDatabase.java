@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
-import com.google.android.gms.maps.model.LatLng;
+import com.k1af.ft8af.maidenhead.LatLng;
 
 import java.util.ArrayList;
 import java.util.Set;

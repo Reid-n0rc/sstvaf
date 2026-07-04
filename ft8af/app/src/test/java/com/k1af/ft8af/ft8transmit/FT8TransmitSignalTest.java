@@ -317,30 +317,6 @@ public class FT8TransmitSignalTest {
         assertThat(FT8TransmitSignal.shouldResetTargetOnSlotToggle("  ")).isFalse();
     }
 
-    // ---- huntFilterExcludes -------------------------------------------------
-    // Couples the "CQ POTA" decode filter to Hunt: with the filter active
-    // (huntPotaOnly), the auto-call scans must skip any CQ that isn't a POTA CQ
-    // so Hunt never calls a general station. Issue #333.
-
-    @Test
-    public void huntFilter_potaOnlyOff_excludesNothing() {
-        // No POTA filter: every CQ is eligible regardless of whether it's POTA.
-        assertThat(FT8TransmitSignal.huntFilterExcludes(false, false)).isFalse();
-        assertThat(FT8TransmitSignal.huntFilterExcludes(false, true)).isFalse();
-    }
-
-    @Test
-    public void huntFilter_potaOnlyOn_excludesNonPota() {
-        // The bug fix: with "CQ POTA" selected, a non-POTA CQ must be skipped.
-        assertThat(FT8TransmitSignal.huntFilterExcludes(true, false)).isTrue();
-    }
-
-    @Test
-    public void huntFilter_potaOnlyOn_keepsPota() {
-        // A genuine POTA CQ stays eligible when the filter is active.
-        assertThat(FT8TransmitSignal.huntFilterExcludes(true, true)).isFalse();
-    }
-
     // ---- shouldFollowTargetFreq ---------------------------------------------
     // TX=RX (synFrequency) mode moves our TX offset onto the station we answer.
     // "Hold TX freq" (WSJT-X Hold Tx Freq) must override that and keep us on our own

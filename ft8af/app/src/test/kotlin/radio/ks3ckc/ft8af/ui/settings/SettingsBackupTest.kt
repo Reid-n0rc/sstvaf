@@ -17,7 +17,7 @@ class SettingsBackupTest {
         "callsign" to "K1AF",
         "grid" to "FN42",
         "cloudlogApiKey" to "secret-key",
-        "qrzXmlPassword" to "hunter2",
+        "icomPassword" to "hunter2",
         "pttDelay" to "50",
     )
 
@@ -28,14 +28,14 @@ class SettingsBackupTest {
         val filtered = SettingsBackup.filterConfig(sampleConfig, includeSensitive = false)
         assertThat(filtered.keys).containsExactly("callsign", "grid", "pttDelay")
         assertThat(filtered).doesNotContainKey("cloudlogApiKey")
-        assertThat(filtered).doesNotContainKey("qrzXmlPassword")
+        assertThat(filtered).doesNotContainKey("icomPassword")
     }
 
     @Test
     fun `filterConfig keeps sensitive keys when opted in`() {
         val filtered = SettingsBackup.filterConfig(sampleConfig, includeSensitive = true)
         assertThat(filtered).containsKey("cloudlogApiKey")
-        assertThat(filtered).containsKey("qrzXmlPassword")
+        assertThat(filtered).containsKey("icomPassword")
         assertThat(filtered).hasSize(sampleConfig.size)
     }
 

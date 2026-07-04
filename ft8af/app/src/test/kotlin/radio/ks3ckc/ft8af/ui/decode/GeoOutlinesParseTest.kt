@@ -1,4 +1,4 @@
-package radio.ks3ckc.ft8af.ui.map
+package radio.ks3ckc.ft8af.ui.decode
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

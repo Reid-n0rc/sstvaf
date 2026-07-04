@@ -73,7 +73,6 @@ import com.k1af.ft8af.ft8transmit.FT8TransmitSignal;
 import com.k1af.ft8af.ft8transmit.MeterProtectionController;
 import com.k1af.ft8af.ft8transmit.OnDoTransmitted;
 import com.k1af.ft8af.ft8transmit.OnTransmitSuccess;
-import com.k1af.ft8af.html.LogHttpServer;
 import com.k1af.ft8af.icom.WifiRig;
 import com.k1af.ft8af.log.QSLCallsignRecord;
 import com.k1af.ft8af.log.QSLRecord;
@@ -116,7 +115,6 @@ import com.k1af.ft8af.wave.OnGetVoiceDataDone;
 import com.k1af.ft8af.x6100.X6100Radio;
 
 import radio.ks3ckc.ft8af.UsbPermissionIntentsKt;
-import radio.ks3ckc.ft8af.pskreporter.PskReporterSender;
 
 import java.io.File;
 import java.io.IOException;
@@ -166,12 +164,6 @@ public class MainViewModel extends ViewModel {
     // late/deep pass and slot N+1's early pass call afterDecode concurrently (#398).
     private final DecodeCycleState decodeCycleState = new DecodeCycleState();
     public MutableLiveData<ArrayList<Ft8Message>> mutableFt8MessageList = new MutableLiveData<>();//message list
-    // Needed-DX alerts: posts sound+vibrate notifications for new DXCC/state CQ stations.
-    public final com.k1af.ft8af.alert.DxAlertNotifier dxAlertNotifier =
-            new com.k1af.ft8af.alert.DxAlertNotifier(GeneralVariables.getMainContext());
-    // Callsign from a tapped Needed-DX notification; the Decode screen observes this to
-    // scroll to + highlight that station (pre-select). Set by ComposeMainActivity.
-    public MutableLiveData<String> mutablePreselectCallsign = new MutableLiveData<>();
     public MutableLiveData<Long> timerSec = new MutableLiveData<>();//current UTC time. Update frequency determined by UtcTimer, ~100ms when not triggered.
     public MutableLiveData<Boolean> mutableIsRecording = new MutableLiveData<>();//whether currently recording
     public MutableLiveData<Boolean> mutableHamRecordIsRunning = new MutableLiveData<>();//whether HamRecord is running
@@ -430,9 +422,6 @@ public class MainViewModel extends ViewModel {
     //public ArrayList<String> followCallsign = new ArrayList<>();
 
 
-    //log management HTTP SERVER
-    private final LogHttpServer httpServer;
-
     /**
      * Get the MainViewModel instance, ensuring a unique instance exists throughout the entire app lifecycle.
      *
@@ -552,8 +541,8 @@ public class MainViewModel extends ViewModel {
                 // whose sender is our own callsign can only be that loopback, so it must
                 // not reach the message list, QSO panel, or SWL database. See
                 // OwnTxEchoFilter for the rationale. The QSO panel already shows what we
-                // send via its synthesized TX entry, and PSKReporter / the auto-sequence
-                // already ignore own-callsign messages.
+                // send via its synthesized TX entry, and the auto-sequence already
+                // ignores own-callsign messages.
                 OwnTxEchoFilter filtered = OwnTxEchoFilter.filter(decoded);
                 ArrayList<Ft8Message> messages = filtered.kept;
                 // Diagnostic for the "missing other station responses" report: record how
@@ -678,9 +667,6 @@ public class MainViewModel extends ViewModel {
                 }
                 //find callsign-to-grid mapping from the list and add to the table
                 getCallsignAndGrid(messages);
-
-                //upload decoded spots to PSKReporter
-                PskReporterSender.INSTANCE.enqueue(messages);
             }
         });
 
@@ -693,9 +679,6 @@ public class MainViewModel extends ViewModel {
 
 
         ft8SignalListener.startListen();
-
-        //start PSKReporter spot upload sender
-        PskReporterSender.INSTANCE.start();
 
         //spectrum listener object
         spectrumListener = new SpectrumListener(hamRecorder);
@@ -810,24 +793,17 @@ public class MainViewModel extends ViewModel {
             public void doAfterTransmit(QSLRecord qslRecord) {
                 databaseOpr.addQSL_Callsign(qslRecord);//two operations: record callsign and QSL
 
-                // QSO-complete alert (opt-in). Fires once per logged contact.
-                dxAlertNotifier.notifyQsoComplete(qslRecord);
-
                 // record to third-party service; may take some time
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         boolean cloudlogOk = false;
-                        boolean qrzOk = false;
                         if (GeneralVariables.enableCloudlog){
                             cloudlogOk = ThirdPartyService.UploadToCloudLog(qslRecord);
                         }
-                        if (GeneralVariables.enableQRZ){
-                            qrzOk = ThirdPartyService.UploadToQRZ(qslRecord);
-                        }
-                        if (databaseOpr != null && (cloudlogOk || qrzOk)) {
+                        if (databaseOpr != null && cloudlogOk) {
                             ThirdPartyService.markQsoSynced(
-                                    databaseOpr.getDb(), qslRecord, cloudlogOk, qrzOk);
+                                    databaseOpr.getDb(), qslRecord, cloudlogOk);
                         }
                     }
                 }).start();
@@ -851,14 +827,6 @@ public class MainViewModel extends ViewModel {
         meterProtectionController = new MeterProtectionController();
         meterProtectionController.setTransmitSignal(ft8TransmitSignal);
         ft8TransmitSignal.setMeterProtectionController(meterProtectionController);
-
-        //open HTTP SERVER
-        httpServer = new LogHttpServer(this, LogHttpServer.DEFAULT_PORT);
-        try {
-            httpServer.start();
-        } catch (IOException e) {
-            Log.e(TAG, "http server error:" + e.getMessage());
-        }
     }
 
     public void setTransmitIsFreeText(boolean isFreeText) {
@@ -1571,7 +1539,7 @@ public class MainViewModel extends ViewModel {
                 break;
         }
 
-        // Store the rig name for PSKReporter software string.
+        // Store the rig name for display (Settings connection card).
         // Use the user-selected model name from RigNameList (same source as the
         // Settings rig picker) rather than the Java class name, which can
         // differ (e.g. YaesuDX10Rig for FT-710).
@@ -1776,8 +1744,6 @@ public class MainViewModel extends ViewModel {
         public void run() {
             CallsignDatabase.getMessagesLocation(
                     GeneralVariables.callsignDatabase.getDb(), messages);
-            // Entity/state flags are now populated — fire Needed-DX alerts before the UI refresh.
-            mainViewModel.dxAlertNotifier.processDecodes(messages);
             mainViewModel.publishFt8MessageList();
         }
     }
@@ -1802,7 +1768,6 @@ public class MainViewModel extends ViewModel {
         // ViewModel is cleared while still "connected" the Timer thread would keep probing
         // the rig indefinitely. Tear it down here too.
         stopCatLivenessWatchdog();
-        PskReporterSender.INSTANCE.stop();
         getQTHThreadPool.shutdown();
         sendWaveDataThreadPool.shutdown();
     }

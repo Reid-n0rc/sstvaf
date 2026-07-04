@@ -12,9 +12,9 @@ import java.io.File
  * reflection sites) look up by string. If someone deletes minifyEnabled or one
  * of those keep rules, the app still *builds* — it just silently breaks decode
  * (Ft8Message fields obfuscated), USB audio capture (callback methods renamed),
- * USB serial probing (driver ctor/getSupportedDevices stripped), or POTA login
- * (AWS Cognito SDK shrunk). None of that is caught by a normal unit test, so
- * assert the configuration itself stays intact.
+ * or USB serial probing (driver ctor/getSupportedDevices stripped). None of
+ * that is caught by a normal unit test, so assert the configuration itself
+ * stays intact.
  *
  * Unit tests run with the working directory at the module root (ft8af/app), so
  * both files resolve relative to it.
@@ -58,11 +58,6 @@ class R8KeepRulesTest {
             .contains("implements com.k1af.ft8af.serialport.UsbSerialDriver")
         assertThat(proguardRules).contains("<init>(android.hardware.usb.UsbDevice)")
         assertThat(proguardRules).contains("getSupportedDevices()")
-    }
-
-    @Test
-    fun keepsAwsCognitoSdk() {
-        assertThat(proguardRules).contains("-keep class com.amazonaws.** { *; }")
     }
 
     @Test

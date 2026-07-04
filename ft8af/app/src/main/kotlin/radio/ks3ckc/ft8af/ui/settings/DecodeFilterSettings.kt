@@ -16,8 +16,7 @@ import radio.ks3ckc.ft8af.ui.components.GlassCard
 import radio.ks3ckc.ft8af.ui.components.SettingsRow
 
 /**
- * Decode-list settings: highlight rules, callsign blocklist, display filters,
- * and needed-DX alerts.
+ * Decode-list settings: highlight rules, callsign blocklist, and display filters.
  */
 @Composable
 fun DecodeFilterSettings(
@@ -29,7 +28,6 @@ fun DecodeFilterSettings(
     var highlightNewGrid by remember { mutableStateOf(GeneralVariables.highlightNewGrid) }
     var highlightNewBand by remember { mutableStateOf(GeneralVariables.highlightNewBand) }
     var highlightWorked by remember { mutableStateOf(GeneralVariables.highlightWorked) }
-    var highlightPota by remember { mutableStateOf(GeneralVariables.highlightPota) }
     var distanceInMiles by remember { mutableStateOf(GeneralVariables.distanceInMiles) }
 
     // Callsign blocklist (comma-separated entries) + decode display filters
@@ -43,10 +41,6 @@ fun DecodeFilterSettings(
     var filterContinent by remember { mutableStateOf(GeneralVariables.filterContinent) }
     var respectDirectionalCQ by remember { mutableStateOf(GeneralVariables.respectDirectionalCQ) }
     var filterDirectionalCQ by remember { mutableStateOf(GeneralVariables.filterDirectionalCQ) }
-    var alertNewDxcc by remember { mutableStateOf(GeneralVariables.alertNewDxcc) }
-    var alertNewState by remember { mutableStateOf(GeneralVariables.alertNewState) }
-    var alertOnCqReply by remember { mutableStateOf(GeneralVariables.alertOnCqReply) }
-    var alertOnQsoComplete by remember { mutableStateOf(GeneralVariables.alertOnQsoComplete) }
 
     // Continent codes (stored on the message) and their display names, parallel lists.
     val continentCodes = listOf("NA", "SA", "EU", "AF", "AS", "OC", "AN")
@@ -176,19 +170,6 @@ fun DecodeFilterSettings(
                             GeneralVariables.highlightNewBand = checked
                             mainViewModel.databaseOpr.writeConfig(
                                 "highlightNewBand", if (checked) "1" else "0", null,
-                            )
-                        },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_highlight_pota),
-                        description = stringResource(R.string.settings_highlight_pota_desc),
-                        toggle = highlightPota,
-                        onToggleChange = { checked ->
-                            highlightPota = checked
-                            GeneralVariables.highlightPota = checked
-                            mainViewModel.databaseOpr.writeConfig(
-                                "highlightPota", if (checked) "1" else "0", null,
                             )
                         },
                     )
@@ -353,65 +334,5 @@ fun DecodeFilterSettings(
             }
         }
 
-        // =====================================================================
-        // NEEDED-DX ALERTS
-        // =====================================================================
-        SettingsSection(title = stringResource(R.string.settings_section_needed_dx_alerts)) {
-            GlassCard(modifier = Modifier.fillMaxWidth()) {
-                Column {
-                    SettingsRow(
-                        label = stringResource(R.string.settings_alert_new_dxcc),
-                        description = stringResource(R.string.settings_alert_new_dxcc_desc),
-                        toggle = alertNewDxcc,
-                        onToggleChange = { checked ->
-                            alertNewDxcc = checked
-                            GeneralVariables.alertNewDxcc = checked
-                            mainViewModel.databaseOpr.writeConfig(
-                                "alertNewDxcc", if (checked) "1" else "0", null,
-                            )
-                        },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_alert_new_state),
-                        description = stringResource(R.string.settings_alert_new_state_desc),
-                        toggle = alertNewState,
-                        onToggleChange = { checked ->
-                            alertNewState = checked
-                            GeneralVariables.alertNewState = checked
-                            mainViewModel.databaseOpr.writeConfig(
-                                "alertNewState", if (checked) "1" else "0", null,
-                            )
-                        },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_alert_cq_reply),
-                        description = stringResource(R.string.settings_alert_cq_reply_desc),
-                        toggle = alertOnCqReply,
-                        onToggleChange = { checked ->
-                            alertOnCqReply = checked
-                            GeneralVariables.alertOnCqReply = checked
-                            mainViewModel.databaseOpr.writeConfig(
-                                "alertOnCqReply", if (checked) "1" else "0", null,
-                            )
-                        },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_alert_qso_complete),
-                        description = stringResource(R.string.settings_alert_qso_complete_desc),
-                        toggle = alertOnQsoComplete,
-                        onToggleChange = { checked ->
-                            alertOnQsoComplete = checked
-                            GeneralVariables.alertOnQsoComplete = checked
-                            mainViewModel.databaseOpr.writeConfig(
-                                "alertOnQsoComplete", if (checked) "1" else "0", null,
-                            )
-                        },
-                    )
-                }
-            }
-        }
     }
 }

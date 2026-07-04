@@ -8,7 +8,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.maidenhead.MaidenheadGrid;
-import com.google.android.gms.maps.model.LatLng;
+import com.k1af.ft8af.maidenhead.LatLng;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

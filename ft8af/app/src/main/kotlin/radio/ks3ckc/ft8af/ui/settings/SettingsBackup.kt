@@ -27,9 +27,6 @@ object SettingsBackup {
      */
     val SENSITIVE_KEYS: Set<String> = setOf(
         "cloudlogApiKey",
-        "qrzApiKey",
-        "qrzXmlUsername",
-        "qrzXmlPassword",
         "icomUserName",
         "icomPassword",
     )

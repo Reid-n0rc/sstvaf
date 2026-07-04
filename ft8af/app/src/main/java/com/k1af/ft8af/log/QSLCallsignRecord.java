@@ -24,7 +24,6 @@ public class QSLCallsignRecord {
     public boolean isQSL=false;//Whether manually confirmed
     public boolean isLotW_QSL = false;//Whether confirmed via LoTW
     public boolean syncedCloudlog = false;//Whether at least one underlying row was accepted by Cloudlog/Wavelog/Nextlog
-    public boolean syncedQrz = false;//Whether at least one underlying row was accepted by QRZ
 
     public String getCallsign() {
         return callsign;

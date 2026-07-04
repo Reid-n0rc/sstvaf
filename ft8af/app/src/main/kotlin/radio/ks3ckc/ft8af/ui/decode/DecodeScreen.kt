@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -63,24 +62,8 @@ fun DecodeScreen(
     // Filter state. Backed by the ViewModel so the chosen filter survives
     // navigation away from Decode and back (the screen is recreated by the
     // tab switch, which would otherwise reset a local rememberSaveable).
-    val filterOptions = listOf("All", "CQ Calls", "CQ POTA", "New DXCC", "Needed", "For Me")
+    val filterOptions = listOf("All", "CQ Calls", "New DXCC", "Needed", "For Me")
     val selectedFilter by mainViewModel.decodeFilter.observeAsState("All")
-
-    // Couple the "CQ POTA" display filter to Hunt: while it's selected, the auto-call
-    // path (FT8TransmitSignal) restricts itself to POTA CQs and won't call general
-    // stations. decodeFilter is only ever mutated from this screen, so syncing here on
-    // every change — including the reset to "All" — keeps the flag accurate (issue #333).
-    LaunchedEffect(selectedFilter) {
-        GeneralVariables.huntPotaOnly = selectedFilter == "CQ POTA"
-    }
-
-    // Keep the POTA spots cache warm while the user is browsing decodes so the
-    // CQ POTA filter and the green POTA pill on spotted activators work even
-    // without visiting the POTA tab. Ref-counted with the POTA screen.
-    DisposableEffect(Unit) {
-        radio.ks3ckc.ft8af.pota.PotaSpotsRepository.start()
-        onDispose { radio.ks3ckc.ft8af.pota.PotaSpotsRepository.stop() }
-    }
 
     // Bottom-sheet state lives in the ViewModel so it survives navigation
     // away from this screen during an active QSO.
@@ -176,22 +159,6 @@ fun DecodeScreen(
             listState.animateScrollToItem(filteredMessages.size - 1)
         }
         previousCount = filteredMessages.size
-    }
-
-    // A tapped Needed-DX notification asks us to pre-select that station: reset to the
-    // "All" filter so it's visible, scroll to its latest decode, and open the QSO sheet
-    // (which shows the station detail + a Call button). We do NOT auto-transmit.
-    val preselectCallsign by mainViewModel.mutablePreselectCallsign.observeAsState()
-    LaunchedEffect(preselectCallsign, messageList?.size) {
-        val cs = preselectCallsign
-        if (cs.isNullOrBlank()) return@LaunchedEffect
-        val present = (messageList ?: arrayListOf())
-            .any { it.callsignFrom.equals(cs, ignoreCase = true) }
-        if (!present) return@LaunchedEffect          // wait until the station is in the list
-        mainViewModel.decodeFilter.postValue("All")
-        mainViewModel.qsoSheetCallsign.postValue(cs)
-        mainViewModel.qsoSheetMinimized.postValue(false)
-        mainViewModel.mutablePreselectCallsign.postValue(null)   // consume (allow re-trigger)
     }
 
     // Compact mode — persisted via GeneralVariables.simpleCallItemMode / DB key "msgMode"
@@ -460,9 +427,6 @@ internal fun filterMessages(
 
     return when (filter) {
         "CQ Calls" -> base.filter { it.checkIsCQ() }
-        // Same predicate the Hunt auto-call path uses (PotaCqClassifier), so selecting
-        // this filter and hunting agree on who counts as a POTA station — see issue #333.
-        "CQ POTA" -> base.filter { radio.ks3ckc.ft8af.pota.PotaCqClassifier.isPotaCq(it) }
         "New DXCC" -> base.filter { it.checkIsCQ() && it.fromDxcc }
         "Needed" -> base.filter {
             !it.isQSL_Callsign &&
@@ -486,7 +450,6 @@ internal fun EmptyState(
 ) {
     val (title, subtitle) = when (selectedFilter) {
         "CQ Calls" -> stringResource(R.string.decode_empty_cq_title) to stringResource(R.string.decode_empty_cq_body)
-        "CQ POTA" -> stringResource(R.string.decode_empty_pota_title) to stringResource(R.string.decode_empty_pota_body)
         "New DXCC" -> stringResource(R.string.decode_empty_dxcc_title) to stringResource(R.string.decode_empty_dxcc_body)
         "Needed" -> stringResource(R.string.decode_empty_needed_title) to stringResource(R.string.decode_empty_needed_body)
         "For Me" -> stringResource(R.string.decode_empty_forme_title) to stringResource(R.string.decode_empty_forme_body)

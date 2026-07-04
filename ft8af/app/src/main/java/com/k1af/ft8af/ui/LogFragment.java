@@ -17,8 +17,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,8 +40,6 @@ import com.k1af.ft8af.MainViewModel;
 import com.k1af.ft8af.R;
 import com.k1af.ft8af.log.ShareLogs;
 import com.k1af.ft8af.databinding.FragmentLogBinding;
-import com.k1af.ft8af.grid_tracker.GridTrackerMainActivity;
-import com.k1af.ft8af.html.LogHttpServer;
 import com.k1af.ft8af.log.LogCallsignAdapter;
 import com.k1af.ft8af.log.LogQSLAdapter;
 import com.k1af.ft8af.log.OnQueryQSLCallsign;
@@ -144,23 +140,8 @@ public class LogFragment extends Fragment {
             }
         });
 
-        // Export button
-        binding.exportImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (getLocalIp() == null) {
-                    new HelpDialog(requireContext(), requireActivity()
-                            , GeneralVariables.getStringFromResource(R.string.export_null)
-                            , false).show();
-                } else {
-                    new HelpDialog(requireContext(), requireActivity()
-                            , String.format(GeneralVariables.getStringFromResource(R.string.export_info)
-                            , getLocalIp(), LogHttpServer.DEFAULT_PORT)
-                            , false).show();
-                }
-
-            }
-        });
+        // The log web server was removed; hide its export entry point.
+        binding.exportImageButton.setVisibility(View.GONE);
 
         // Share log button — opens the new export sheet (ADIF .adi share or Save to Downloads).
         binding.shareLogImageButton.setOnClickListener(new View.OnClickListener() {
@@ -179,16 +160,8 @@ public class LogFragment extends Fragment {
             }
         });
 
-        // Location button action
-        binding.locationInMapImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(requireContext(), GridTrackerMainActivity.class);
-                intent.putExtra("qslAll", mainViewModel.queryKey);
-                intent.putExtra("queryFilter", mainViewModel.queryFilter);
-                startActivity(intent);
-            }
-        });
+        // The grid tracker map was removed; hide its launch button.
+        binding.locationInMapImageButton.setVisibility(View.GONE);
 
         // Check if the share log generation thread is still running; if so, show dialog
         if (Boolean.TRUE.equals(mainViewModel.mutableShareRunning.getValue())) {
@@ -296,14 +269,6 @@ public class LogFragment extends Fragment {
                     logQSLAdapter.setRecordIsQSL(position, true);
                     logQSLAdapter.notifyItemChanged(position);
                     break;
-                case 2:
-                    showQrzFragment(logQSLAdapter.getRecord(position).getCall());
-                    break;
-                case 3:
-                    Intent intent = new Intent(requireContext(), GridTrackerMainActivity.class);
-                    intent.putExtra("qslList", logQSLAdapter.getRecord(position));
-                    startActivity(intent);
-                    break;
                 case 4:
                     final int editPos = position;
                     new EditQSLDialog(requireContext(), mainViewModel
@@ -316,10 +281,6 @@ public class LogFragment extends Fragment {
                             }).show();
                     break;
 
-            }
-        } else {
-            if (item.getItemId() == 2) {
-                showQrzFragment(logCallsignAdapter.getRecord(position).getCallsign());
             }
         }
 
@@ -507,12 +468,10 @@ public class LogFragment extends Fragment {
             binding.logViewStyleimageButton.setImageResource(R.drawable.ic_baseline_assignment_ind_24);
             binding.logRecyclerView.setAdapter(logCallsignAdapter);
             logCallsignAdapter.notifyDataSetChanged();
-            binding.locationInMapImageButton.setVisibility(View.GONE);// Hide location button
         } else {
             binding.logViewStyleimageButton.setImageResource(R.drawable.ic_baseline_assignment_24);
             binding.logRecyclerView.setAdapter(logQSLAdapter);
             logQSLAdapter.notifyDataSetChanged();
-            binding.locationInMapImageButton.setVisibility(View.VISIBLE);// Show location button
         }
 
     }
@@ -574,41 +533,6 @@ public class LogFragment extends Fragment {
                 .getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         assert navHostFragment != null;// Assert not null
         navHostFragment.getNavController().navigate(R.id.countFragment);
-    }
-
-    /**
-     * Show the QRZ lookup interface.
-     *
-     * @param callsign callsign to look up
-     */
-    private void showQrzFragment(String callsign) {
-        NavHostFragment navHostFragment = (NavHostFragment) requireActivity()
-                .getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
-        assert navHostFragment != null;// Assert not null
-        Bundle bundle = new Bundle();
-        bundle.putString(QRZ_Fragment.CALLSIGN_PARAM, callsign);
-        navHostFragment.getNavController().navigate(R.id.QRZ_Fragment, bundle);
-    }
-
-
-    /**
-     * Get the local IP address.
-     *
-     * @return IP address
-     */
-    @Nullable
-    private String getLocalIp() {
-        WifiManager wifiManager = (WifiManager) requireContext().getApplicationContext()
-                .getSystemService(Context.WIFI_SERVICE);
-        if (wifiManager == null) return null;
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        if (wifiInfo == null) return null;
-        int ipAddress = wifiInfo.getIpAddress();
-        if (ipAddress == 0) {
-            return null;
-        }
-        return ((ipAddress & 0xff) + "." + (ipAddress >> 8 & 0xff) + "." + (ipAddress >> 16 & 0xff)
-                + "." + (ipAddress >> 24 & 0xff));
     }
 
     @Override
