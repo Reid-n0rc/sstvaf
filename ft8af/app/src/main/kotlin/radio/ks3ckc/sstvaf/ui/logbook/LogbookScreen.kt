@@ -46,6 +46,7 @@ import radio.ks3ckc.sstvaf.ui.motion.MotionTokens
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -94,6 +95,7 @@ import radio.ks3ckc.sstvaf.ui.components.StatusPill
 import radio.ks3ckc.sstvaf.ui.components.TopBar
 import radio.ks3ckc.sstvaf.ui.components.TopBarSubtitle
 import radio.ks3ckc.sstvaf.ui.decode.UsStateLookup
+import radio.ks3ckc.sstvaf.ui.tx.initialTxMode
 import kotlin.coroutines.resume
 
 // ---------------------------------------------------------------------------
@@ -151,6 +153,7 @@ private data class AwardProgress(
 fun LogbookScreen(mainViewModel: MainViewModel) {
     var activeTab by remember { mutableStateOf(LogbookTab.STATS) }
     var exportSheetVisible by remember { mutableStateOf(false) }
+    var manualQsoVisible by remember { mutableStateOf(false) }
 
     // Async-loaded state
     var stats by remember { mutableStateOf(LogbookStats()) }
@@ -268,6 +271,13 @@ fun LogbookScreen(mainViewModel: MainViewModel) {
                     TopBarSubtitle(text = stringResource(R.string.log_subtitle_qsos_all_bands, count))
                 },
                 actions = {
+                    IconButton(onClick = { manualQsoVisible = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = stringResource(R.string.log_cd_add_qso),
+                            tint = TextMuted,
+                        )
+                    }
                     IconButton(
                         onClick = {
                             if (syncDialogState?.inProgress == true) return@IconButton
@@ -362,6 +372,34 @@ fun LogbookScreen(mainViewModel: MainViewModel) {
             mainViewModel = mainViewModel,
             onDismiss = { exportSheetVisible = false },
         )
+
+        // Manual QSO entry sheet. Composed only while open so a reopened
+        // sheet starts with fresh field state.
+        if (manualQsoVisible) {
+            ManualQsoSheet(
+                initialFreqMhz = defaultFreqMhzText(GeneralVariables.band),
+                initialMode = initialTxMode(GeneralVariables.sstvTxMode),
+                onDismiss = { manualQsoVisible = false },
+                onSave = { input ->
+                    manualQsoVisible = false
+                    val record = buildManualQsoRecord(
+                        input = input,
+                        nowMillis = System.currentTimeMillis(),
+                        myCallsign = GeneralVariables.myCallsign,
+                        myGrid = GeneralVariables.getMyMaidenheadGrid() ?: "",
+                    )
+                    scope.launch {
+                        withContext(Dispatchers.IO) {
+                            // Same write path the FT8 engine used (QslCallsigns +
+                            // QSLTable insert with dedup); null callback = fire and
+                            // forget, the refreshKey bump below re-queries.
+                            mainViewModel.databaseOpr?.doInsertQSLData(record, null)
+                        }
+                        refreshKey++
+                    }
+                },
+            )
+        }
 
         // Per-row edit dialog
         editingRecord?.let { rec ->
