@@ -2,83 +2,98 @@
 
 **SSTV on Android — picture QSOs from your phone.**
 
-> **Status: under construction.** SSTVAF is being built from the
-> [FT8AF](https://github.com/patrickrb/FT8AF) codebase: the rig CAT control,
-> USB serial/audio, band picker, theming, and logbook carry over; the FT8
-> engine is being replaced with a clean-room SSTV codec (Scottie 1/2,
-> Martin 1/2, Robot 36/72, PD 50/90/120). Until the transformation lands,
-> parts of this README still describe the FT8AF baseline below.
+Receive slow-scan television images straight off the air into a built-in
+gallery (and, optionally, your Photos app), compose and transmit your own
+photos with callsign captions, and drive your radio over USB CAT — all from an
+Android phone or tablet.
 
 ---
 
-# FT8AF baseline (heritage)
+## Features
 
-**FT8 on Android — modernized.**
+### Receive
+- **Live decode view** — watch the image paint line by line as it arrives,
+  with VIS auto-detection, slant correction, and signal quality feedback
+- **Gallery tab** — every received image is saved automatically with mode,
+  frequency, and UTC timestamp; browse, share, or delete from the app
+- **Optional Photos export** — received images can also land in your
+  device's Photos gallery
+- **Background receive** — a foreground service keeps SSTVAF listening for
+  SSTV images with the screen off
 
-🌐 **[ft8af.app](https://ft8af.app)** · 💬 **[Join the Discord](https://discord.gg/tz4spm5nWB)**
+### Transmit
+- **TX composer** — pick any photo, pan/zoom-crop it to the SSTV frame, and
+  stamp callsign/caption overlays (color, size, position presets)
+- **Pre-transmit confirmation** with mode and duration, plus a live progress
+  bar while the image is on the air
 
-A fork of [FT8CN](https://github.com/N0BOY/FT8CN) that takes the excellent original and brings it forward: a Jetpack Compose UI, full English localization, dozens of bug fixes, and a pile of new operating features built for real on-the-air use.
+### Nine SSTV modes
+Scottie 1 / 2 · Martin 1 / 2 · Robot 36 / 72 · PD 50 / 90 / 120
 
-Run FT8 natively on your Android phone or tablet, drive your radio over USB CAT, decode the band, and work the world from anywhere.
+### Radio control
+- USB CAT control for the same rig set as FT8AF (Icom, Yaesu, Kenwood,
+  Elecraft, Xiegu, FlexRadio, Guohe, truSDX, and more), USB audio, Bluetooth,
+  and network rigs
+- Band picker with SSTV calling frequencies, per-band TX level, tune carrier
 
----
-
-## What's New in FT8AF
-
-### UI & UX
-- **Jetpack Compose UI** with a Material 3 dark theme
-- **Localized in 7 languages**: English, Simplified Chinese (ZH-CN), Traditional Chinese (ZH-TW), Russian (RU), Spanish (ES), French (FR), and Japanese (JA)
-- **Active QSO Monitor** — collapsible panel above the TX strip showing the current contact at a glance
-- **Caller queue** so you stay on target during an active QSO instead of bouncing to whoever's loudest
-- **CQ / Stop toggle** button right on the TX strip
-- **TX1 / TX2 time slot toggle** for picking your transmit period
-- **Configurable spectrum width** and continuous waterfall scrolling
-- **UTC timestamps** drawn on the waterfall at FT8 period boundaries
-- **TX volume control** wired to the hardware volume buttons
-
-### Radio & Audio
-- USB CAT control and USB audio reliability fixes (auto-connect race conditions, multi-port handling, serial control)
-- Rig model, control mode, and audio device pickers in the new Compose Settings
-- FT-891 bandwidth correctly set to 3000 Hz in DATA-USB mode
-- TX marker frequency alignment fixes
-
-### Logging
-- **Cloudlog** configuration dialog and automatic log upload
-- **QRZ** automatic log upload
-
-### Stability
-- 58+ bug fixes across two "bug bash" passes: NPE crashes, resource leaks, threading issues, Android lifecycle bugs, encoding errors, RTL support, lint errors for Android 12+
+### Logbook
+- Manual SSTV QSO entry (callsign, grid, RSV exchange, mode, frequency)
+- ADIF export with proper `MODE=SSTV` + `SUBMODE` (e.g. "Scottie 1") fields
+- Cloudlog / Wavelog / Nextlog upload, stats, and award tracking
 
 ---
 
 ## Install
 
-Grab the latest APK from the [Releases](https://github.com/patrickrb/FT8AF/releases) page, or build it yourself:
+Grab the latest APK from the Releases page, or build it yourself (the Android
+module still lives in the `ft8af/` directory — the heritage name is kept so
+history and tooling stay intact):
 
 ```bash
 cd ft8af
 ./gradlew installDebug
 ```
 
+Windows: `cd ft8af && gradlew.bat installDebug`. Builds need JDK 17
+(AGP 8.7.3 / Gradle 8.9).
+
 ---
 
 ## Native code
 
-The FT8 DSP core is a vendored copy of [kgoba's ft8_lib](https://github.com/kgoba/ft8_lib), pinned to a specific upstream commit — see [`ft8af/app/src/main/cpp/ft8_lib/FT8_LIB_PIN.txt`](ft8af/app/src/main/cpp/ft8_lib/FT8_LIB_PIN.txt) for the exact hash. App-specific JNI glue lives alongside it in `ft8af/app/src/main/cpp/ft8af_glue/`. All of it is built from source by the NDK/CMake toolchain into a single `libft8af.so`, so a fresh clone or worktree builds with no manual copying.
-
-Historical note: the app formerly shipped a closed prebuilt `libft8cn.so` — a JNI wrapper around kgoba ft8_lib @ `6f528128`. It is no longer used and no longer present in the repository; the from-source build replaced it entirely.
+The SSTV codec in `ft8af/app/src/main/cpp/sstv_lib/` is a **clean-room
+implementation** written for this project from published mode specifications
+(timing tables, tone frequencies, VIS codes) — no GPL SSTV source was
+consulted. See
+[`ft8af/app/src/main/cpp/sstv_lib/SOURCES.md`](ft8af/app/src/main/cpp/sstv_lib/SOURCES.md)
+for the exact specification sources. The codec and its JNI glue
+(`cpp/sstvaf_glue/`) are built from source by the NDK/CMake toolchain into
+`libsstvaf.so`, so a fresh clone builds with no manual steps. Host-side C
+tests (golden waveform vectors, VIS detection, encode→decode round trips,
+slant correction) run in CI on every PR.
 
 ---
 
-## Thanks
+## Heritage
 
-Massive thanks to **BG7YOZ**, the original author of FT8CN, and **N0BOY**, who hosts the original repository and did the early translation work. None of this exists without their work — this fork stands entirely on their shoulders.
+SSTVAF is built from [FT8AF](https://github.com/patrickrb/FT8AF), which is in
+turn a fork of [FT8CN](https://github.com/N0BOY/FT8CN) by **BG7YOZ** (hosted
+by **N0BOY**). The rig CAT control, USB serial/audio stack, theming, and
+logbook all carry over from that lineage; the FT8 engine was replaced by the
+clean-room SSTV codec. Massive thanks to the FT8CN authors — none of this
+exists without their work.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+## Privacy
+
+No ads, no analytics, no telemetry. See [privacy.md](privacy.md).
 
 ---
 
-## About this fork
-
-Most of the changes in FT8AF were vibe coded on I-70 at 70 mph on the way to and from Hamvention. Laptop on the passenger seat, radio in the back, Claude in the loop. Some of the best debugging happens at highway speed.
+## About
 
 Built by:
 - **Patrick Burns — [K1AF](https://www.qrz.com/db/K1AF)**

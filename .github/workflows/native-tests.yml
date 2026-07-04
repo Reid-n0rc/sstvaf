@@ -1,4 +1,4 @@
-name: Native FT8 tests
+name: Native SSTV tests
 
 # Gates on the clean-room SSTV codec host tests (cpp/sstv_lib +
 # cpp/sstvaf_glue/test_sstv_*.c): mode-table/golden-waveform vectors, VIS
@@ -8,10 +8,12 @@ name: Native FT8 tests
 # required status check (a path-filtered check that doesn't run would leave
 # branch protection stuck "pending").
 #
-# The workflow/job/check names are historical ("FT8 encode/hash golden
-# vectors"): branch protection requires that exact check name, so it is kept
-# even though the FT8 engine (and its host tests) were replaced by the SSTV
-# codec in the SSTVAF transformation.
+# The check name (= job display name) was "FT8 encode/hash golden vectors"
+# until the SSTVAF release-polish PR. The branch-protection API reported no
+# protected branches at the time of the rename, so nothing depended on the
+# old name; if branch protection is (re)enabled, require the check name
+# "SSTV codec host tests". The job *id* stays `golden-encode` so workflow
+# history and any `jobs.<id>` references remain stable.
 
 on:
   pull_request:
@@ -26,7 +28,7 @@ concurrency:
 
 jobs:
   golden-encode:
-    name: FT8 encode/hash golden vectors
+    name: SSTV codec host tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

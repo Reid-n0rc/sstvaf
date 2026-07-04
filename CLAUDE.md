@@ -1,13 +1,12 @@
 # SSTVAF Project Instructions
 
-> **This repo is SSTVAF** — an SSTV app being built from the FT8AF codebase.
-> The Android module still lives under `ft8af/` and the instructions below
-> (build, test, deploy, debug-log paths) still apply as written. The FT8 TX
-> audio pipeline section documents the FT8AF heritage; its two hard-won
-> lessons (don't clip leading audio, USB iso packet length must match the
-> audio rate) apply equally to SSTV transmission. Sections will be updated
-> as the transformation lands (plan: strip FT8 → rebrand → clean-room SSTV
-> codec in `cpp/sstv_lib/`).
+> **This repo is SSTVAF** — an SSTV app built from the FT8AF codebase. The
+> transformation is complete: the FT8 engine is gone, replaced by the
+> clean-room SSTV codec in `cpp/sstv_lib/` (RX/Gallery/TX/Waterfall/Log/
+> Settings tabs). The Android module still lives under `ft8af/` — the
+> heritage directory name is kept deliberately so history, CI, and tooling
+> stay intact — and the instructions below (build, test, deploy, debug-log
+> paths) apply as written.
 
 > **Placeholders.** This file is written for any contributor's machine.
 > Substitute your own values wherever you see `<…>`. The recurring ones:
@@ -61,7 +60,8 @@ git worktree add ../<checkout-dir-name>-<short-task-name> -b feat/<task>
 
 Notes for a fresh worktree:
 
-- The `ft8af/app/src/main/cpp/` native sources (`ft8_lib`, `ft8af_glue`) are
+- The `ft8af/app/src/main/cpp/` native sources (`sstv_lib`, `sstvaf_glue`,
+  the FFT/resampler glue in `ft8af_glue`, `libusb`, `kissfft`) are
   **tracked** in git, so a fresh worktree builds with no manual copying.
 - Build/install from inside the worktree's `ft8af` dir: Windows uses the wrapper
   (`cmd.exe /c "gradlew.bat installDebug"`); macOS uses `./gradlew` (see Build &
@@ -162,52 +162,48 @@ adb -s <phone-serial> pull /sdcard/Android/data/radio.ks3ckc.sstvaf/files/debug.
 ```
 
 For runtime detail not in `debug.log` (audio recording loop, system USB events,
-crashes), use `adb logcat`. Useful tags: `FT8SignalListener`, `MicRecorder`,
+crashes), use `adb logcat`. Useful tags: `NativeSstvCodec`, `MicRecorder`,
 `UsbAudioDevice`, `CableConnector`, `CableSerialPort`, `UsbHostManager`,
-`UsbAlsaManager`. The app's `applicationId` is `radio.ks3ckc.sstvaf` (the same
+`UsbAlsaManager`, `ComposeMainActivity`. (The Kotlin SSTV pipeline —
+`SstvSignalListener`, `SstvTransmitter` — logs through `fileLog()` into
+`debug.log` rather than logcat.) The app's `applicationId` is `radio.ks3ckc.sstvaf` (the same
 for every contributor — it's set in `ft8af/app/build.gradle`) — pid-filter with
 `adb -s <phone-serial> logcat --pid=$(adb -s <phone-serial> shell pidof radio.ks3ckc.sstvaf)`
 when you only want app-internal lines.
 
-## FT8 TX audio pipeline
+## TX audio pipeline
 
-How a `playFT8Signal` call becomes RF, with the gotchas that produce
-audible-but-undecodable signals. Both of these were diagnosed the hard
-way and re-introducing either makes TX silently broken — the rig keys,
-audio is audible, ALC looks right, and zero spots appear on PSKReporter.
+How a transmit call becomes RF. The waveform is generated in full by the
+native codec — `NativeSstvCodec`/`SstvTransmitter` encode the whole SSTV
+transmission (calibration header + VIS + scan lines) as one buffer, and
+everything downstream just has to *not break it*. Two hard-won FT8AF-era
+lessons apply verbatim to SSTV; re-introducing either makes TX silently
+broken — the rig keys, audio is audible, ALC looks right, and nobody
+decodes the image.
 
-**1. The native library generates the entire waveform.** `GenerateFT8.generateFt8(msg,
-freq, 12000)` returns a mono 12.64-second `float[]` at 12 kHz containing the full
-FT8 message. The Costas sync arrays at symbols 0-6, 36-42, 72-78 are
-embedded by `synth_gfsk` in the native lib — today that's the from-source
-`libft8af.so` (`System.loadLibrary("ft8af")`, built from the vendored
-`ft8_lib`; historically this was the retired closed prebuilt `libft8cn.so`).
-The buffer is correct as generated — everything
-downstream just has to *not break it*.
+**1. Never clip the leading audio.** The sync information a receiver needs
+lives at the *start* of the buffer — for SSTV that's the 300 ms leader /
+1200 Hz break / VIS code; for FT8 it was the leading Costas array. The
+historical bug (FT8AF PR #93): a late-start compensation computed as
+`time_into_cycle_ms % cycle` instead of `max(0, time_into_cycle_ms - slack)`
+chopped a few hundred ms off the start of every on-time transmission —
+audible audio, zero decodes. SSTV has no 15 s cycle, so no start-skipping
+logic should exist at all; if playback ever needs to drop samples, drop
+them from the tail, never the head. Tell from log: reported play length
+shorter than the generated sample count.
 
-**2. `lateStartSkipMs` clips leading audio, but only if we'd overrun the cycle.**
-FT8 audio is 12.64 s; cycle is 15 s; slack is 2.36 s. `msLate` (in
-`FT8TransmitSignal.java`) must be computed as
-`max(0, time_into_cycle_ms - 2360)` — **not** `time_into_cycle_ms %
-15000`. The latter treats every ms past the cycle boundary as lateness,
-so a normal on-time TX firing ~500-800 ms into the cycle chops that many
-ms off the **start** of the buffer — exactly where the leading Costas
-array lives. Receivers see audio but can't sync. Tell from log:
-`playLength < samples` when the TX started <2.4 s into the cycle. Fixed
-in PR #93.
-
-**3. `libusb_set_iso_packet_lengths` must use the audio rate, not
+**2. `libusb_set_iso_packet_lengths` must use the audio rate, not
 `wMaxPacketSize`.** A USB Audio Class device plays back exactly the bytes
 per frame the host hands it. For USB FS, that's
 `(sampleRate * channels * bytesPerSample) / 1000` — e.g. 192 bytes/frame
 at 48 kHz stereo 16-bit. The endpoint's `wMaxPacketSize` (~200 for
 C-Media CM108-style chips) is the device's *max*, not the data rate.
 Sending that much per frame makes the device clock samples ~4 % faster
-than negotiated, shifting every FT8 tone up by the same ratio and
-pushing the message off WSJT-X's 6.25 Hz grid. Tell from log:
-`UsbAudioNative.nativeWrite` returns measurably faster than the audio
-duration (12.14 s real time for 12.64 s of audio). Fixed in PR #94 in
-`cpp/usb_audio_capture.cpp`. The Android-standard `AudioTrack` path is
-unaffected because the kernel UAC driver does this math automatically;
-the bug only bites the direct-libusb path used for car-dash kernels and
-similar.
+than negotiated, shifting every tone up by the same ratio — for SSTV
+that skews the pixel-value frequency mapping and slants/garbles the
+image at the far end. Tell from log: `UsbAudioNative.nativeWrite`
+returns measurably faster than the audio duration. Fixed in FT8AF PR #94
+in `cpp/usb_audio_capture.cpp` (still the live code path). The
+Android-standard `AudioTrack` path is unaffected because the kernel UAC
+driver does this math automatically; the bug only bites the direct-libusb
+path used for car-dash kernels and similar.

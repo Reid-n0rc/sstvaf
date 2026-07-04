@@ -31,7 +31,9 @@ import com.k1af.ft8af.R;
  * exit. Policy lives in {@link RxServiceController} (unit-tested).
  */
 public class RxForegroundService extends Service {
-    private static final String CHANNEL_ID = "rx_running";
+    // Public so the unit test can pin it: the id must stay stable across the
+    // SSTVAF rebrand or existing installs lose their channel preferences.
+    public static final String CHANNEL_ID = "rx_running";
     private static final int NOTIF_ID = 0x46543852; // "FT8R"
     private static final String WAKELOCK_TAG = "ft8af:rx";
 
