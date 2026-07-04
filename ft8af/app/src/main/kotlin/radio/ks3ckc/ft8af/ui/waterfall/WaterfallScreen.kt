@@ -89,14 +89,13 @@ fun WaterfallScreen(mainViewModel: MainViewModel) {
     var touchedFreqHz by remember { mutableIntStateOf(-1) }
     var updateCount by remember { mutableIntStateOf(0) }
 
-    val isTransmitting by mainViewModel.ft8TransmitSignal.mutableIsTransmitting.observeAsState(false)
+    val isTransmitting by mainViewModel.tuneOperator.mutableIsTuning.observeAsState(false)
     // Live RX input level (post-gain peak + RMS), published by HamRecorder
     // once per ~250ms metering window (issue #356).
     val inputLevels by GeneralVariables.mutableInputLevel.observeAsState()
     val txFreq by GeneralVariables.mutableBaseFrequency.observeAsState(GeneralVariables.getBaseFrequency())
     val spectrumWidth by GeneralVariables.mutableSpectrumWidth.observeAsState(GeneralVariables.getSpectrumWidth())
     var deNoise by remember { mutableStateOf(mainViewModel.deNoise) }
-    var showMessages by remember { mutableStateOf(mainViewModel.markMessage) }
 
     // Plain volatile refs — no Compose snapshot overhead
     val viewHolder = remember { ViewHolder() }
@@ -113,7 +112,7 @@ fun WaterfallScreen(mainViewModel: MainViewModel) {
             nativeFFT(data, fft, mainViewModel.deNoise)
 
             val currentTxFreq = GeneralVariables.getBaseFrequency()
-            val currentTxActive = mainViewModel.ft8TransmitSignal.mutableIsTransmitting.value ?: false
+            val currentTxActive = mainViewModel.tuneOperator.mutableIsTuning.value ?: false
 
             viewHolder.columnar?.let { cView ->
                 if (viewHolder.frequencyLineTimeout > 0) {
@@ -132,36 +131,16 @@ fun WaterfallScreen(mainViewModel: MainViewModel) {
             }
 
             viewHolder.waterfall?.let { wView ->
-                // drawMessage is armed elsewhere, edge-triggered off the
-                // decode-state LiveData (see decodingObserver below). The
-                // view stamps the labels onto its scrolling bitmap on the
-                // first setWaveData after it's armed, then self-resets the
-                // flag, so labels appear exactly once per decode cycle.
                 wView.setSpectrumWidth(GeneralVariables.getSpectrumWidth())
                 wView.setTxFrequency(currentTxFreq)
                 wView.setTxActive(currentTxActive)
-                val messages = if (mainViewModel.markMessage) mainViewModel.currentMessages else null
-                wView.setWaveData(fft, messages)
+                wView.setWaveData(fft)
                 wView.invalidate()
             }
         }
-        // Arm the decode-label draw edge-triggered off the decode-state
-        // LiveData, exactly like the old SpectrumFragment did
-        // (setDrawMessage(!isDecoding)). A decode lasts only ~60ms and can
-        // fall entirely between two ~160ms audio frames, so sampling
-        // isDecoding inside the audio observer misses the transition and the
-        // labels never draw. LiveData delivers every true/false transition on
-        // the main thread regardless of audio cadence. currentMessages is
-        // populated before isDecoding goes false (MainViewModel), so by the
-        // time we arm the draw the labels are ready for the next setWaveData.
-        val decodingObserver = Observer<Boolean> { decoding ->
-            viewHolder.waterfall?.setDrawMessage(!decoding && mainViewModel.markMessage)
-        }
         mainViewModel.spectrumListener.mutableDataBuffer.observeForever(observer)
-        mainViewModel.mutableIsDecoding.observeForever(decodingObserver)
         onDispose {
             mainViewModel.spectrumListener.mutableDataBuffer.removeObserver(observer)
-            mainViewModel.mutableIsDecoding.removeObserver(decodingObserver)
             viewHolder.columnar = null
             viewHolder.waterfall = null
         }
@@ -198,7 +177,7 @@ fun WaterfallScreen(mainViewModel: MainViewModel) {
                 viewHolder.frequencyLineTimeout = 60
             },
             onTouchUp = { freqHz ->
-                if (freqHz > 0 && !GeneralVariables.synFrequency) {
+                if (freqHz > 0) {
                     mainViewModel.databaseOpr.writeConfig("freq", freqHz.toString(), null)
                     GeneralVariables.setBaseFrequency(freqHz.toFloat())
                 }
@@ -227,7 +206,7 @@ fun WaterfallScreen(mainViewModel: MainViewModel) {
                 viewHolder.frequencyLineTimeout = 60
             },
             onTouchUp = { freqHz ->
-                if (freqHz > 0 && !GeneralVariables.synFrequency) {
+                if (freqHz > 0) {
                     mainViewModel.databaseOpr.writeConfig("freq", freqHz.toString(), null)
                     GeneralVariables.setBaseFrequency(freqHz.toFloat())
                 }
@@ -262,17 +241,6 @@ fun WaterfallScreen(mainViewModel: MainViewModel) {
                 onClick = {
                     deNoise = !deNoise
                     mainViewModel.deNoise = deNoise
-                },
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            ToggleChip(
-                label = stringResource(R.string.waterfall_toggle_msg),
-                active = showMessages,
-                onClick = {
-                    showMessages = !showMessages
-                    mainViewModel.markMessage = showMessages
                 },
             )
 

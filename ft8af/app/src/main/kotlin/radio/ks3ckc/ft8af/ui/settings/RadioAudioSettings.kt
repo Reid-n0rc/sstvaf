@@ -76,7 +76,6 @@ fun RadioAudioSettings(
         GeneralVariables.getBaseFrequency(),
     )
 
-    var synFrequency by remember { mutableStateOf(GeneralVariables.synFrequency) }
     var spectrumWidth by remember { mutableIntStateOf(GeneralVariables.getSpectrumWidth()) }
     var connectMode by remember { mutableIntStateOf(GeneralVariables.connectMode) }
     var controlMode by remember { mutableIntStateOf(GeneralVariables.controlMode) }
@@ -604,8 +603,8 @@ fun RadioAudioSettings(
                     SettingsRow(
                         label = stringResource(R.string.settings_audio_frequency),
                         value = audioFreqStr,
-                        showChevron = !synFrequency,
-                        onClick = if (!synFrequency) {{ showAudioFreq = true }} else null,
+                        showChevron = true,
+                        onClick = { showAudioFreq = true },
                     )
                     SectionDivider()
                     SettingsRow(

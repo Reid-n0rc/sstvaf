@@ -11,11 +11,9 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 
 import com.k1af.ft8af.callsign.CallsignDatabase;
-import com.k1af.ft8af.callsign.CallsignInfo;
 import com.k1af.ft8af.connector.ConnectMode;
 import com.k1af.ft8af.database.ControlMode;
 import com.k1af.ft8af.database.DatabaseOpr;
-import com.k1af.ft8af.ft8transmit.QslRecordList;
 import com.k1af.ft8af.rigs.BaseRigOperation;
 import com.k1af.ft8af.timer.UtcTimer;
 
@@ -35,19 +33,9 @@ public class GeneralVariables {
     public static String VERSION = BuildConfig.VERSION_NAME;//Version number "0.62 (Beta 4)";
     public static int VERSION_CODE = BuildConfig.VERSION_CODE;//Monotonic build number (CI: GITHUB_RUN_NUMBER + 100)
     public static String BUILD_DATE = BuildConfig.apkBuildTime;//Build time
-    public static int MESSAGE_COUNT = 3000;//Maximum message cache count
-    public static boolean saveSWLMessage = false;//Save decoded messages switch
-    public static boolean saveSWL_QSO = false;//Save QSOs from decoded messages switch
     public static boolean enableCloudlog = false;//Whether Cloudlog auto-sync is enabled
 
     public static boolean distanceInMiles = true;//Display distances in miles (true) or kilometers (false)
-
-    // Deep decode (subtract-and-redecode + extra LDPC iterations) is on by default so the app
-    // pulls weak signals out from under strong ones the way WSJT-X does at its default depth.
-    // A persisted "deepMode" config row still overrides this; only installs that never touched
-    // the setting pick up the new default. See ModeProfile#deepDecodeBudgetMillis for the loop
-    // time bound.
-    public static boolean deepDecodeMode = true;//Whether deep decode mode is enabled
 
     public static boolean audioOutput32Bit = true;//Audio output type: true=float, false=int16
     public static int audioSampleRate = 12000;//Transmit audio sample rate
@@ -104,11 +92,6 @@ public class GeneralVariables {
     public static volatile boolean savePerBandOutputLevel = false;
     //Serialized band=level CSV ("20m=60,40m=85"); parsed/updated in PerBandOutputLevel.kt.
     public static volatile String perBandOutputLevels = "";
-
-    //Auto-select a clear TX offset when calling CQ (issue #418), defaults off.
-    //volatile: written from the config-load thread + Settings toggle, read from
-    //the decode-delivery thread inside recordBandActivity.
-    public static volatile boolean autoClearTxFreq = false;
 
     //Tune button (issue #408): hard cap on a single tune carrier in seconds
     //(clamped by TuneController), whether the tune level is independent of the
@@ -295,33 +278,6 @@ public class GeneralVariables {
     }
 
     /**
-     * Decode-list block check: blocked if the sender's callsign is blocked, or any
-     * keyword appears anywhere in the rendered message text (so keywords can match
-     * message content like "POTA", not just the callsign).
-     *
-     * @param msg the decoded message
-     * @return whether it is blocked
-     */
-    public static synchronized boolean checkIsBlockedMessage(Ft8Message msg) {
-        if (msg == null) return false;
-        if (checkIsBlocked(msg.callsignFrom)) {
-            return true;
-        }
-        if (!blockedKeywords.isEmpty()) {
-            String text = msg.getMessageText();
-            if (text != null) {
-                String up = text.toUpperCase();
-                for (String keyword : blockedKeywords) {
-                    if (up.contains(keyword)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * Backward-compatible alias. Existing TX-side call sites call this; it now
      * covers all three blocklist match modes via {@link #checkIsBlocked}.
      *
@@ -332,9 +288,6 @@ public class GeneralVariables {
         return checkIsBlocked(callsign);
     }
 
-
-    //QSO record list, including both successful and unsuccessful
-    public static QslRecordList qslRecordList = new QslRecordList();
 
     //Memory leak warning here, but Application Context should not leak, so suppressed
     @SuppressLint("StaticFieldLeak")
@@ -356,7 +309,6 @@ public class GeneralVariables {
     public static int QUERY_FREQ_TIMEOUT = 2000;//Frequency polling interval, 2 seconds
     public static int START_QUERY_FREQ_DELAY = 2000;//Delay before starting frequency polling
 
-    public static final int DEFAULT_LAUNCH_SUPERVISION = 10 * 60 * 1000;//Transmit supervision default, 10 minutes
     private static String myMaidenheadGrid = "";
     public static MutableLiveData<String> mutableMyMaidenheadGrid = new MutableLiveData<>();
 
@@ -374,20 +326,7 @@ public class GeneralVariables {
     public static String myAntenna = "";
     public static String myRigName = "";  // Set by MainViewModel.connectRig(); used in PSKReporter software string
     public static int myPowerWatts = 0;    // 0 = not set, displays as "--"
-    public static String toModifier = "";//Call modifier
-
-    // Field Day mode settings (persisted via writeConfig)
-    public static boolean fieldDayMode = false;
-    public static String fieldDayClass = "A";     // A through F
-    public static int fieldDayNumTx = 1;          // 1-16
-    public static String fieldDaySection = "";    // ARRL/RAC section code
     private static float baseFrequency = 1000;//Audio frequency
-
-    public static boolean simpleCallItemMode = false;//Compact message mode
-
-    public static boolean clearDecodesEveryCycle = false;//Clear the decode list at the start of each cycle
-
-    public static boolean clearOnBandModeChange = true;//Clear the decode list + reset TX target to CQ when the band or mode changes (default on)
 
     public static boolean swr_switch_on = true;//SWR alarm switch
     public static boolean alc_switch_on = true;//ALC alarm switch
@@ -407,18 +346,11 @@ public class GeneralVariables {
     public static String cloudlogServerAddress = "";//Cloudlog server address
     public static String cloudlogApiKey = "";//Cloudlog API key
     public static String cloudlogStationID = "";//Cloudlog station ID
-    public static boolean synFrequency = false;//Same-frequency transmit
-    public static boolean holdTxFreq = false;//Hold TX freq: don't move the TX offset to a station you answer (WSJT-X "Hold Tx Freq")
-    public static int transmitDelay = 500;//Transmit delay; also allows decoding time for the previous cycle
     public static int pttDelay = 100;//PTT response time; radios typically need some response time after PTT command, default 100ms
-    public static int lateStartTolerance = 2000;//Max ms into a cycle that a manual TX may start; leading audio is clipped so TX still ends on the cycle boundary. 0-4000.
     public static int manualTimeCorrectionMs = 0;//Manual clock correction (ms) applied to UtcTimer.delay; for field use without internet NTP. Range -2000..2000. See TimeSyncSettings.
-    public static boolean earlyDecode = true;//Fast turnaround: decode a shorter RX window so CQ decodes appear ~1s before the cycle boundary, enabling a next-slot reply.
-    public static int operatingMode = FT8Common.FT8_MODE;//Current operating mode (FT8Common.FT8_MODE / FT4_MODE); persisted as config "operatingMode".
-    public static boolean autoCQAfterQSO = false;//Auto-CQ: keep calling CQ after each completed QSO (chain without re-tapping). Refreshes the TX watchdog per QSO and forces pure CQ (ignores Hunt).
     public static int civAddress = 0xa4;//CI-V address
     public static int baudRate = 19200;//Baud rate
-    public static long band = 14074000;//Carrier frequency band
+    public static long band = 14230000;//Carrier frequency band (default: 20m SSTV calling frequency)
     public static int serialDataBits = 8;//Default is 8
     public static int serialParity = 0;//UsbSerialPort.PARITY_NONE, default is 0 (none)
     public static int serialStopBits = 1;//Stop bits mapping: 1=1, 2=3, 3=1.5
@@ -442,11 +374,6 @@ public class GeneralVariables {
     //value: observers seed from the current controlMode until a change posts.
     public static MutableLiveData<Integer> mutableControlMode = new MutableLiveData<>();
     public static int modelNo = 0;
-    public static int launchSupervision = DEFAULT_LAUNCH_SUPERVISION;//Transmit supervision
-    public static long launchSupervisionStart = UtcTimer.getSystemTime();//Auto-transmit start time
-    public static int noReplyLimit = 0;//No-reply count limit; 0==ignore
-
-    public static int noReplyCount = 0;//Number of times with no reply
 
     //The following 4 parameters are for ICOM network connection
     public static String icomIp = "255.255.255.255";
@@ -455,9 +382,6 @@ public class GeneralVariables {
     public static String icomPassword = "";
 
 
-    public static boolean autoFollowCQ = false;//Auto-follow CQ
-    public static boolean huntCallsCQ = false;//Hunt+CQ hybrid: call CQ when idle, answer CQs when heard
-    public static boolean autoCallFollow = true;//Auto-call followed callsigns
     public static boolean autoUpdateGridFromGPS = false;//Use device GPS to keep Maidenhead grid current
     public static boolean disciplineClockFromGPS = false;//Discipline the app clock (UtcTimer.delay) from GPS satellite time (issue #373). Off by default — consensual.
     public static int gpsClockIntervalMinutes = 5;//How often to re-read GPS time for clock discipline. Clamped 1-30 by GpsClockUpdater.
@@ -472,88 +396,6 @@ public class GeneralVariables {
     public static ArrayList<String> QSL_Callsign_list_other_band = new ArrayList<>();//Successfully QSL'd callsigns on other bands
     public static HashSet<String> QSL_Grid_list = new HashSet<>();//Distinct worked 4-char Maidenhead grids (any band)
 
-    // Decode-list highlight toggles (Settings → Decode Highlights). Gate the
-    // status pill shown for each worked-before category in resolveQsoStatus().
-    public static boolean highlightNewDxcc = true;//Highlight stations from an unworked DXCC entity
-    public static boolean highlightNewGrid = false;//Off by default — most grids are "new", so it's noisy
-    public static boolean highlightNewBand = true;//Highlight stations worked only on other bands
-    public static boolean highlightWorked = true;//Tag stations already worked
-
-    // Decode-list display filters (Settings → Decode Filters). Persistent
-    // "show only" filters applied to the decode list in DecodeScreen.filterMessages().
-    // Multiple enabled filters AND together.
-    public static boolean filterShowOnlyCQ = false;//Show only CQ-type messages
-    public static boolean filterDxOnly = false;//Show only stations outside my own continent
-    public static boolean filterNeededOnly = false;//Show only not-yet-QSL'd stations
-    public static boolean filterByContinent = false;//Show only stations from filterContinent
-    public static String filterContinent = "EU";//Target continent for filterByContinent (NA/SA/EU/AF/AS/OC/AN)
-
-    // The operator's own continent abbreviation, derived once from the callsign
-    // (CallsignDatabase.getContinent). Used by the DX filter. Null until resolved.
-    public static String myContinent = null;
-
-    // The operator's own DXCC, derived once from the callsign alongside myContinent
-    // (CallsignDatabase.getMessagesLocation). Used by the directional-CQ matcher to
-    // match country/region tokens (e.g. "CQ JA"). Null until resolved → fail-open.
-    public static String myDxcc = null;
-
-    // Directional CQ awareness (Settings → Decode Filters). Both opt-in, default off.
-    //   - respectDirectionalCQ: suppress AUTO-replies to directional CQs (CQ DX/EU/JA…)
-    //     not aimed at my station. Does not affect manual taps or stations calling me.
-    //   - filterDirectionalCQ: hide those same CQs from the decode list.
-    public static boolean respectDirectionalCQ = false;
-    public static boolean filterDirectionalCQ = false;
-
-    // Geographic continent-directed CQ tokens — matched against myContinent.
-    private static final java.util.Set<String> CONTINENT_CODES =
-            new java.util.HashSet<>(java.util.Arrays.asList("NA", "SA", "EU", "AF", "AS", "OC", "AN"));
-    // Non-geographic activity calls — always answerable. Easily extended.
-    private static final java.util.Set<String> ACTIVITY_TOKENS =
-            new java.util.HashSet<>(java.util.Arrays.asList(
-                    "DX", "POTA", "SOTA", "WWFF", "IOTA", "TEST", "FD", "QRP", "WW"));
-
-    /**
-     * The directional token after CQ/DE/QRZ in a decoded callsignTo (e.g. "DX" from
-     * "CQ DX"), or null for a plain CQ / non-CQ message.
-     */
-    public static String getDirectionalCQToken(String callsignTo) {
-        if (callsignTo == null) return null;
-        String[] p = callsignTo.trim().toUpperCase().split("\\s+");
-        if (p.length < 2) return null;
-        if (!(p[0].equals("CQ") || p[0].equals("DE") || p[0].equals("QRZ"))) return null;
-        return p[1];
-    }
-
-    /**
-     * Whether a (possibly directional) CQ is answerable by my station. Continent-code
-     * tokens are matched against {@link #myContinent}; country/region prefixes against
-     * {@link #myDxcc} via the callsign database. Fail-open: plain CQ, "CQ DX",
-     * 3-digit zone CQs, known activity calls, and anything we can't positively resolve
-     * to a different DXCC/continent are all treated as answerable.
-     *
-     * @param callsignTo the decoded message's callsignTo field
-     * @return true if answerable (or not a CQ at all)
-     */
-    public static synchronized boolean directionalCQIsForMe(String callsignTo) {
-        String token = getDirectionalCQToken(callsignTo);
-        if (token == null) return true;                       // plain CQ / not a CQ
-        if (token.matches("[0-9]{3}")) return true;           // zone-directed CQ nnn
-        if (ACTIVITY_TOKENS.contains(token)) return true;     // DX / POTA / TEST / ...
-        if (CONTINENT_CODES.contains(token)) {                // continent-directed
-            return myContinent == null || token.equalsIgnoreCase(myContinent);
-        }
-        // country/region prefix (e.g. JA) — match by DXCC
-        if (callsignDatabase == null || myDxcc == null) return true;
-        CallsignInfo info = callsignDatabase.getCallInfo(token);
-        if (info == null || info.DXCC == null) return true;   // unresolved → fail-open
-        return info.DXCC.equalsIgnoreCase(myDxcc);
-    }
-
-
-    public static final ArrayList<String> followCallsign = new ArrayList<>();//Followed callsigns
-
-    public static ArrayList<Ft8Message> transmitMessages = new ArrayList<>();//List for the calling UI, followed entries
-
     public static void setMyMaidenheadGrid(String grid) {
         myMaidenheadGrid = grid;
         mutableMyMaidenheadGrid.postValue(grid);
@@ -563,21 +405,8 @@ public class GeneralVariables {
         return myMaidenheadGrid;
     }
 
-    // ===== FT8 DXpedition "Hound" mode =====
-    // When true, the TX engine runs the Hound QSO variant (call Fox high at
-    // 1000-4000 Hz, auto-QSY down to where Fox calls us, reply R+rpt, log on
-    // RR73) instead of the standard auto-sequencer. Mutually exclusive with the
-    // Hunt auto-answer-CQ mode. houndFoxCall is the Fox's base callsign.
-    public static boolean houndMode = false;
-    public static String houndFoxCall = "";
-
     public static float getBaseFrequency() {
         return baseFrequency;
-    }
-
-    /** The descriptor for the current {@link #operatingMode} (FT8/FT4). */
-    public static ModeProfile currentMode() {
-        return ModeProfile.fromId(operatingMode);
     }
 
     public static void setBaseFrequency(float baseFrequency) {
@@ -613,10 +442,6 @@ public class GeneralVariables {
 
     public static String getCivAddressStr() {
         return String.format("%2X", civAddress);
-    }
-
-    public static String getTransmitDelayStr() {
-        return String.valueOf(transmitDelay);
     }
 
     public static String getBandString() {
@@ -687,16 +512,6 @@ public class GeneralVariables {
     }
 
     /**
-     * Check if the callsign is in the followed callsign list.
-     *
-     * @param callsign Callsign
-     * @return Whether it exists
-     */
-    public static boolean callsignInFollow(String callsign) {
-        return followCallsign.contains(callsign);
-    }
-
-    /**
      * Add to the list of successfully contacted callsigns.
      *
      * @param callsign Callsign
@@ -712,146 +527,6 @@ public class GeneralVariables {
             return myMaidenheadGrid.substring(0, 4);
         }
         return myMaidenheadGrid;
-    }
-
-    /**
-     * Auto-procedure run start time.
-     */
-    public static void resetLaunchSupervision() {
-        launchSupervisionStart = UtcTimer.getSystemTime();
-    }
-
-    /**
-     * Get the auto-procedure run duration.
-     *
-     * @return Milliseconds
-     */
-    public static int launchSupervisionCount() {
-        return (int) (UtcTimer.getSystemTime() - launchSupervisionStart);
-    }
-
-    public static boolean isLaunchSupervisionTimeout() {
-        if (launchSupervision == 0) return false;//0 means no supervision
-        return launchSupervisionCount() > launchSupervision;
-    }
-
-    /**
-     * Get message sequence from extraInfo.
-     *
-     * @param extraInfo Extended content in the message
-     * @return Returns message sequence number
-     */
-    public static int checkFunOrderByExtraInfo(String extraInfo) {
-        if (checkFun5(extraInfo)) return 5;
-        if (checkFun4(extraInfo)) return 4;
-        if (checkFun3(extraInfo)) return 3;
-        if (checkFun2(extraInfo)) return 2;
-        if (checkFun1(extraInfo)) return 1;
-        return -1;
-    }
-
-    /**
-     * Check message sequence number; returns -1 if parsing fails.
-     *
-     * @param message Message
-     * @return Message sequence number
-     */
-    public static int checkFunOrder(Ft8Message message) {
-        if (message.checkIsCQ()) return 6;
-        return checkFunOrderByExtraInfo(message.extraInfo);
-
-    }
-
-
-    //check if this is a grid report
-    public static boolean checkFun1(String extraInfo) {
-        //grid report must be 4 characters, or no grid
-        return (extraInfo.trim().matches("[A-Z][A-Z][0-9][0-9]") && !extraInfo.equals("RR73"))
-                || (extraInfo.trim().length() == 0);
-
-    }
-
-    //check if this is a signal report, e.g. -10
-    public static boolean checkFun2(String extraInfo) {
-        if (extraInfo.trim().length() < 2) {
-            return false;
-        }//signal report must be at least 2 characters
-        try {
-            return Integer.parseInt(extraInfo.trim()) != 73;//if 73, it's message 6, not message 2
-            //return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    //check if this is an R-prefixed signal report, e.g. R-10
-    public static boolean checkFun3(String extraInfo) {
-        if (extraInfo.trim().length() < 3) {
-            return false;
-        }//R-prefixed signal report must be at least 3 characters
-        //if first char is not R, or second char is R, then not message 3
-        if ((extraInfo.trim().charAt(0) != 'R') || (extraInfo.trim().charAt(1) == 'R')) {
-            return false;
-        }
-
-        try {
-            Integer.parseInt(extraInfo.trim().substring(1));
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    //check if this is RRR or RR73
-    public static boolean checkFun4(String extraInfo) {
-        return extraInfo.trim().equals("RR73") || extraInfo.trim().equals("RRR");
-    }
-
-    //check if this is 73
-    public static boolean checkFun5(String extraInfo) {
-        return extraInfo.trim().equals("73");
-    }
-
-
-    /**
-     * Determine if this is a signal report; if so, assign the value to report.
-     *
-     * @param extraInfo Message extension
-     * @return Signal report value; -100 if not found
-     */
-    public static int checkFun2_3(String extraInfo) {
-        if (extraInfo.equals("73")) return -100;
-        if (extraInfo.matches("[R]?[+-]?[0-9]{1,2}")) {
-            try {
-                return Integer.parseInt(extraInfo.replace("R", ""));
-            } catch (Exception e) {
-                return -100;
-            }
-        }
-        return -100;
-    }
-
-    /**
-     * Determine if this is a grid report; if so, assign the value to report.
-     *
-     * @param extraInfo Message extension
-     * @return Signal report
-     */
-    public static boolean checkFun1_6(String extraInfo) {
-        return extraInfo.trim().matches("[A-Z][A-Z][0-9][0-9]")
-                && !extraInfo.trim().equals("RR73");
-    }
-
-    /**
-     * Check if this is a QSO ending: RRR, RR73, or 73.
-     *
-     * @param extraInfo Message suffix
-     * @return Whether
-     */
-    public static boolean checkFun4_5(String extraInfo) {
-        return extraInfo.trim().equals("RR73")
-                || extraInfo.trim().equals("RRR")
-                || extraInfo.trim().equals("73");
     }
 
     /**
@@ -1042,14 +717,6 @@ public class GeneralVariables {
         } else {
             db.getCallsignQTH(callsign);
             return "";
-        }
-    }
-
-    public static synchronized void deleteArrayListMore(ArrayList<Ft8Message> list) {
-        if (list.size() > GeneralVariables.MESSAGE_COUNT) {
-            while (list.size() > GeneralVariables.MESSAGE_COUNT) {
-                list.remove(0);
-            }
         }
     }
 

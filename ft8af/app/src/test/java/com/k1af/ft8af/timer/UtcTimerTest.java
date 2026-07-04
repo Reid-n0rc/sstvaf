@@ -49,14 +49,6 @@ public class UtcTimerTest {
         assertThat(UtcTimer.getDatetimeYYYYMMDD_HHMMSS(T_2023)).isEqualTo("20231114-221320");
     }
 
-    @Test
-    public void sequential_alternatesEvery15Seconds() {
-        assertThat(UtcTimer.sequential(0L)).isEqualTo(0);
-        assertThat(UtcTimer.sequential(15_000L)).isEqualTo(1);
-        assertThat(UtcTimer.sequential(30_000L)).isEqualTo(0);
-        assertThat(UtcTimer.sequential(45_000L)).isEqualTo(1);
-        assertThat(UtcTimer.sequential(T_2023)).isEqualTo(1);
-    }
 
     @Test
     public void sequential_withSlotMillis_ft8MatchesLegacy() {
@@ -91,10 +83,10 @@ public class UtcTimerTest {
     public void sequential_isStableWithinASingleCycle() {
         // Any instant inside the first 15-second window is slot 0; the boundary
         // at 15s flips to slot 1. Sub-second jitter must not change the slot.
-        assertThat(UtcTimer.sequential(1L)).isEqualTo(0);
-        assertThat(UtcTimer.sequential(14_999L)).isEqualTo(0);
-        assertThat(UtcTimer.sequential(15_001L)).isEqualTo(1);
-        assertThat(UtcTimer.sequential(29_999L)).isEqualTo(1);
+        assertThat(UtcTimer.sequential(1L, 15_000)).isEqualTo(0);
+        assertThat(UtcTimer.sequential(14_999L, 15_000)).isEqualTo(0);
+        assertThat(UtcTimer.sequential(15_001L, 15_000)).isEqualTo(1);
+        assertThat(UtcTimer.sequential(29_999L, 15_000)).isEqualTo(1);
     }
 
     /**
@@ -228,18 +220,4 @@ public class UtcTimerTest {
         }
     }
 
-    @Test
-    public void getNowSequential_matchesSequentialOfSystemTime() {
-        int saved = UtcTimer.delay;
-        try {
-            UtcTimer.delay = 0;
-            // getNowSequential() == sequential(getSystemTime()); both reads happen
-            // close enough that they land in the same 15s slot in the vast
-            // majority of cases. Recompute and accept the rare boundary flip.
-            int now = UtcTimer.getNowSequential();
-            assertThat(now).isAnyOf(0, 1);
-        } finally {
-            UtcTimer.delay = saved;
-        }
-    }
 }

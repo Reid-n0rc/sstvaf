@@ -41,7 +41,6 @@ import radio.ks3ckc.ft8af.ui.motion.rememberHaptics
 import com.k1af.ft8af.R
 
 enum class FT8AFTab(@StringRes val labelRes: Int) {
-    DECODE(R.string.tab_decode),
     WATERFALL(R.string.tab_waterfall),
     LOG(R.string.tab_logbook),
     SETTINGS(R.string.tab_settings),
@@ -162,7 +161,6 @@ fun TabBar(
                     }
                 ) {
                     when (tab) {
-                        FT8AFTab.DECODE -> FT8AFIcons.Decode(color = color, strokeWidth = strokeWidth)
                         FT8AFTab.WATERFALL -> FT8AFIcons.Waterfall(color = color, strokeWidth = strokeWidth)
                         FT8AFTab.LOG -> FT8AFIcons.Book(color = color, strokeWidth = strokeWidth)
                         FT8AFTab.SETTINGS -> FT8AFIcons.Cog(color = color, strokeWidth = strokeWidth)

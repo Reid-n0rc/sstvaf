@@ -3,8 +3,6 @@ package com.k1af.ft8af.log;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.k1af.ft8af.Ft8Message;
-
 import java.io.Serializable;
 
 /**

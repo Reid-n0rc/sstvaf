@@ -42,8 +42,6 @@ import radio.ks3ckc.ft8af.theme.*
  * Shared between the Settings band picker and the TxStrip frequency picker.
  */
 fun selectBandIndex(mainViewModel: MainViewModel, context: Context, index: Int) {
-    // Compare the meter (wavelength) band, not the index — see shouldClearOnBandChange.
-    val oldWaveLength = BaseRigOperation.getMeterFromFreq(GeneralVariables.band)
     GeneralVariables.bandListIndex = index
     GeneralVariables.band = OperationBand.getBandFreq(index)
     val newWaveLength = BaseRigOperation.getMeterFromFreq(GeneralVariables.band)
@@ -54,18 +52,6 @@ fun selectBandIndex(mainViewModel: MainViewModel, context: Context, index: Int) 
     // Notify observers (TxStrip pill, Settings band picker) so the UI updates
     // without waiting for a rig onFreqChanged round-trip.
     GeneralVariables.mutableBandChange.postValue(index)
-    // A real band hop invalidates the clear-CQ-slot occupancy history (issue #418).
-    if (newWaveLength != oldWaveLength) {
-        mainViewModel.ft8TransmitSignal.clearBandActivity()
-    }
-    // The operator picked a new band — optionally clear the stale decodes + reset
-    // the TX target so the decode screen reflects the new band (tester request).
-    if (MainViewModel.shouldClearOnBandChange(
-            GeneralVariables.clearOnBandModeChange, oldWaveLength, newWaveLength,
-        )
-    ) {
-        mainViewModel.clearDecodesAndTarget()
-    }
 
     // Per-band output level (issue #355): when enabled and this band has a
     // saved level that differs from the current one, restore it and tell the
@@ -126,8 +112,6 @@ private fun buildBandGroups(): List<BandGroup> {
     val order = LinkedHashMap<String, MutableList<Pair<Int, OperationBand.Band>>>()
     for (i in 0 until OperationBand.bandList.size) {
         val b = OperationBand.bandList[i]
-        // Only the current operating mode's dials (FT8 vs FT4 use different frequencies).
-        if (b.mode != GeneralVariables.operatingMode) continue
         if (GeneralVariables.isBandExcluded(b.waveLength)) continue
         order.getOrPut(b.waveLength) { mutableListOf() }.add(i to b)
     }
@@ -157,7 +141,7 @@ fun FrequencyPickerSheet(
     onSelect: (Int) -> Unit,
 ) {
     FT8AFBottomSheet(visible = visible, onDismiss = onDismiss) {
-        val groups = remember(GeneralVariables.excludedBands.toSet(), GeneralVariables.operatingMode) { buildBandGroups() }
+        val groups = remember(GeneralVariables.excludedBands.toSet()) { buildBandGroups() }
         var showAlternates by remember { mutableStateOf(false) }
 
         Column(

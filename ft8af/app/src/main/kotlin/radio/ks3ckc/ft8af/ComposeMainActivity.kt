@@ -125,26 +125,10 @@ class ComposeMainActivity : AppCompatActivity() {
             if (v != null) UsbAudioNative.setTxVolume(v)
         }
 
-        // Register back press handler. Priority: dismiss the QSO sheet if
-        // it's open, otherwise show exit confirm. Without this, back-from-
-        // sheet tries to exit the whole app, which surprises users who
-        // expect back to peel off the foreground overlay first.
+        // Register back press handler: show the exit confirmation instead of
+        // silently backgrounding the app.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val sheetCs = mainViewModel.qsoSheetCallsign.value
-                val sheetMinimized = mainViewModel.qsoSheetMinimized.value == true
-                if (sheetCs != null && !sheetMinimized) {
-                    // Mirror DecodeScreen.onDismiss: minimize when a QSO is
-                    // live so the panel header stays reopenable; fully clear
-                    // otherwise.
-                    if (mainViewModel.ft8TransmitSignal.isActivated) {
-                        mainViewModel.qsoSheetMinimized.postValue(true)
-                    } else {
-                        mainViewModel.qsoSheetCallsign.postValue(null)
-                        mainViewModel.qsoSheetMinimized.postValue(false)
-                    }
-                    return
-                }
                 showExitConfirm.value = true
             }
         })
@@ -192,7 +176,6 @@ class ComposeMainActivity : AppCompatActivity() {
                     onCancel = { showExitConfirm.value = false },
                     onConfirm = {
                         showExitConfirm.value = false
-                        mainViewModel.ft8TransmitSignal.isActivated = false
                         closeApp()
                     },
                 )
@@ -368,12 +351,6 @@ class ComposeMainActivity : AppCompatActivity() {
                 if (GeneralVariables.disciplineClockFromGPS) {
                     GpsClockUpdater.refresh(applicationContext)
                 }
-                mainViewModel.ft8TransmitSignal.setTimer_sec(GeneralVariables.transmitDelay)
-
-                // The cycle timers were built (for FT8) before config loaded; now that the
-                // persisted operating mode is known, rebuild them for it and sync the UI.
-                mainViewModel.applyLoadedOperatingMode()
-
                 // Scan for USB devices AFTER config is loaded
                 fileLog("initData: scanning USB devices")
                 mainViewModel.getUsbDevice()
@@ -414,7 +391,6 @@ class ComposeMainActivity : AppCompatActivity() {
         })
 
         DatabaseOpr.GetCallsignMapGrid(mainViewModel.databaseOpr.db).execute()
-        mainViewModel.getFollowCallsignsFromDataBase()
     }
 
     private fun doReceiveShareFile(intent: Intent) {
@@ -582,10 +558,9 @@ class ComposeMainActivity : AppCompatActivity() {
     override fun onStop() {
         // A tune carrier must never outlive the operator's attention (issue
         // #408): backgrounding or swiping the app away mid-tune force-stops the
-        // tone and drops PTT. Normal FT8 TX is left alone — it is cycle-bounded
-        // and self-terminates.
+        // tone and drops PTT.
         try {
-            mainViewModel.ft8TransmitSignal.stopTune()
+            mainViewModel.tuneOperator.stopTune()
         } catch (_: Exception) {
         }
         super.onStop()
@@ -710,9 +685,8 @@ class ComposeMainActivity : AppCompatActivity() {
     }
 
     private fun closeApp() {
-        mainViewModel.ft8TransmitSignal.isActivated = false
+        mainViewModel.tuneOperator.stopTune()
         mainViewModel.baseRig?.connector?.disconnect()
-        mainViewModel.ft8SignalListener.stopListen()
         mainViewModel.hamRecorder?.stopRecord()
         mainViewModel.utcTimer?.delete()
         RxForegroundService.stop(this)

@@ -2,7 +2,6 @@ package com.k1af.ft8af.log;
 
 import android.util.Log;
 
-import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.R;
 import com.k1af.ft8af.maidenhead.MaidenheadGrid;
@@ -56,24 +55,6 @@ public class QSLRecord {
 
     public boolean isInvalid=false;//Whether parsing encountered an error
     public String errorMSG="";//Error message if parsing failed
-
-    /**
-     * Used for SWL QSO records. The condition for recording an SWL QSO is hearing signal reports from both parties.
-     *
-     * @param msg FT8 message
-     */
-    public QSLRecord(Ft8Message msg) {
-        this.qso_date_off = UtcTimer.getYYYYMMDD(msg.utcTime);
-        this.time_off = UtcTimer.getTimeHHMMSS(msg.utcTime);
-        this.myCallsign = msg.callsignFrom;
-        this.toCallsign = msg.callsignTo;
-        wavFrequency = Math.round(msg.freq_hz);
-        sendReport = -100;
-        receivedReport = -100;
-        bandLength = BaseRigOperation.getMeterFromFreq(GeneralVariables.band);//Get wavelength
-        bandFreq = GeneralVariables.band;
-        comment = "SWL By FT8AF";
-    }
 
     /**
      * Construct a successful QSO object

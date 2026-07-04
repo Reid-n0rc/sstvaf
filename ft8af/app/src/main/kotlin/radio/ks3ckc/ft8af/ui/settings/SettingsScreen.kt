@@ -48,11 +48,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.k1af.ft8af.Ft8Message
 import com.k1af.ft8af.GeneralVariables
 import com.k1af.ft8af.MainViewModel
 import com.k1af.ft8af.R
-import com.k1af.ft8af.ft8signal.FT8Package
 import com.k1af.ft8af.location.GridLocationUpdater
 import radio.ks3ckc.ft8af.theme.*
 import radio.ks3ckc.ft8af.ui.components.GlassCard
@@ -67,7 +65,6 @@ private enum class SettingsCategory {
     RADIO_AUDIO,
     TRANSMISSION,
     TIME_SYNC,
-    DECODE_FILTERS,
     LOGGING,
     ADVANCED,
     ABOUT,
@@ -137,8 +134,6 @@ fun SettingsScreen(
                 TransmissionSettings(mainViewModel, onBack = { currentCategory = null })
             SettingsCategory.TIME_SYNC ->
                 TimeSyncSettings(mainViewModel, onBack = { currentCategory = null })
-            SettingsCategory.DECODE_FILTERS ->
-                DecodeFilterSettings(mainViewModel, onBack = { currentCategory = null })
             SettingsCategory.LOGGING ->
                 LoggingSettings(mainViewModel, onBack = { currentCategory = null })
             SettingsCategory.ADVANCED ->
@@ -198,11 +193,6 @@ private fun SettingsLanding(
                 callsignState = trimmedCall
                 GeneralVariables.myCallsign = trimmedCall
                 mainViewModel.databaseOpr.writeConfig("callsign", trimmedCall, null)
-                for (seedCall in ownCallsignsToSeed(trimmedCall)) {
-                    Ft8Message.hashList.addHash(FT8Package.getHash22(seedCall).toLong(), seedCall)
-                    Ft8Message.hashList.addHash(FT8Package.getHash12(seedCall).toLong(), seedCall)
-                    Ft8Message.hashList.addHash(FT8Package.getHash10(seedCall).toLong(), seedCall)
-                }
 
                 val formattedGrid = buildString {
                     newGrid.trim().forEachIndexed { i, c ->
@@ -306,12 +296,6 @@ private fun SettingsLanding(
                         description = stringResource(R.string.settings_cat_time_sync_desc),
                         showChevron = true,
                         onClick = { onOpenCategory(SettingsCategory.TIME_SYNC) },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_cat_decode_filters),
-                        showChevron = true,
-                        onClick = { onOpenCategory(SettingsCategory.DECODE_FILTERS) },
                     )
                     SectionDivider()
                     SettingsRow(
@@ -457,22 +441,5 @@ private fun EditOperatorDialog(
                 }
             }
         }
-    }
-}
-
-/**
- * Callsign strings whose hashes go into [Ft8Message.hashList] when the operator
- * sets their callsign. A compound call (e.g. SV8/DM5HF) is seeded together with
- * its base call, matching the seeding DatabaseOpr does at startup, so replies
- * that arrive as a bare hash of either form resolve instead of showing "<...>".
- */
-internal fun ownCallsignsToSeed(callsign: String): List<String> {
-    if (callsign.isEmpty()) return emptyList()
-    if (!callsign.contains("/")) return listOf(callsign)
-    val shortCall = GeneralVariables.getShortCallsign(callsign)
-    return if (shortCall.isNotEmpty() && shortCall != callsign) {
-        listOf(callsign, shortCall)
-    } else {
-        listOf(callsign)
     }
 }
