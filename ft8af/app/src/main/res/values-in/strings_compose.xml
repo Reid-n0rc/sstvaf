@@ -37,9 +37,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">Dekode</string>
-    <string name="tab_map">Peta</string>
     <string name="tab_waterfall">Waterfall</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">Buku Log</string>
     <string name="tab_settings">Setelan</string>
 
@@ -47,8 +45,6 @@
     <string name="status_new_dxcc">DXCC BARU</string>
     <string name="status_new_grid">GRID BARU</string>
     <string name="status_new_band">BAND BARU</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">POTA BARU</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">DIBUTUHKAN</string>
     <string name="status_worked">DIKERJAKAN</string>
@@ -157,8 +153,6 @@
     <string name="decode_filter_for_me">Untuk Saya</string>
     <string name="decode_empty_cq_title">Tidak ada panggilan CQ</string>
     <string name="decode_empty_cq_body">Tidak ada stasiun yang memanggil CQ di band ini saat ini.</string>
-    <string name="decode_empty_pota_title">Tidak ada spot POTA</string>
-    <string name="decode_empty_pota_body">Belum ada aktivasi taman yang didekode di band ini — buka POTA → Hunt untuk daftar spot.</string>
     <string name="decode_empty_dxcc_title">Tidak ada DXCC baru</string>
     <string name="decode_empty_dxcc_body">Belum ada entitas DXCC yang belum dikerjakan yang didekode.</string>
     <string name="decode_empty_needed_title">Tidak ada yang dibutuhkan</string>
@@ -239,7 +233,6 @@
     <string name="log_sync_enable_services">Aktifkan Cloudlog/Wavelog/Nextlog atau QRZ di Setelan, lalu coba lagi.</string>
     <string name="log_sync_progress_count">%1$d dari %2$d QSO</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d diterima</string>
-    <string name="log_sync_qrz_accepted">QRZ: %1$d diterima</string>
     <string name="log_sync_nothing_to_upload">Belum ada QSO di buku log untuk diunggah.</string>
     <string name="log_sync_working">Memproses…</string>
 
@@ -352,7 +345,6 @@
     <string name="settings_section_decode_highlights">SOROTAN DEKODE</string>
     <string name="settings_section_callsign_blocklist">DAFTAR BLOKIR TANDA PANGGIL</string>
     <string name="settings_section_decode_filters">FILTER DEKODE</string>
-    <string name="settings_section_needed_dx_alerts">PERINGATAN DX DIBUTUHKAN</string>
     <string name="settings_section_logging_awards">LOGGING &amp; PENGHARGAAN</string>
     <string name="settings_section_advanced">LANJUTAN</string>
     <string name="settings_section_about">TENTANG</string>
@@ -423,8 +415,6 @@
     <string name="settings_highlight_new_grid_desc">Sorot grid Maidenhead yang belum dikerjakan</string>
     <string name="settings_highlight_new_band">Band Baru</string>
     <string name="settings_highlight_new_band_desc">Sorot stasiun yang hanya dikerjakan di band lain</string>
-    <string name="settings_highlight_pota">Aktivator POTA</string>
-    <string name="settings_highlight_pota_desc">Sorot aktivator POTA yang di-spot; taman baru menonjol</string>
     <string name="settings_highlight_worked">Pernah Dikerjakan</string>
     <string name="settings_highlight_worked_desc">Tandai stasiun yang sudah ada di log Anda</string>
     <string name="settings_distance_unit">Jarak dalam Mil</string>
@@ -454,22 +444,12 @@
     <string name="settings_hide_directional_cq_desc">Sembunyikan CQ terarah wilayah yang tidak menargetkan DXCC Anda</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">DXCC Baru</string>
-    <string name="settings_alert_new_dxcc_desc">Suara + getar + notifikasi saat entitas DXCC yang belum dikerjakan memanggil CQ</string>
-    <string name="settings_alert_new_state">Negara Bagian AS Baru</string>
-    <string name="settings_alert_new_state_desc">Suara + getar + notifikasi saat stasiun dari negara bagian AS yang belum dikerjakan memanggil CQ (negara bagian dari grid)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">Simpan Dekode SWL</string>
     <string name="settings_save_swl_decodes_desc">Catat semua pesan yang didekode ke basis data</string>
     <string name="settings_save_swl_qsos">Simpan QSO SWL</string>
     <string name="settings_save_swl_qsos_desc">Catat QSO yang terdeteksi antara stasiun lain</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">Unggah spot yang didekode ke pskreporter.info</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">Unggah QSO otomatis ke QRZ Logbook</string>
-    <string name="settings_qrz_profile_lookup">Pencarian Profil QRZ</string>
-    <string name="settings_qrz_profile_lookup_desc">Nama pengguna + kata sandi untuk QRZ XML API (avatar)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">Unggah QSO otomatis ke instans Cloudlog, Wavelog, atau Nextlog</string>
 
@@ -528,7 +508,6 @@
     <string name="settings_enter_manually">Masukkan manual</string>
     <string name="settings_choose_from_server">Pilih dari server</string>
     <string name="settings_station_profile">Profil Stasiun</string>
-    <string name="settings_qrz_creds_desc">Digunakan untuk mengambil foto profil tanda panggil yang didekode via QRZ XML API. Memerlukan langganan QRZ XML.</string>
     <string name="settings_username">Nama Pengguna</string>
     <string name="settings_username_hint">Nama pengguna QRZ.com Anda</string>
     <string name="settings_password">Kata Sandi</string>

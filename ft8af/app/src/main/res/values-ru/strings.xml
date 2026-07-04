@@ -369,7 +369,6 @@
     <string name="html_distance">Расстояние</string>
     <string name="html_callsign_qth">QTH позывного</string>
     <string name="html_update_time">Время обновления</string>
-    <string name="grid_tracker_new_grid">Обнаружен новый локатор: %s</string>
     <string name="tracker_open_messages">Открыть сообщения</string>
     <string name="tracker_close_messages">Закрыть сообщения</string>
     <string name="tracker_decoded_new">Декодировано %d сообщений.</string>
@@ -550,7 +549,6 @@
     <string name="qrz_settings">Настройки QRZ.com</string>
     <string name="qrz_api_key">API KEY</string>
     <string name="config_enable_qrz">Включить синхронизацию QRZ</string>
-    <string name="qrz_help">qrz_en.txt</string>
     <string name="alram_switch">Переключатель оповещений</string>
     <string name="swr_switch_on" translatable="false">SWR On</string>
     <string name="swr_switch_off" translatable="false">SWR Off</string>

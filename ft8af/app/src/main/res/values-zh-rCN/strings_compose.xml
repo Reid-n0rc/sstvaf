@@ -26,9 +26,7 @@
 
     <!-- ===== 底部导航标签 ===== -->
     <string name="tab_decode">解码</string>
-    <string name="tab_map">地图</string>
     <string name="tab_waterfall">瀑布图</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">日志本</string>
     <string name="tab_settings">设置</string>
 
@@ -36,8 +34,6 @@
     <string name="status_new_dxcc">新 DXCC</string>
     <string name="status_new_grid">新网格</string>
     <string name="status_new_band">新波段</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">新 POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">需要</string>
     <string name="status_worked">已通联</string>
@@ -115,8 +111,6 @@
     <string name="decode_filter_for_me">呼叫我</string>
     <string name="decode_empty_cq_title">没有 CQ 呼叫</string>
     <string name="decode_empty_cq_body">当前波段暂无电台在呼叫 CQ。</string>
-    <string name="decode_empty_pota_title">没有 POTA 点位</string>
-    <string name="decode_empty_pota_body">该波段尚未解码到公园激活信号 — 打开 POTA → 猎台查看点位列表。</string>
     <string name="decode_empty_dxcc_title">没有新 DXCC</string>
     <string name="decode_empty_dxcc_body">尚未解码到未通联的 DXCC 实体。</string>
     <string name="decode_empty_needed_title">没有需要的</string>
@@ -196,7 +190,6 @@
     <string name="log_sync_enable_services">请在设置中启用 Cloudlog/Wavelog/Nextlog 或 QRZ，然后重试。</string>
     <string name="log_sync_progress_count">%2$d 个 QSO 中的第 %1$d 个</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog：已接受 %1$d 个</string>
-    <string name="log_sync_qrz_accepted">QRZ：已接受 %1$d 个</string>
     <string name="log_sync_nothing_to_upload">日志本中暂无可上传的 QSO。</string>
     <string name="log_sync_working">正在处理…</string>
 
@@ -287,7 +280,6 @@
     <string name="settings_section_decode_highlights">解码高亮</string>
     <string name="settings_section_callsign_blocklist">呼号屏蔽列表</string>
     <string name="settings_section_decode_filters">解码过滤</string>
-    <string name="settings_section_needed_dx_alerts">需要的 DX 提醒</string>
     <string name="settings_section_logging_awards">日志与奖项</string>
     <string name="settings_section_advanced">高级</string>
     <string name="settings_section_about">关于</string>
@@ -346,8 +338,6 @@
     <string name="settings_highlight_new_grid_desc">高亮显示尚未通联的 Maidenhead 网格</string>
     <string name="settings_highlight_new_band">新波段</string>
     <string name="settings_highlight_new_band_desc">高亮显示仅在其他波段通联过的电台</string>
-    <string name="settings_highlight_pota">POTA 激活者</string>
-    <string name="settings_highlight_pota_desc">高亮显示被点位的 POTA 激活者；新公园更醒目</string>
     <string name="settings_highlight_worked">此前已通联</string>
     <string name="settings_highlight_worked_desc">标记已在您日志中的电台</string>
     <string name="settings_distance_unit">以英里显示距离</string>
@@ -377,22 +367,12 @@
     <string name="settings_hide_directional_cq_desc">隐藏未面向您 DXCC 的区域定向 CQ</string>
 
     <!-- ===== 设置：需要的 DX 提醒 ===== -->
-    <string name="settings_alert_new_dxcc">新 DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">当未通联的 DXCC 实体呼叫 CQ 时发声 + 振动 + 通知</string>
-    <string name="settings_alert_new_state">新 US 州</string>
-    <string name="settings_alert_new_state_desc">当来自未通联 US 州的电台呼叫 CQ 时发声 + 振动 + 通知（州由网格推算）</string>
 
     <!-- ===== 设置：日志与奖项 ===== -->
     <string name="settings_save_swl_decodes">保存 SWL 解码</string>
     <string name="settings_save_swl_decodes_desc">将所有已解码消息记录到数据库</string>
     <string name="settings_save_swl_qsos">保存 SWL QSO</string>
     <string name="settings_save_swl_qsos_desc">记录在其他电台之间检测到的 QSO</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">将已解码点位上传至 pskreporter.info</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">自动将 QSO 上传至 QRZ 日志本</string>
-    <string name="settings_qrz_profile_lookup">QRZ 资料查询</string>
-    <string name="settings_qrz_profile_lookup_desc">QRZ XML API 的用户名 + 密码（头像）</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">自动将 QSO 上传至 Cloudlog、Wavelog 或 Nextlog 实例</string>
 
@@ -450,7 +430,6 @@
     <string name="settings_enter_manually">手动输入</string>
     <string name="settings_choose_from_server">从服务器选择</string>
     <string name="settings_station_profile">站点配置</string>
-    <string name="settings_qrz_creds_desc">用于通过 QRZ XML API 为已解码呼号获取资料照片。需要 QRZ XML 订阅。</string>
     <string name="settings_username">用户名</string>
     <string name="settings_username_hint">您的 QRZ.com 用户名</string>
     <string name="settings_password">密码</string>

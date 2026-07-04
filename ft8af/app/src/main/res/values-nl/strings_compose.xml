@@ -37,9 +37,7 @@
 
     <!-- ===== Bottom navigation tabs ===== -->
     <string name="tab_decode">Decoderen</string>
-    <string name="tab_map">Kaart</string>
     <string name="tab_waterfall">Waterval</string>
-    <string name="tab_pota">POTA</string>
     <string name="tab_logbook">Logboek</string>
     <string name="tab_settings">Instellingen</string>
 
@@ -47,8 +45,6 @@
     <string name="status_new_dxcc">NIEUW DXCC</string>
     <string name="status_new_grid">NIEUW GRID</string>
     <string name="status_new_band">NIEUWE BAND</string>
-    <string name="status_pota">POTA</string>
-    <string name="status_new_pota">NIEUW POTA</string>
     <string name="status_sota">SOTA</string>
     <string name="status_needed">NODIG</string>
     <string name="status_worked">GEWERKT</string>
@@ -157,8 +153,6 @@
     <string name="decode_filter_for_me">Voor mij</string>
     <string name="decode_empty_cq_title">Geen CQ-roepen</string>
     <string name="decode_empty_cq_body">Op deze band roept op dit moment geen station CQ.</string>
-    <string name="decode_empty_pota_title">Geen POTA-spots</string>
-    <string name="decode_empty_pota_body">Nog geen parkactivaties gedecodeerd op deze band — open POTA → Hunt voor de spotlijst.</string>
     <string name="decode_empty_dxcc_title">Geen nieuw DXCC</string>
     <string name="decode_empty_dxcc_body">Er zijn nog geen ongewerkte DXCC-entiteiten gedecodeerd.</string>
     <string name="decode_empty_needed_title">Niets nodig</string>
@@ -239,7 +233,6 @@
     <string name="log_sync_enable_services">Schakel Cloudlog/Wavelog/Nextlog of QRZ in bij Instellingen en probeer het opnieuw.</string>
     <string name="log_sync_progress_count">%1$d van %2$d QSOs</string>
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d geaccepteerd</string>
-    <string name="log_sync_qrz_accepted">QRZ: %1$d geaccepteerd</string>
     <string name="log_sync_nothing_to_upload">Nog geen QSOs in het logboek om te uploaden.</string>
     <string name="log_sync_working">Bezig…</string>
 
@@ -352,7 +345,6 @@
     <string name="settings_section_decode_highlights">DECODE-HIGHLIGHTS</string>
     <string name="settings_section_callsign_blocklist">ROEPNAAM-BLOKKEERLIJST</string>
     <string name="settings_section_decode_filters">DECODE-FILTERS</string>
-    <string name="settings_section_needed_dx_alerts">NODIG-DX-WAARSCHUWINGEN</string>
     <string name="settings_section_logging_awards">LOGGEN &amp; ONDERSCHEIDINGEN</string>
     <string name="settings_section_advanced">GEAVANCEERD</string>
     <string name="settings_section_about">OVER</string>
@@ -423,8 +415,6 @@
     <string name="settings_highlight_new_grid_desc">Markeer nog niet gewerkte Maidenhead-grids</string>
     <string name="settings_highlight_new_band">Nieuwe band</string>
     <string name="settings_highlight_new_band_desc">Markeer stations die alleen op andere banden zijn gewerkt</string>
-    <string name="settings_highlight_pota">POTA-activatoren</string>
-    <string name="settings_highlight_pota_desc">Markeer gespotte POTA-activatoren; nieuwe parken vallen op</string>
     <string name="settings_highlight_worked">Eerder gewerkt</string>
     <string name="settings_highlight_worked_desc">Markeer stations die al in je log staan</string>
     <string name="settings_distance_unit">Afstand in mijlen</string>
@@ -454,22 +444,12 @@
     <string name="settings_hide_directional_cq_desc">Verberg regiogerichte CQ\'s die niet op jouw DXCC zijn gericht</string>
 
     <!-- ===== Settings: needed-DX alerts ===== -->
-    <string name="settings_alert_new_dxcc">Nieuw DXCC</string>
-    <string name="settings_alert_new_dxcc_desc">Geluid + trilling + melding wanneer een ongewerkte DXCC-entiteit CQ roept</string>
-    <string name="settings_alert_new_state">Nieuwe Amerikaanse staat</string>
-    <string name="settings_alert_new_state_desc">Geluid + trilling + melding wanneer een station uit een ongewerkte Amerikaanse staat CQ roept (staat uit grid)</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">SWL-decodes opslaan</string>
     <string name="settings_save_swl_decodes_desc">Log alle gedecodeerde berichten in de database</string>
     <string name="settings_save_swl_qsos">SWL-QSO\'s opslaan</string>
     <string name="settings_save_swl_qsos_desc">Log QSO\'s die tussen andere stations worden gedetecteerd</string>
-    <string name="settings_pskreporter">PSKReporter</string>
-    <string name="settings_pskreporter_desc">Upload gedecodeerde spots naar pskreporter.info</string>
-    <string name="settings_qrz_com">QRZ.com</string>
-    <string name="settings_qrz_com_desc">QSO\'s automatisch uploaden naar QRZ Logbook</string>
-    <string name="settings_qrz_profile_lookup">QRZ-profiel opzoeken</string>
-    <string name="settings_qrz_profile_lookup_desc">Gebruikersnaam + wachtwoord voor QRZ XML API (avatars)</string>
     <string name="settings_cloudlog">Cloudlog / Wavelog / Nextlog</string>
     <string name="settings_cloudlog_desc">QSO\'s automatisch uploaden naar een Cloudlog-, Wavelog- of Nextlog-instantie</string>
 
@@ -528,7 +508,6 @@
     <string name="settings_enter_manually">Handmatig invoeren</string>
     <string name="settings_choose_from_server">Kiezen van server</string>
     <string name="settings_station_profile">Stationprofiel</string>
-    <string name="settings_qrz_creds_desc">Gebruikt om profielfoto\'s op te halen voor gedecodeerde roepnamen via de QRZ XML API. Vereist een QRZ XML-abonnement.</string>
     <string name="settings_username">Gebruikersnaam</string>
     <string name="settings_username_hint">Je QRZ.com-gebruikersnaam</string>
     <string name="settings_password">Wachtwoord</string>

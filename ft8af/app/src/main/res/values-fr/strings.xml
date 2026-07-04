@@ -369,7 +369,6 @@
     <string name="html_distance">Distance</string>
     <string name="html_callsign_qth">QTH de l\'indicatif</string>
     <string name="html_update_time">Heure de mise à jour</string>
-    <string name="grid_tracker_new_grid">Nouveau locator trouvé : %s</string>
     <string name="tracker_open_messages">Ouvrir les messages</string>
     <string name="tracker_close_messages">Fermer les messages</string>
     <string name="tracker_decoded_new">%d messages décodés.</string>
@@ -550,7 +549,6 @@
     <string name="qrz_settings">Paramètres QRZ.com</string>
     <string name="qrz_api_key">Clé API</string>
     <string name="config_enable_qrz">Activer la synchronisation QRZ</string>
-    <string name="qrz_help">qrz_en.txt</string>
     <string name="alram_switch">Interrupteur d\'alarme</string>
     <string name="swr_switch_on" translatable="false">SWR On</string>
     <string name="swr_switch_off" translatable="false">SWR Off</string>
