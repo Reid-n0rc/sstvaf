@@ -648,4 +648,33 @@
     <string name="rx_slant_format" translatable="false">%1$s ppm</string>
     <string name="settings_save_rx_photos">Save received images to Photos</string>
     <string name="settings_save_rx_photos_desc">Completed SSTV images also appear in the Photos app under Pictures/SSTVAF (Android 10+)</string>
+
+    <!-- ===== Gallery tab (PR 7) ===== -->
+    <string name="tab_gallery">Gallery</string>
+    <string name="gallery_title">Gallery</string>
+    <string name="gallery_filter_all">All</string>
+    <string name="gallery_filter_rx">Received</string>
+    <string name="gallery_filter_tx">Sent</string>
+    <string name="gallery_empty_rx">Received images will appear here</string>
+    <string name="gallery_empty_tx">Sent images will appear here</string>
+    <string name="gallery_share">Share</string>
+    <string name="gallery_save_photos">Save to Photos</string>
+    <string name="gallery_delete">Delete</string>
+    <string name="gallery_delete_title">Delete image?</string>
+    <string name="gallery_delete_message">This removes the saved image from the app. This can\'t be undone.</string>
+    <string name="gallery_share_chooser_title">Share SSTV image</string>
+    <string name="gallery_saved_to_photos">Saved to Photos</string>
+    <string name="gallery_save_photos_failed">Couldn\'t save to Photos</string>
+    <string name="gallery_meta_mode">Mode</string>
+    <string name="gallery_meta_frequency">Frequency</string>
+    <string name="gallery_meta_time">Time</string>
+    <string name="gallery_meta_size">Size</string>
+    <string name="gallery_meta_quality">Quality</string>
+    <string name="gallery_meta_direction">Direction</string>
+    <string name="gallery_meta_direction_rx">Received</string>
+    <string name="gallery_meta_direction_tx">Sent</string>
+    <string name="gallery_meta_status">Status</string>
+    <string name="gallery_meta_complete">Complete</string>
+    <string name="gallery_meta_partial">Partial</string>
+    <string name="rx_view_in_gallery">View in Gallery</string>
 </resources>

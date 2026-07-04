@@ -3,6 +3,7 @@ package radio.ks3ckc.sstvaf.ui.rx
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,7 +68,10 @@ import radio.ks3ckc.sstvaf.ui.components.TopBar
  * snapshot instead (the live session has already been reset by then).
  */
 @Composable
-fun RxScreen(mainViewModel: MainViewModel) {
+fun RxScreen(
+    mainViewModel: MainViewModel,
+    onViewInGallery: () -> Unit = {},
+) {
     val listener = mainViewModel.sstvSignalListener
     val rxState by listener.rxState.observeAsState(SstvRxState.Idle)
 
@@ -211,9 +215,19 @@ fun RxScreen(mainViewModel: MainViewModel) {
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             SavedChip()
-                            // TODO(PR 7): "View in Gallery" button — the gallery
-                            // screen lands in PR 7; the button is omitted until
-                            // there is somewhere to navigate to.
+                            Spacer(modifier = Modifier.width(10.dp))
+                            // Jumps to the Gallery tab, where the just-saved
+                            // image is the newest cell.
+                            Text(
+                                text = stringResource(R.string.rx_view_in_gallery),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .clickable(onClick = onViewInGallery)
+                                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                                color = Accent,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
                         }
                     }
                 }

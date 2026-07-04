@@ -242,6 +242,63 @@ class ReceivedImageStore @JvmOverloads constructor(
     }
 
     /**
+     * Manual "Save to Photos" from the gallery viewer. Unlike the automatic
+     * export on save, this works for any direction and ignores the
+     * `saveRxToPhotos` setting — the user asked explicitly. API 29+ only
+     * (pre-29 would need WRITE_EXTERNAL_STORAGE; callers toast on `false`).
+     * Nothing tracks whether an image was already exported, so repeating the
+     * action inserts a duplicate MediaStore entry — acceptable for a manual,
+     * user-driven action.
+     *
+     * @return true if a copy was handed to MediaStore.
+     */
+    fun exportToPhotos(entry: SavedImage): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return false
+        val file = imageFile(entry)
+        if (!file.exists()) return false
+        // Stream the PNG bytes straight into MediaStore — decoding to a
+        // Bitmap just to re-encode identical pixels would burn CPU and, for
+        // large modes, risk pressure on the heap for no benefit.
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, entry.fileName)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            put(MediaStore.Images.Media.DATE_TAKEN, entry.utcMillis)
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/SSTVAF")
+            // Invisible to Photos until fully written.
+            put(MediaStore.Images.Media.IS_PENDING, 1)
+        }
+        val resolver = context.contentResolver
+        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+        if (uri == null) {
+            log("SSTV image store: manual Photos export insert returned null for ${entry.fileName}")
+            return false
+        }
+        var written = false
+        try {
+            val out = resolver.openOutputStream(uri)
+            if (out == null) {
+                log("SSTV image store: manual Photos export stream was null for ${entry.fileName}")
+            } else {
+                out.use { o -> file.inputStream().use { it.copyTo(o) } }
+                written = true
+            }
+        } catch (t: Throwable) {
+            log("SSTV image store: manual Photos export failed for ${entry.fileName}: $t")
+        } finally {
+            if (written) {
+                val publish = ContentValues().apply {
+                    put(MediaStore.Images.Media.IS_PENDING, 0)
+                }
+                resolver.update(uri, publish, null, null)
+            } else {
+                // Never leave a hidden/empty orphan row in MediaStore.
+                resolver.delete(uri, null, null)
+            }
+        }
+        return written
+    }
+
+    /**
      * Insert a copy into MediaStore under `Pictures/SSTVAF`. API 29+ only
      * (RELATIVE_PATH needs no storage permission there); callers gate via
      * [shouldExportToPhotos].
