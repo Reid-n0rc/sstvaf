@@ -43,6 +43,7 @@ import com.k1af.ft8af.R
 enum class SstvTab(@StringRes val labelRes: Int) {
     RX(R.string.tab_rx),
     GALLERY(R.string.tab_gallery),
+    TX(R.string.tab_tx),
     WATERFALL(R.string.tab_waterfall),
     LOG(R.string.tab_logbook),
     SETTINGS(R.string.tab_settings),
@@ -165,6 +166,7 @@ fun TabBar(
                     when (tab) {
                         SstvTab.RX -> SstvAfIcons.RxImage(color = color, strokeWidth = strokeWidth)
                         SstvTab.GALLERY -> SstvAfIcons.Gallery(color = color, strokeWidth = strokeWidth)
+                        SstvTab.TX -> SstvAfIcons.Transmit(color = color, strokeWidth = strokeWidth)
                         SstvTab.WATERFALL -> SstvAfIcons.Waterfall(color = color, strokeWidth = strokeWidth)
                         SstvTab.LOG -> SstvAfIcons.Book(color = color, strokeWidth = strokeWidth)
                         SstvTab.SETTINGS -> SstvAfIcons.Cog(color = color, strokeWidth = strokeWidth)

@@ -2364,6 +2364,9 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 if (name.equalsIgnoreCase("saveRxToPhotos")) {//Also save received SSTV images to Photos (default on)
                     GeneralVariables.saveRxToPhotos = !result.equals("0");
                 }
+                if (name.equalsIgnoreCase("sstvTxMode")) {//Last-used SSTV TX mode (enum name)
+                    GeneralVariables.sstvTxMode = result == null ? "" : result;
+                }
                 if (name.equalsIgnoreCase("perBandOutputLevel")) {//Save TX output level per band, defaults off
                     GeneralVariables.savePerBandOutputLevel = result.equals("1");
                 }

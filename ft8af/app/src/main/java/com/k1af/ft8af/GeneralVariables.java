@@ -91,6 +91,11 @@ public class GeneralVariables {
     // Settings toggle, read from the image auto-save thread.
     public static volatile boolean saveRxToPhotos = true;
 
+    //Last-used SSTV TX mode (SstvMode enum name). Config key "sstvTxMode".
+    // volatile: written from DatabaseOpr's background config-load thread and the
+    // TX composer's mode chips, read when the composer opens.
+    public static volatile String sstvTxMode = "";
+
     //Save TX output level per band (issue #355), defaults off (global level only).
     // volatile: written from DatabaseOpr's background config-load thread and the
     // Settings toggle, read from UI + MeterProtectionController threads (same
