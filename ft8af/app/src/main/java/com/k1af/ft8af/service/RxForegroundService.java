@@ -120,7 +120,7 @@ public class RxForegroundService extends Service {
     }
 
     private Notification buildNotification() {
-        Intent intent = new Intent(this, radio.ks3ckc.ft8af.ComposeMainActivity.class);
+        Intent intent = new Intent(this, radio.ks3ckc.sstvaf.ComposeMainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

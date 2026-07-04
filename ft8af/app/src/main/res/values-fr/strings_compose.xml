@@ -51,7 +51,7 @@
     <string name="main_tx_volume">Volume TX : %1$d%%</string>
 
     <!-- ===== Exit dialog ===== -->
-    <string name="exit_title">QUITTER FT8AF ?</string>
+    <string name="exit_title">QUITTER SSTVAF ?</string>
     <string name="exit_message">Voulez-vous vraiment fermer l\'application ? Tout QSO en cours sera annulé.</string>
 
     <!-- ===== Frequency picker ===== -->

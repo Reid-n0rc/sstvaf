@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FT8AF</string>
+    <string name="app_name">SSTVAF</string>
     <string name="nav_menu_title_call_list">内容</string>
     <string name="nav_menu_title_decode_list">解码</string>
     <string name="nav_menu_title_my_calling">呼叫</string>
@@ -38,7 +38,7 @@
     <string name="timeOffset">时间偏移</string>
     <string name="help">帮助</string>
     <string name="scroll_down">▾</string>
-    <string name="about_me">关于 FT8AF</string>
+    <string name="about_me">关于 SSTVAF</string>
 
     <string name="connectMode">控制方式</string>
     <string name="VOX">VOX</string>
@@ -52,7 +52,7 @@
     <string name="close">关闭</string>
     <string name="rig_name">电台</string>
     <string name="debug">调试</string>
-    <string name="logo_image">FT8AF</string>
+    <string name="logo_image">SSTVAF</string>
     <string name="RTS">RTS</string>
     <string name="FAQ">FAQ</string>
     <string name="launch_supervision">发射看门狗</string>
@@ -85,7 +85,7 @@
     <string name="bluetooth_headset_mode">进入 Bluetooth 耳机模式</string>>
     <string name="bluetooth_Headset_mode_cancelled">退出 Bluetooth 耳机模式</string>>
 
-    <string name="version_info">FT8AF Ver %s\nKS3CKC\n%s</string>>
+    <string name="version_info">SSTVAF Ver %s\nKS3CKC\n%s</string>>
 
 
     <string name="exit">退出</string>>

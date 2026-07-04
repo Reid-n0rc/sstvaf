@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
-import radio.ks3ckc.ft8af.UsbPermissionIntentsKt;
+import radio.ks3ckc.sstvaf.UsbPermissionIntentsKt;
 
 
 public class CableSerialPort {

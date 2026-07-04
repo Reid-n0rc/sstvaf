@@ -51,7 +51,7 @@
     <string name="main_tx_volume">TX 音量：%1$d%%</string>
 
     <!-- ===== Exit dialog ===== -->
-    <string name="exit_title">離開 FT8AF？</string>
+    <string name="exit_title">離開 SSTVAF？</string>
     <string name="exit_message">確定要關閉應用程式嗎？任何進行中的 QSO 都將被取消。</string>
 
     <!-- ===== Frequency picker ===== -->

@@ -607,7 +607,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: radio.ks3ckc.ft8af
+          packageName: radio.ks3ckc.sstvaf
           releaseFiles: ft8af/app/build/outputs/bundle/release/app-release.aab
           # R8 deobfuscation mapping — clears the Play Console "no deobfuscation
           # file" warning and makes crash/ANR stack traces readable.

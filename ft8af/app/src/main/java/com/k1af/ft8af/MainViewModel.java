@@ -94,7 +94,7 @@ import com.k1af.ft8af.ui.ToastMessage;
 import com.k1af.ft8af.wave.HamRecorder;
 import com.k1af.ft8af.x6100.X6100Radio;
 
-import radio.ks3ckc.ft8af.UsbPermissionIntentsKt;
+import radio.ks3ckc.sstvaf.UsbPermissionIntentsKt;
 
 import java.io.File;
 import java.util.ArrayList;

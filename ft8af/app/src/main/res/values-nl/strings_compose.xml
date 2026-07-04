@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Compose UI strings (FT8AF). The live app is the Jetpack Compose UI under
-  ~ radio.ks3ckc.ft8af; these are its user-facing strings, externalized for
+  ~ Compose UI strings (SSTVAF). The live app is the Jetpack Compose UI under
+  ~ radio.ks3ckc.sstvaf; these are its user-facing strings, externalized for
   ~ localization. The legacy strings.xml entries belong to the unreachable old
   ~ XML/Fragment UI and are NOT used by the running app.
   ~
@@ -64,7 +64,7 @@
     <string name="main_tx_volume">TX-volume: %1$d%%</string>
 
     <!-- ===== Exit dialog ===== -->
-    <string name="exit_title">FT8AF AFSLUITEN?</string>
+    <string name="exit_title">SSTVAF AFSLUITEN?</string>
     <string name="exit_message">Weet je zeker dat je de app wilt sluiten? Een actieve QSO wordt geannuleerd.</string>
 
     <!-- ===== Frequency picker ===== -->

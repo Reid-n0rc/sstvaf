@@ -24,8 +24,8 @@ import com.k1af.ft8af.ui.ToastMessage;
 
 import java.io.IOException;
 
-import radio.ks3ckc.ft8af.BluetoothAutoConnectKt;
-import radio.ks3ckc.ft8af.BtConnectorAction;
+import radio.ks3ckc.sstvaf.BluetoothAutoConnectKt;
+import radio.ks3ckc.sstvaf.BtConnectorAction;
 
 public class BluetoothRigConnector extends BaseRigConnector implements ServiceConnection, BluetoothSerialListener {
     private enum Connected {False, Pending, True}

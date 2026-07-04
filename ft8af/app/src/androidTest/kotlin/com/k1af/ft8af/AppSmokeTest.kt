@@ -9,7 +9,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import radio.ks3ckc.ft8af.ComposeMainActivity
+import radio.ks3ckc.sstvaf.ComposeMainActivity
 
 /**
  * Instrumented smoke test. Launches the real ComposeMainActivity on a device

@@ -146,7 +146,7 @@ public class TuneOperator {
 
     /** The tune level (0..100) resolved from settings, as an amplitude 0..1. */
     private static float currentTuneAmplitude() {
-        return radio.ks3ckc.ft8af.TuneLevelKt.currentTuneLevel() / 100f;
+        return radio.ks3ckc.sstvaf.TuneLevelKt.currentTuneLevel() / 100f;
     }
 
     /**
@@ -161,7 +161,7 @@ public class TuneOperator {
         try {
             GeneralVariables.fileLog(String.format(
                     "TUNE: start offset=%.0fHz level=%d%% maxOn=%ds rate=%d",
-                    offsetHz, radio.ks3ckc.ft8af.TuneLevelKt.currentTuneLevel(),
+                    offsetHz, radio.ks3ckc.sstvaf.TuneLevelKt.currentTuneLevel(),
                     TuneController.clampMaxOnSeconds(GeneralVariables.tuneMaxOnSeconds),
                     GeneralVariables.audioSampleRate));
             pttController.keyDown();
