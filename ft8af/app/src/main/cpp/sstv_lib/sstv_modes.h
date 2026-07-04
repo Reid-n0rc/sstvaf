@@ -2,6 +2,12 @@
 // the encoder AND decoder. All timings are double microseconds, taken from
 // JL Barber N7CXI, "Proposal for SSTV Mode Specifications" (Dayton 2000) —
 // see SOURCES.md.
+//
+// The Kotlin engine mirrors this table (mode ids, dims, VIS codes, durations)
+// in radio.ks3ckc.sstvaf.sstv.SstvMode; SstvModeTest pins every SSTV_MODE_*
+// id and table entry against hardcoded expectations. If you reorder/extend
+// the mode ids in sstv.h or change this table, update SstvMode.kt and
+// SstvModeTest.kt together.
 
 #ifndef SSTV_LIB_SSTV_MODES_H
 #define SSTV_LIB_SSTV_MODES_H

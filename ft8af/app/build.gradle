@@ -58,9 +58,9 @@ android {
 
         externalNativeBuild {
             cmake {
-                // No extra cppFlags — all native code (the FT8 DSP core plus the
+                // No extra cppFlags — all native code (the SSTV codec plus the
                 // USB audio glue) builds from source via src/main/cpp/CMakeLists.txt
-                // into libft8af.so, and that build needs nothing beyond the
+                // into libsstvaf.so, and that build needs nothing beyond the
                 // defaults. The upstream FT8CN's '-JENABLE_XOM=false' was a typo
                 // (likely intended -D, not -J) that clang rejects, so it stays out.
                 cppFlags ''
@@ -68,7 +68,7 @@ android {
         }
 
         // Native code is built from source (see src/main/cpp/CMakeLists.txt) into
-        // libft8af.so; there are no prebuilt jniLibs. This filter just limits the
+        // libsstvaf.so; there are no prebuilt jniLibs. This filter just limits the
         // NDK build to the four ABIs we ship and prevents an unexpected ABI
         // slipping in.
         ndk {
@@ -102,9 +102,9 @@ android {
                 signingConfig signingConfigs.release
             }
             // R8 shrink + obfuscate. proguard-rules.pro keeps the JNI surface the
-            // native libft8af.so reaches by name (Ft8Message fields, the
+            // native libsstvaf.so reaches by name (the NativeSstvCodec methods, the
             // UsbAudioNative callback) plus the reflection-driven USB serial driver
-            // discovery and the AWS Cognito SDK. minifyEnabled also makes AGP emit
+            // discovery. minifyEnabled also makes AGP emit
             // mapping.txt, which CI uploads to Play Console for deobfuscated crashes.
             minifyEnabled true
             shrinkResources true

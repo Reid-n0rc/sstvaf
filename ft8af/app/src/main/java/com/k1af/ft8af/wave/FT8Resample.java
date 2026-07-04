@@ -8,7 +8,7 @@ package com.k1af.ft8af.wave;
 public class FT8Resample {
 
     static {
-        System.loadLibrary("ft8af");
+        System.loadLibrary("sstvaf");
     }
 
     public static native short[] get16Resample16(short[] inputData, int inputRate

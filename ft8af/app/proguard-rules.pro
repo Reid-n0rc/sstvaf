@@ -3,8 +3,9 @@
 # Release is built with minifyEnabled true (shrink + obfuscate). The default
 # proguard-android-optimize.txt already covers the common cases we rely on:
 #   * classes that declare `native` methods keep their name + the native method
-#     names (so the libft8af.so JNI symbol names Java_com_k1af_ft8af_* still
-#     resolve) — covers FT8Resample, SpectrumFragment, UsbAudioNative.
+#     names (so the libsstvaf.so JNI symbol names Java_com_k1af_ft8af_* /
+#     Java_radio_ks3ckc_sstvaf_* still resolve) — covers FT8Resample,
+#     SpectrumFragment, UsbAudioNative, NativeSstvCodec.
 #   * enum values()/valueOf() and Parcelable CREATOR fields.
 # Everything below is the project-specific surface R8 cannot infer on its own:
 # names the native layer (or reflection) looks up by string.
@@ -21,6 +22,14 @@
 -keepclassmembers interface com.k1af.ft8af.wave.UsbAudioNative$AudioInputCallback {
     void onAudioData(float[], int);
     void onCaptureStopped(int);
+}
+
+# --- JNI: the SSTV codec bridge ---
+# The default rules already keep native-method-declaring classes, but the SSTV
+# engine is silently unusable (RX never locks, TX throws) if these symbols are
+# ever renamed or stripped, so pin them explicitly. Guarded by R8KeepRulesTest.
+-keepclasseswithmembers class radio.ks3ckc.sstvaf.sstv.NativeSstvCodec {
+    native <methods>;
 }
 
 # --- Reflection: USB serial driver discovery ---

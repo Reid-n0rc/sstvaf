@@ -3,7 +3,7 @@ package com.k1af.ft8af.wave;
 import android.util.Log;
 
 /**
- * JNI bridge to {@code libft8af_usb.so}: libusb-backed USB Audio Class
+ * JNI bridge to {@code libsstvaf.so}: libusb-backed USB Audio Class
  * isochronous capture.
  *
  * <p>The Java side ({@link UsbAudioDevice}) opens the device, claims the
@@ -27,10 +27,10 @@ public final class UsbAudioNative {
     static {
         boolean loaded;
         try {
-            System.loadLibrary("ft8af");
+            System.loadLibrary("sstvaf");
             loaded = true;
         } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "Failed to load libft8af: " + e.getMessage());
+            Log.w(TAG, "Failed to load libsstvaf: " + e.getMessage());
             loaded = false;
         }
         LIBRARY_LOADED = loaded;
