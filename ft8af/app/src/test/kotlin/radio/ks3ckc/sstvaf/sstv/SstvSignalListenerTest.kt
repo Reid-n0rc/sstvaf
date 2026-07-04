@@ -2,6 +2,7 @@ package radio.ks3ckc.sstvaf.sstv
 
 import android.os.Looper
 import com.google.common.truth.Truth.assertThat
+import com.k1af.ft8af.wave.HamRecorder
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
