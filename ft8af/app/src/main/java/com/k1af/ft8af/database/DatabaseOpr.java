@@ -18,14 +18,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.k1af.ft8af.FT8Common;
-import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.R;
 import com.k1af.ft8af.callsign.CallsignDatabase;
 import com.k1af.ft8af.callsign.CallsignInfo;
 import com.k1af.ft8af.connector.ConnectMode;
-import com.k1af.ft8af.ft8signal.FT8Package;
 import com.k1af.ft8af.log.AdifFormat;
 import com.k1af.ft8af.log.OnQueryQSLCallsign;
 import com.k1af.ft8af.log.OnQueryQSLRecordCallsign;
@@ -619,10 +616,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
         new WriteConfig(db, KeyName, Value, onAfterWriteConfig).execute();
     }
 
-    public void writeMessage(ArrayList<Ft8Message> messages) {
-        new WriteMessages(db, messages).execute();
-    }
-
     /**
      * Read the list of followed callsigns
      *
@@ -700,14 +693,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
      */
     public void addQSL_Callsign(QSLRecord qslRecord) {
         new AddQSL_Info(this, qslRecord).execute();
-    }
-
-    /**
-     * Save SWL QSO to the database. SWL QSO criteria: must have signal reports from both parties; does not include own callsign.
-     * @param qslRecord QSO log record
-     */
-    public void addSWL_QSO(QSLRecord qslRecord) {
-        new Add_SWL_QSO_Info(this, qslRecord).execute();
     }
 
     //Delete a followed callsign from the database
@@ -1563,36 +1548,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
     }
 
     /**
-     * Write messages to the database
-     */
-    static class WriteMessages extends AsyncTask<Void, Void, Void> {
-        private final SQLiteDatabase db;
-        private ArrayList<Ft8Message> messages;
-
-        public WriteMessages(SQLiteDatabase db, ArrayList<Ft8Message> messages) {
-            this.db = db;
-            this.messages = messages;
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            String sql = "INSERT INTO SWLMessages(I3,N3,Protocol,UTC,SNR,TIME_SEC,FREQ,CALL_FROM" +
-                    ",CALL_TO,EXTRAL,REPORT,BAND)\n" +
-                    "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
-            for (Ft8Message message : messages) {//Only save messages related to me
-                db.execSQL(sql, new Object[]{message.i3, message.n3,
-                        com.k1af.ft8af.ModeProfile.fromId(message.signalFormat).displayName
-                        ,UtcTimer.getDatetimeYYYYMMDD_HHMMSS(message.utcTime)
-                        , message.hasSnr() ? message.snr : 0, message.time_sec, Math.round(message.freq_hz)
-                        , message.callsignFrom, message.callsignTo, message.extraInfo
-                        , message.report, message.band});
-
-            }
-            return null;
-        }
-    }
-
-    /**
      * Write followed callsigns to the database
      */
     static class AddFollowCallSign extends AsyncTask<Void, Void, Void> {
@@ -1633,54 +1588,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
             }
             return null;
         }
-    }
-
-    static class Add_SWL_QSO_Info extends AsyncTask<Void, Void, Void>{
-        private final DatabaseOpr databaseOpr;
-        private QSLRecord qslRecord;
-        public Add_SWL_QSO_Info(DatabaseOpr opr, QSLRecord qslRecord) {
-            this.databaseOpr = opr;
-            this.qslRecord = qslRecord;
-        }
-        @SuppressLint("Range")
-        @Override
-        protected Void doInBackground(Void... voids) {
-            String querySQL;
-            //Delete duplicate records first
-            querySQL = "DELETE FROM  SWLQSOTable where ([call]=?) and (station_callsign=?) and (qso_date=?) and(time_on=?) and (freq=?)";
-            databaseOpr.db.execSQL(querySQL, new String[]{
-                             qslRecord.getToCallsign()
-                            , qslRecord.getMyCallsign()
-                            , qslRecord.getQso_date()
-                            , qslRecord.getTime_on()
-                            , BaseRigOperation.getFrequencyFloat(qslRecord.getBandFreq())
-                    });
-            //Add record
-            querySQL = "INSERT INTO SWLQSOTable([call], gridsquare, mode, rst_sent, rst_rcvd, qso_date, " +
-                    "time_on, qso_date_off, time_off, band, freq, station_callsign, my_gridsquare,operator,comment)\n" +
-                    "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-            databaseOpr.db.execSQL(querySQL, new String[]{qslRecord.getToCallsign()
-                    , qslRecord.getToMaidenGrid()
-                    , qslRecord.getMode()
-                    , AdifFormat.formatReport(qslRecord.getSendReport())
-                    , AdifFormat.formatReport(qslRecord.getReceivedReport())
-                    , qslRecord.getQso_date()
-                    , qslRecord.getTime_on()
-
-                    , qslRecord.getQso_date_off()
-                    , qslRecord.getTime_off()
-                    , qslRecord.getBandLength()//band length//RigOperationConstant.getMeterFromFreq(qslRecord.getBandFreq())
-                    , BaseRigOperation.getFrequencyFloat(qslRecord.getBandFreq())
-                    , qslRecord.getMyCallsign()
-                    , qslRecord.getMyMaidenGrid()
-                    , GeneralVariables.myCallsign//My callsign, not the other party's callsign
-                    , qslRecord.getComment()});
-
-
-            return null;
-        }
-
     }
 
     /**
@@ -2312,42 +2219,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 }
                 if (name.equalsIgnoreCase("callsign")) {
                     GeneralVariables.myCallsign = result;
-                    String callsign = GeneralVariables.myCallsign;
-                    if (callsign.length() > 0) {
-                        Ft8Message.hashList.addHash(FT8Package.getHash22(callsign), callsign);
-                        Ft8Message.hashList.addHash(FT8Package.getHash12(callsign), callsign);
-                        Ft8Message.hashList.addHash(FT8Package.getHash10(callsign), callsign);
-                        if (callsign.contains("/")) {
-                            String shortCallsign = GeneralVariables.getShortCallsign(callsign);
-                            Ft8Message.hashList.addHash(FT8Package.getHash22(shortCallsign), shortCallsign);
-                            Ft8Message.hashList.addHash(FT8Package.getHash12(shortCallsign), shortCallsign);
-                            Ft8Message.hashList.addHash(FT8Package.getHash10(shortCallsign), shortCallsign);
-                        }
-                    }
-                }
-                if (name.equalsIgnoreCase("toModifier")) {
-                    GeneralVariables.toModifier = result;
-                }
-                if (name.equalsIgnoreCase("fieldDayMode")) {
-                    GeneralVariables.fieldDayMode = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("fieldDayClass")) {
-                    if (result != null && result.length() > 0) {
-                        GeneralVariables.fieldDayClass = result;
-                    }
-                }
-                if (name.equalsIgnoreCase("fieldDayNumTx")) {
-                    try {
-                        int v = result.equals("") ? 1 : Integer.parseInt(result);
-                        GeneralVariables.fieldDayNumTx = Math.max(1, Math.min(16, v));
-                    } catch (NumberFormatException e) {
-                        GeneralVariables.fieldDayNumTx = 1;
-                    }
-                }
-                if (name.equalsIgnoreCase("fieldDaySection")) {
-                    if (result != null) {
-                        GeneralVariables.fieldDaySection = result;
-                    }
                 }
                 if (name.equalsIgnoreCase("antenna")) {
                     GeneralVariables.myAntenna = result;
@@ -2368,21 +2239,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     }
                     //GeneralVariables.setBaseFrequency(result.equals("") ? 1000 : Float.parseFloat(result));
                     GeneralVariables.setBaseFrequency(freq);
-                }
-                if (name.equalsIgnoreCase("synFreq")) {
-                    GeneralVariables.synFrequency = !(result.equals("") || result.equals("0"));
-                }
-                if (name.equalsIgnoreCase("holdTxFreq")) {
-                    // Parse like synFreq above: any non-empty, non-"0" value is true,
-                    // so the two boolean configs handle stored values consistently.
-                    GeneralVariables.holdTxFreq = !(result.equals("") || result.equals("0"));
-                }
-                if (name.equalsIgnoreCase("transDelay")) {
-                    if (result.matches("^\\d{1,4}$")) {//Regex: 1-4 digit number
-                        GeneralVariables.transmitDelay = Integer.parseInt(result);
-                    } else {
-                        GeneralVariables.transmitDelay = FT8Common.FT8_TRANSMIT_DELAY;
-                    }
                 }
                 //Manual time correction (ms). Re-applied to UtcTimer.delay at startup so a
                 //field operator's offline clock nudge survives a relaunch. delay is read live
@@ -2406,7 +2262,7 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     GeneralVariables.baudRate = result.equals("") ? 19200 : Integer.parseInt(result);
                 }
                 if (name.equalsIgnoreCase("bandFreq")) {
-                    GeneralVariables.band = result.equals("") ? 14074000 : Long.parseLong(result);
+                    GeneralVariables.band = result.equals("") ? 14230000 : Long.parseLong(result);
                     GeneralVariables.bandListIndex = OperationBand.getIndexByFreq(GeneralVariables.band);
                 }
 
@@ -2419,18 +2275,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                         }
                     }
                     GeneralVariables.excludedBands = newSet;
-                }
-
-                if (name.equalsIgnoreCase("msgMode")) {
-                    GeneralVariables.simpleCallItemMode = result.equals("1") ;
-                }
-
-                if (name.equalsIgnoreCase("clearDecodesEveryCycle")) {
-                    GeneralVariables.clearDecodesEveryCycle = result.equals("1");
-                }
-
-                if (name.equalsIgnoreCase("clearOnBandModeChange")) {
-                    GeneralVariables.clearOnBandModeChange = result.equals("1");
                 }
 
                 if (name.equalsIgnoreCase("ctrMode")) {
@@ -2448,22 +2292,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 if (name.equalsIgnoreCase("instruction")) {//Instruction set
                     GeneralVariables.instructionSet = result.equals("") ? 0 : Integer.parseInt(result);
                 }
-                if (name.equalsIgnoreCase("launchSupervision")) {//Transmit supervision
-                    GeneralVariables.launchSupervision = result.equals("") ?
-                            GeneralVariables.DEFAULT_LAUNCH_SUPERVISION : Integer.parseInt(result);
-                }
-                if (name.equalsIgnoreCase("noReplyLimit")) {//
-                    GeneralVariables.noReplyLimit = result.equals("") ? 0 : Integer.parseInt(result);
-                }
-                if (name.equalsIgnoreCase("autoFollowCQ")) {//Auto-follow CQ
-                    GeneralVariables.autoFollowCQ = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("huntCallsCQ")) {//Hunt+CQ hybrid
-                    GeneralVariables.huntCallsCQ = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("autoCallFollow")) {//Auto-call followed stations
-                    GeneralVariables.autoCallFollow = (result.equals("") || result.equals("1"));
-                }
                 if (name.equalsIgnoreCase("autoGridFromGPS")) {//Auto-update grid from GPS
                     GeneralVariables.autoUpdateGridFromGPS = result.equals("1");
                 }
@@ -2476,34 +2304,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 }
                 if (name.equalsIgnoreCase("pttDelay")) {//PTT delay setting
                     GeneralVariables.pttDelay = result.equals("") ? 100 : Integer.parseInt(result);
-                }
-                if (name.equalsIgnoreCase("lateStartTolerance")) {//Late-start tolerance, ms (0-4000)
-                    try {
-                        int v = result.equals("") ? 2000 : Integer.parseInt(result);
-                        if (v < 0) v = 0;
-                        if (v > 4000) v = 4000;
-                        GeneralVariables.lateStartTolerance = v;
-                    } catch (NumberFormatException nfe) {
-                        GeneralVariables.lateStartTolerance = 2000;
-                    }
-                }
-                if (name.equalsIgnoreCase("earlyDecode")) {//Fast turnaround: shorter RX window, defaults on
-                    GeneralVariables.earlyDecode = (result.equals("") || result.equals("1"));
-                }
-                if (name.equalsIgnoreCase("operatingMode")) {//Operating mode (0=FT8,1=FT4), defaults FT8
-                    try {
-                        int parsed = result.equals("")
-                                ? FT8Common.FT8_MODE : Integer.parseInt(result);
-                        // Normalize through ModeProfile so an unknown id persisted by a
-                        // future build (e.g. a mode this build doesn't know) degrades to
-                        // FT8 everywhere, not just in descriptor lookups.
-                        GeneralVariables.operatingMode = com.k1af.ft8af.ModeProfile.fromId(parsed).id;
-                    } catch (NumberFormatException nfe) {
-                        GeneralVariables.operatingMode = FT8Common.FT8_MODE;
-                    }
-                }
-                if (name.equalsIgnoreCase("autoCQAfterQSO")) {//Auto-CQ after each completed QSO, defaults off
-                    GeneralVariables.autoCQAfterQSO = result.equals("1");
                 }
                 if (name.equalsIgnoreCase("icomIp")) {//ICOM IP address
                     GeneralVariables.icomIp = result.equals("") ? "255.255.255.255" : result;
@@ -2538,16 +2338,13 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 if (name.equalsIgnoreCase("perBandOutputLevels")) {//Per-band TX output levels ("20m=60,40m=85")
                     GeneralVariables.perBandOutputLevels = result == null ? "" : result;
                 }
-                if (name.equalsIgnoreCase("autoClearTxFreq")) {//Auto-select clear CQ offset (issue #418)
-                    GeneralVariables.autoClearTxFreq = "1".equals(result);
-                }
                 if (name.equalsIgnoreCase("tuneMaxOnSeconds")) {//Tune carrier hard cap (issue #408)
                     //Defensive parse: settings import (#382) can feed anything here.
                     //Null/non-numeric keeps the default; TuneController clamps the range.
                     if (result != null) {
                         try {
                             GeneralVariables.tuneMaxOnSeconds =
-                                    com.k1af.ft8af.ft8transmit.TuneController.clampMaxOnSeconds(
+                                    com.k1af.ft8af.transmit.TuneController.clampMaxOnSeconds(
                                             Integer.parseInt(result.trim()));
                         } catch (NumberFormatException ignored) {
                         }
@@ -2577,40 +2374,11 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 if (name.equalsIgnoreCase("blockedKeywords")) {//Blocklist: keyword substrings
                     GeneralVariables.addBlockedKeywords(result);
                 }
-                if (name.equalsIgnoreCase("filterShowOnlyCQ")) {//Decode filter: CQ only
-                    GeneralVariables.filterShowOnlyCQ = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("filterDxOnly")) {//Decode filter: DX (other continents) only
-                    GeneralVariables.filterDxOnly = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("filterNeededOnly")) {//Decode filter: needed only
-                    GeneralVariables.filterNeededOnly = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("filterByContinent")) {//Decode filter: by continent
-                    GeneralVariables.filterByContinent = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("filterContinent")) {//Decode filter: target continent
-                    if (result != null && result.length() > 0) {
-                        GeneralVariables.filterContinent = result;
-                    }
-                }
-                if (name.equalsIgnoreCase("respectDirectionalCQ")) {//Directional CQ: suppress auto-reply
-                    GeneralVariables.respectDirectionalCQ = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("filterDirectionalCQ")) {//Directional CQ: hide from decode list
-                    GeneralVariables.filterDirectionalCQ = result.equals("1");
-                }
                 if (name.equalsIgnoreCase("flexMaxRfPower")) {//Flex max RF power
                     GeneralVariables.flexMaxRfPower = result.equals("") ? 10 : Integer.parseInt(result);
                 }
                 if (name.equalsIgnoreCase("flexMaxTunePower")) {//Flex max tune power
                     GeneralVariables.flexMaxTunePower = result.equals("") ? 10 : Integer.parseInt(result);
-                }
-                if (name.equalsIgnoreCase("saveSWL")) {//Save decoded messages
-                    GeneralVariables.saveSWLMessage = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("saveSWLQSO")) {//Save SWL QSO data
-                    GeneralVariables.saveSWL_QSO = result.equals("1");
                 }
                 if (name.equalsIgnoreCase("audioBits")) {//Output audio 32-bit float
                     GeneralVariables.audioOutput32Bit = result.equals("1");
@@ -2635,9 +2403,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 }
                 if (name.equalsIgnoreCase("usbAudioOutputPid")) {
                     GeneralVariables.usbAudioOutputProductId = result.equals("") ? 0 : Integer.parseInt(result);
-                }
-                if (name.equalsIgnoreCase("deepMode")) {//Deep decode mode
-                    GeneralVariables.deepDecodeMode =result.equals("1");
                 }
                 if (name.equalsIgnoreCase("debugModeEnabled")) {//Hidden debug screen unlock
                     GeneralVariables.debugModeEnabled = result.equals("1");
@@ -2692,18 +2457,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     GeneralVariables.setSpectrumWidth(result.equals("") ? 3500 : Integer.parseInt(result));
                 }
 
-                if (name.equalsIgnoreCase("highlightNewDxcc")) {
-                    GeneralVariables.highlightNewDxcc = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("highlightNewGrid")) {
-                    GeneralVariables.highlightNewGrid = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("highlightNewBand")) {
-                    GeneralVariables.highlightNewBand = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("highlightWorked")) {
-                    GeneralVariables.highlightWorked = result.equals("1");
-                }
 
                 if (name.equalsIgnoreCase("distanceInMiles")) {
                     GeneralVariables.distanceInMiles = !result.equals("0");

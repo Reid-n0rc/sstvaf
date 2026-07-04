@@ -40,11 +40,6 @@ class R8KeepRulesTest {
     }
 
     @Test
-    fun keepsFt8MessageFieldsForJniFieldAccess() {
-        assertThat(proguardRules).contains("class com.k1af.ft8af.Ft8Message")
-    }
-
-    @Test
     fun keepsUsbAudioCallbackMethodsForJni() {
         assertThat(proguardRules)
             .contains("com.k1af.ft8af.wave.UsbAudioNative\$AudioInputCallback")

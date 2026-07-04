@@ -117,13 +117,9 @@ fun AdvancedSettings(
     val context = LocalContext.current
 
     var pttDelay by remember { mutableIntStateOf(GeneralVariables.pttDelay) }
-    var txDelay by remember { mutableIntStateOf(GeneralVariables.transmitDelay) }
-    var lateStartMs by remember { mutableIntStateOf(GeneralVariables.lateStartTolerance) }
     var currentTheme by remember { mutableStateOf(loadTheme(context)) }
 
     var showPttDelay by remember { mutableStateOf(false) }
-    var showTxDelay by remember { mutableStateOf(false) }
-    var showLateStart by remember { mutableStateOf(false) }
     var showLanguagePicker by remember { mutableStateOf(false) }
     var showThemePicker by remember { mutableStateOf(false) }
 
@@ -257,7 +253,6 @@ fun AdvancedSettings(
         )
     }
 
-    val txDelayStr = stringResource(R.string.settings_milliseconds_format, txDelay)
     val pttDelayStr = stringResource(R.string.settings_milliseconds_format, pttDelay)
 
     // -- PTT Delay Picker --
@@ -277,45 +272,6 @@ fun AdvancedSettings(
                 GeneralVariables.pttDelay = ms
                 pttDelay = ms
                 mainViewModel.databaseOpr.writeConfig("pttDelay", ms.toString(), null)
-            },
-        )
-    }
-
-    // -- TX Delay Editor --
-    if (showTxDelay) {
-        NumberInputDialog(
-            title = stringResource(R.string.settings_tx_delay),
-            suffix = "ms",
-            initialValue = txDelay,
-            min = 1,
-            max = 9999,
-            onDismiss = { showTxDelay = false },
-            onSave = { value ->
-                showTxDelay = false
-                val clamped = value.coerceIn(1, 9999)
-                GeneralVariables.transmitDelay = clamped
-                txDelay = clamped
-                mainViewModel.ft8TransmitSignal.setTimer_sec(clamped)
-                mainViewModel.databaseOpr.writeConfig("transDelay", clamped.toString(), null)
-            },
-        )
-    }
-
-    // -- Late-start Tolerance Editor --
-    if (showLateStart) {
-        NumberInputDialog(
-            title = stringResource(R.string.settings_late_start_tolerance),
-            suffix = "ms",
-            initialValue = lateStartMs,
-            min = 0,
-            max = 4000,
-            onDismiss = { showLateStart = false },
-            onSave = { value ->
-                showLateStart = false
-                val clamped = value.coerceIn(0, 4000)
-                GeneralVariables.lateStartTolerance = clamped
-                lateStartMs = clamped
-                mainViewModel.databaseOpr.writeConfig("lateStartTolerance", clamped.toString(), null)
             },
         )
     }
@@ -396,22 +352,6 @@ fun AdvancedSettings(
                         value = pttDelayStr,
                         showChevron = true,
                         onClick = { showPttDelay = true },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_tx_delay),
-                        description = stringResource(R.string.settings_tx_delay_desc),
-                        value = txDelayStr,
-                        showChevron = true,
-                        onClick = { showTxDelay = true },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_late_start_tolerance),
-                        description = stringResource(R.string.settings_late_start_tolerance_desc),
-                        value = stringResource(R.string.settings_milliseconds_format, lateStartMs),
-                        showChevron = true,
-                        onClick = { showLateStart = true },
                     )
                 }
             }

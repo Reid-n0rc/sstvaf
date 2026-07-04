@@ -4,8 +4,7 @@
 # proguard-android-optimize.txt already covers the common cases we rely on:
 #   * classes that declare `native` methods keep their name + the native method
 #     names (so the libft8af.so JNI symbol names Java_com_k1af_ft8af_* still
-#     resolve) — covers FT8SignalListener, GenerateFT8, FT8Package, FT8Resample,
-#     SpectrumView, SpectrumFragment, UsbAudioNative, ReBuildSignal.
+#     resolve) — covers FT8Resample, SpectrumFragment, UsbAudioNative.
 #   * enum values()/valueOf() and Parcelable CREATOR fields.
 # Everything below is the project-specific surface R8 cannot infer on its own:
 # names the native layer (or reflection) looks up by string.
@@ -15,15 +14,6 @@
 # original source file name (it becomes "SourceFile" in the obfuscated build).
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
-
-# --- JNI: fields read by name via GetObjectClass(msg)+GetFieldID(...) ---
-# ft8_decode_jni.cpp / ft2_decode_jni.cpp populate an Ft8Message instance field
-# by field by field. The field names are baked into the C++; obfuscating them
-# makes every decode silently write nothing. Keep all fields (methods may still
-# be obfuscated).
--keepclassmembers class com.k1af.ft8af.Ft8Message {
-    <fields>;
-}
 
 # --- JNI: callback methods invoked by name via GetMethodID(...) ---
 # usb_audio_capture.cpp calls back into the AudioInputCallback by method name +

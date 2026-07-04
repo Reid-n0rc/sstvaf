@@ -71,10 +71,6 @@ fun TimeSyncSettings(
         GeneralVariables.mutableGpsClockSync.value
     )
 
-    // Latest cycle's average decode DT (seconds), posted in MainViewModel.afterDecode.
-    // Null until the first decode this session.
-    val avgDtSec by mainViewModel.mutableTimerOffset.observeAsState()
-
     // While GPS discipline owns the clock, each fix rewrites UtcTimer.delay behind this
     // screen's back — and disabling it restores the pre-GPS offset. Re-read the live value
     // on every posted sync and on toggle changes so the "Current" readout can't go stale.
@@ -162,47 +158,6 @@ fun TimeSyncSettings(
                 fontSize = 13.sp,
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
             )
-        }
-
-        // =====================================================================
-        // SUGGESTION (from decode DT)
-        // =====================================================================
-        SettingsSection(title = stringResource(R.string.settings_time_suggest_section)) {
-            GlassCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    val dt = avgDtSec
-                    if (dt == null) {
-                        Text(
-                            text = stringResource(R.string.settings_time_suggest_none),
-                            color = TextMuted,
-                            fontSize = 14.sp,
-                        )
-                    } else {
-                        val dtMs = (dt * 1000f).roundToInt()
-                        Text(
-                            text = stringResource(
-                                R.string.settings_time_suggest_label,
-                                formatOffsetMs(dtMs),
-                            ),
-                            color = TextPrimary,
-                            fontSize = 15.sp,
-                            fontFamily = GeistMonoFamily,
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_time_suggest_apply),
-                            color = Accent,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier
-                                .clickable { apply(suggestedCorrectionMs(correctionMs, dt)) }
-                                .padding(vertical = 6.dp),
-                        )
-                    }
-                }
-            }
         }
 
         // =====================================================================

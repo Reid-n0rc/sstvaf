@@ -298,21 +298,6 @@ public class UtcTimer {
         return (int) ((utc / slotMillis) % 2);
     }
 
-    /**
-     * Calculate the time sequence based on UTC time, using the current operating mode's
-     * cycle length.
-     *
-     * @param utc UTC time
-     * @return sequence: 0 or 1
-     */
-    public static int sequential(long utc) {
-        return sequential(utc, com.k1af.ft8af.GeneralVariables.currentMode().slotMillis);
-    }
-
-    public static int getNowSequential() {
-        return sequential(getSystemTime());
-    }
-
     public static long getSystemTime() {
         return delay + System.currentTimeMillis();
     }

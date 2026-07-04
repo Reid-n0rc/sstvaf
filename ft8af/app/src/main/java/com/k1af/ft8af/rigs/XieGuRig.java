@@ -5,15 +5,14 @@ import static com.k1af.ft8af.GeneralVariables.START_QUERY_FREQ_DELAY;
 
 import android.util.Log;
 
-import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.R;
 import com.k1af.ft8af.database.ControlMode;
-import com.k1af.ft8af.ft8transmit.GenerateFT8;
 import com.k1af.ft8af.ui.ToastMessage;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import com.k1af.ft8af.wave.FT8Resample;
 
 public class XieGuRig extends BaseRig {
     private static final String TAG = "XieGu6100Rig";
@@ -268,10 +267,12 @@ public class XieGuRig extends BaseRig {
     }
 
     @Override
-    public void sendWaveData(Ft8Message message) {//send audio data to rig, for network mode
-        if (getConnector() != null) {//pass generated audio data to Connector
-            float[] data = GenerateFT8.generateFt8(message, GeneralVariables.getBaseFrequency()
-                    , 12000);//ICOM rig audio sample rate is 12000
+    public void sendWaveData(float[] wave, int sampleRate) {//send audio data to rig, for network mode
+        if (getConnector() != null) {//pass audio data to Connector
+            float[] data = wave;
+            if (sampleRate != 12000) {//rig audio sample rate is 12000
+                data = FT8Resample.get32Resample32(wave, sampleRate, 12000, 1);
+            }
             if (data == null) {
                 setPTT(false);
                 return;

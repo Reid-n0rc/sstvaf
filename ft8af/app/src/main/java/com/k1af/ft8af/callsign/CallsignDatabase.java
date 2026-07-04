@@ -16,7 +16,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.k1af.ft8af.Ft8Message;
 import com.k1af.ft8af.GeneralVariables;
 import com.k1af.ft8af.maidenhead.LatLng;
 
@@ -122,70 +121,6 @@ public class CallsignDatabase extends SQLiteOpenHelper {
 
     public CallsignInfo getCallInfo(String callsign) {
         return getCallsignInfo(db, callsign);
-    }
-
-    /**
-     * Update location and latitude/longitude information in messages.
-     *
-     * @param ft8Messages the message list
-     */
-    public static synchronized void getMessagesLocation(SQLiteDatabase db, ArrayList<Ft8Message> ft8Messages ) {
-        if (ft8Messages==null) return;
-        ArrayList<Ft8Message> messages = new ArrayList<>(ft8Messages); // Prevent thread access conflicts
-
-        for (Ft8Message msg : messages) {
-            if (msg.i3==0&&msg.n3==0) continue; // Skip free-text messages
-            CallsignInfo fromCallsignInfo = getCallsignInfo(db,
-                    msg.callsignFrom.replace("<","").replace(">",""));
-            if (fromCallsignInfo != null) {
-                    // Suppress "new" flags until the zone maps are populated; otherwise
-                    // the async load race makes everything appear new. (#247)
-                    if (GeneralVariables.zoneMapReady) {
-                        msg.fromDxcc = !GeneralVariables.getDxccByPrefix(fromCallsignInfo.DXCC);
-                        msg.fromItu = !GeneralVariables.getItuZoneById(fromCallsignInfo.ITUZone);
-                        msg.fromCq = !GeneralVariables.getCqZoneById(fromCallsignInfo.CQZone);
-                    }
-                    msg.fromWhere = fromCallsignInfo.CountryNameEn;
-                    msg.continent = fromCallsignInfo.Continent;
-                    msg.fromLatLng = new LatLng(fromCallsignInfo.Latitude, fromCallsignInfo.Longitude * -1);
-            }
-
-            // US state from the sender's grid (US-only table → null for non-US grids).
-            // fromNewState mirrors fromDxcc: true when the state is not yet worked.
-            msg.fromState = GeneralVariables.stateForGrid(msg.maidenGrid);
-            msg.fromNewState = msg.fromState != null
-                    && !GeneralVariables.getStateWorked(msg.fromState);
-
-            // Resolve the operator's own continent + DXCC once (continent for the DX
-            // decode filter, DXCC for the directional-CQ matcher).
-            if ((GeneralVariables.myContinent == null || GeneralVariables.myDxcc == null)
-                    && GeneralVariables.myCallsign != null
-                    && GeneralVariables.myCallsign.length() > 0) {
-                CallsignInfo myInfo = getCallsignInfo(db,
-                        GeneralVariables.myCallsign.replace("<", "").replace(">", ""));
-                if (myInfo != null) {
-                    GeneralVariables.myContinent = myInfo.Continent;
-                    GeneralVariables.myDxcc = myInfo.DXCC;
-                }
-            }
-
-            if (msg.checkIsCQ() || msg.getCallsignTo().contains("...")) { // Skip CQ messages
-                continue;
-            }
-
-            CallsignInfo toCallsignInfo = getCallsignInfo(db,
-                    msg.callsignTo.replace("<","").replace(">",""));
-            if (toCallsignInfo != null) {
-                if (GeneralVariables.zoneMapReady) {
-                    msg.toDxcc = !GeneralVariables.getDxccByPrefix(toCallsignInfo.DXCC);
-                    msg.toItu = !GeneralVariables.getItuZoneById(toCallsignInfo.ITUZone);
-                    msg.toCq = !GeneralVariables.getCqZoneById(toCallsignInfo.CQZone);
-                }
-
-                msg.toWhere = toCallsignInfo.CountryNameEn;
-                msg.toLatLng = new LatLng(toCallsignInfo.Latitude, toCallsignInfo.Longitude*-1);
-            }
-        }
     }
 
     @SuppressLint("Range")

@@ -47,15 +47,13 @@ import radio.ks3ckc.ft8af.ui.components.GlassCard
 import radio.ks3ckc.ft8af.ui.components.SettingsRow
 
 /**
- * Logging & awards settings: SWL logging and Cloudlog integration.
+ * Logging & awards settings: Cloudlog integration.
  */
 @Composable
 fun LoggingSettings(
     mainViewModel: MainViewModel,
     onBack: () -> Unit,
 ) {
-    var saveSWLMessage by remember { mutableStateOf(GeneralVariables.saveSWLMessage) }
-    var saveSWL_QSO by remember { mutableStateOf(GeneralVariables.saveSWL_QSO) }
     var enableCloudlog by remember { mutableStateOf(GeneralVariables.enableCloudlog) }
     var cloudlogAddress by remember { mutableStateOf(GeneralVariables.cloudlogServerAddress.orEmpty()) }
 
@@ -88,32 +86,6 @@ fun LoggingSettings(
         SettingsSection(title = stringResource(R.string.settings_section_logging_awards)) {
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column {
-                    SettingsRow(
-                        label = stringResource(R.string.settings_save_swl_decodes),
-                        description = stringResource(R.string.settings_save_swl_decodes_desc),
-                        toggle = saveSWLMessage,
-                        onToggleChange = { checked ->
-                            saveSWLMessage = checked
-                            GeneralVariables.saveSWLMessage = checked
-                            mainViewModel.databaseOpr.writeConfig(
-                                "saveSWL", if (checked) "1" else "0", null,
-                            )
-                        },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_save_swl_qsos),
-                        description = stringResource(R.string.settings_save_swl_qsos_desc),
-                        toggle = saveSWL_QSO,
-                        onToggleChange = { checked ->
-                            saveSWL_QSO = checked
-                            GeneralVariables.saveSWL_QSO = checked
-                            mainViewModel.databaseOpr.writeConfig(
-                                "saveSWLQSO", if (checked) "1" else "0", null,
-                            )
-                        },
-                    )
-                    SectionDivider()
                     SettingsRow(
                         label = stringResource(R.string.settings_cloudlog),
                         description = stringResource(R.string.settings_cloudlog_desc),
