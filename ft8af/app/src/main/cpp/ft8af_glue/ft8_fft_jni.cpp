@@ -21,7 +21,7 @@
 #include <math.h>
 
 extern "C" {
-#include "fft/kiss_fftr.h"
+#include "kiss_fftr.h"
 }
 // fft_display.h guards its own C linkage (extern "C"), so include it outside the
 // kissfft block rather than nesting it under this one.
