@@ -477,6 +477,38 @@ object SstvAfIcons {
         }
     }
 
+    /**
+     * Grid of four image frames — the Gallery tab. A 2×2 arrangement of
+     * rounded rectangles, echoing a photo-grid of saved SSTV images.
+     */
+    @Composable
+    fun Gallery(
+        modifier: Modifier = Modifier,
+        color: Color = Color.Unspecified,
+        size: Dp = 22.dp,
+        strokeWidth: Float = 1.6f,
+    ) {
+        val tint = if (color == Color.Unspecified) androidx.compose.material3.MaterialTheme.colorScheme.onSurface else color
+        Canvas(modifier = modifier.then(Modifier.sizeOf(size))) {
+            val s = this.size.width / 24f
+            val stroke = strokeStyle(strokeWidth * s)
+            val corner = CornerRadius(1.5f * s, 1.5f * s)
+            val frame = Size(7f * s, 7f * s)
+            for (origin in listOf(
+                Offset(4f, 4f), Offset(13f, 4f),
+                Offset(4f, 13f), Offset(13f, 13f),
+            )) {
+                drawRoundRect(
+                    tint,
+                    topLeft = Offset(origin.x * s, origin.y * s),
+                    size = frame,
+                    cornerRadius = corner,
+                    style = stroke,
+                )
+            }
+        }
+    }
+
     /** Triangular pine tree on a small trunk — POTA tab. */
     @Composable
     fun Tree(

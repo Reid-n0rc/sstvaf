@@ -243,6 +243,46 @@ class ReceivedImageStoreTest {
         assertThat(store().list()).hasSize(1)
     }
 
+    // ----- manual Photos export (gallery viewer, PR 7) --------------------------
+
+    @Test
+    @Config(sdk = [29])
+    fun exportToPhotos_manual_insertsMediaStoreCopy() {
+        photosSetting = false // manual export ignores the auto-save setting
+        val saved = saveOne(direction = ImageDirection.TX) // ...and the direction gate
+
+        assertThat(store().exportToPhotos(saved)).isTrue()
+
+        val inserts = mediaStoreInserts()
+        assertThat(inserts).hasSize(1)
+        val values = inserts[0].contentValues
+        assertThat(values.getAsString(MediaStore.Images.Media.DISPLAY_NAME))
+            .isEqualTo(saved.fileName)
+        assertThat(values.getAsString(MediaStore.Images.Media.MIME_TYPE)).isEqualTo("image/png")
+        assertThat(values.getAsString(MediaStore.Images.Media.RELATIVE_PATH))
+            .isEqualTo("Pictures/SSTVAF")
+    }
+
+    @Test
+    @Config(sdk = [28])
+    fun exportToPhotos_manual_pre29_returnsFalse() {
+        val saved = saveOne()
+
+        assertThat(store().exportToPhotos(saved)).isFalse()
+        assertThat(mediaStoreInserts()).isEmpty()
+    }
+
+    @Test
+    @Config(sdk = [29])
+    fun exportToPhotos_manual_missingFile_returnsFalse() {
+        photosSetting = false // keep the auto-export out of the insert list
+        val saved = saveOne()
+        assertThat(store().imageFile(saved).delete()).isTrue()
+
+        assertThat(store().exportToPhotos(saved)).isFalse()
+        assertThat(mediaStoreInserts()).isEmpty()
+    }
+
     // ----- pure gate + mapping helpers -----------------------------------------
 
     @Test

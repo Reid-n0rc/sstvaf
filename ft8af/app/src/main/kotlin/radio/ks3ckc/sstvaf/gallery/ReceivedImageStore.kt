@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.provider.MediaStore
 import com.k1af.ft8af.GeneralVariables
@@ -220,6 +221,31 @@ class ReceivedImageStore @JvmOverloads constructor(
         }
         db.delete(SSTV_IMAGES_TABLE, "id = ?", arrayOf(id.toString()))
         entry?.let { imageFile(it).delete() } // false (missing file) is fine
+    }
+
+    /**
+     * Manual "Save to Photos" from the gallery viewer. Unlike the automatic
+     * export on save, this works for any direction and ignores the
+     * `saveRxToPhotos` setting — the user asked explicitly. API 29+ only
+     * (pre-29 would need WRITE_EXTERNAL_STORAGE; callers toast on `false`).
+     * Nothing tracks whether an image was already exported, so repeating the
+     * action inserts a duplicate MediaStore entry — acceptable for a manual,
+     * user-driven action.
+     *
+     * @return true if a copy was handed to MediaStore.
+     */
+    fun exportToPhotos(entry: SavedImage): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return false
+        val file = imageFile(entry)
+        if (!file.exists()) return false
+        val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return false
+        return try {
+            exportToPhotos(bitmap, entry.fileName, entry.utcMillis)
+            true
+        } catch (t: Throwable) {
+            log("SSTV image store: manual Photos export failed for ${entry.fileName}: $t")
+            false
+        }
     }
 
     /**
