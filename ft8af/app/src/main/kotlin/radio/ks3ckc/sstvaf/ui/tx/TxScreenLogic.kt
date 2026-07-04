@@ -147,6 +147,11 @@ internal fun interface TxImageSaver {
  * already transmitting — the transmitter re-checks under its own lock) saves
  * nothing: the gallery must only contain images that actually went to RF.
  *
+ * A save failure (ReceivedImageStore.save throws IOException on encode/insert
+ * failure) is logged and swallowed: by that point the transmitter has already
+ * keyed up and audio is playing, so the transmission proceeds — it just won't
+ * appear in the gallery.
+ *
  * @return true when the transmission started.
  */
 internal fun performTransmit(
@@ -165,7 +170,13 @@ internal fun performTransmit(
         log("SSTV TX composer: transmit rejected — mode=${mode.displayName}")
         return false
     }
-    saver.save(pixels, width, height, mode, utcMillis, freqHz)
+    try {
+        saver.save(pixels, width, height, mode, utcMillis, freqHz)
+    } catch (e: Exception) {
+        // Transmission is already on the air; losing the gallery copy is the
+        // lesser failure. Never crash the UI thread over it.
+        log("SSTV TX composer: gallery save failed — ${e.message}")
+    }
     log(
         "SSTV TX composer: transmit started — mode=${mode.displayName}" +
             " ${width}x$height freqHz=$freqHz",

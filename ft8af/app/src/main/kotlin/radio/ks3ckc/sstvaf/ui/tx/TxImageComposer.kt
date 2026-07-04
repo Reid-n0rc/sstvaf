@@ -254,11 +254,11 @@ internal fun loadSourceBitmap(
     targetH: Int,
 ): Bitmap? {
     return try {
-        // Pass 1: bounds only.
+        // Pass 1: bounds only. NOTE: decodeStream returns null BY DESIGN under
+        // inJustDecodeBounds, so null-check the stream — not the use{} result.
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        contentResolver.openInputStream(uri)?.use { stream ->
-            BitmapFactory.decodeStream(stream, null, bounds)
-        } ?: return null
+        val boundsStream = contentResolver.openInputStream(uri) ?: return null
+        boundsStream.use { stream -> BitmapFactory.decodeStream(stream, null, bounds) }
         if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
 
         // Pass 2: downsampled decode.
