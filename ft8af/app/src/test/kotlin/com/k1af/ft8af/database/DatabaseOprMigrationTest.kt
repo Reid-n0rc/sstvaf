@@ -140,4 +140,62 @@ class DatabaseOprMigrationTest {
             fresh.close()
         }
     }
+
+    // -----------------------------------------------------------------------
+    // v19 -> v20: QSLTable gains the submode column (SSTVAF transformation
+    // PR 9). Existing rows keep a NULL submode; new inserts can populate it.
+    // -----------------------------------------------------------------------
+
+    @Test
+    fun upgrade19to20_addsSubmodeColumnAndKeepsRows() {
+        createVersion18Database()
+        // Walk through v19 first so the upgrade path mirrors a real install.
+        DatabaseOpr(context, dbName, null, 19).close()
+
+        val v20 = DatabaseOpr(context, dbName, null, 20)
+        try {
+            assertThat(columnNames(v20.db, "QSLTable")).contains("submode")
+            v20.db.rawQuery(
+                "select mode, submode from QSLTable where \"call\"='K1AF'", null,
+            ).use { cursor ->
+                assertThat(cursor.moveToFirst()).isTrue()
+                assertThat(cursor.getString(0)).isEqualTo("SSTV")
+                // Pre-migration row: submode was never written.
+                assertThat(cursor.isNull(1)).isTrue()
+            }
+        } finally {
+            v20.close()
+        }
+    }
+
+    @Test
+    fun freshInstallAt20_insertsSstvQsoWithSubmodeViaEnginePath() {
+        val fresh = DatabaseOpr(context, null, null, 20) // in-memory: pure onCreate path
+        try {
+            assertThat(columnNames(fresh.db, "QSLTable")).contains("submode")
+
+            // The same write path the app uses (QslCallsigns + QSLTable insert).
+            val record = com.k1af.ft8af.log.QSLRecord(
+                0L, 0L, "KS3CKC", "EM28", "TEST1", "",
+                595, 595, "SSTV", 14_230_000L, 0,
+            )
+            record.setSubmode("Scottie 1")
+            assertThat(fresh.doInsertQSLData(record, null)).isTrue()
+
+            fresh.db.rawQuery(
+                "select mode, submode, rst_sent, band, freq from QSLTable where \"call\"='TEST1'",
+                null,
+            ).use { cursor ->
+                assertThat(cursor.moveToFirst()).isTrue()
+                assertThat(cursor.getString(0)).isEqualTo("SSTV")
+                assertThat(cursor.getString(1)).isEqualTo("Scottie 1")
+                // RSV reports must be plain three-digit strings, not "+595".
+                assertThat(cursor.getString(2)).isEqualTo("595")
+                assertThat(cursor.getString(3)).isEqualTo("20m")
+                assertThat(cursor.getString(4)).isEqualTo("14.230000")
+            }
+        } finally {
+            fresh.close()
+        }
+    }
 }

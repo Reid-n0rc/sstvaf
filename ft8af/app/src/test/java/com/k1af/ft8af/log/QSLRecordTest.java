@@ -40,7 +40,9 @@ public class QSLRecordTest {
         assertThat(r.getReceivedReport()).isEqualTo(-10);
         assertThat(r.getWavFrequency()).isEqualTo(1500);
         // Both grids empty -> distance branch skipped -> plain comment.
-        assertThat(r.getComment()).isEqualTo("QSO by FT8AF");
+        assertThat(r.getComment()).isEqualTo("QSO by SSTVAF");
+        // No submode by default (FT8-style records don't carry one).
+        assertThat(r.getSubmode()).isEmpty();
     }
 
     @Test
@@ -49,7 +51,20 @@ public class QSLRecordTest {
                 -5, -10, "FT8", 14_074_000L, 1500);
         // Non-empty grids drive MaidenheadGrid.getDistStrEN, which prefixes the comment.
         assertThat(r.getComment()).startsWith("Distance:");
-        assertThat(r.getComment()).contains("QSO by FT8AF");
+        assertThat(r.getComment()).contains("QSO by SSTVAF");
+    }
+
+    @Test
+    public void submodeAndCommentSetters_roundTrip() {
+        QSLRecord r = new QSLRecord(EPOCH, PLUS_15S, "K1ABC", "", "W1AW", "",
+                595, 595, "SSTV", 14_230_000L, 0);
+        r.setSubmode("Scottie 1");
+        r.setComment("First SSTV contact");
+        assertThat(r.getSubmode()).isEqualTo("Scottie 1");
+        assertThat(r.getComment()).isEqualTo("First SSTV contact");
+        // Null submode collapses to empty so the DB never stores the string "null".
+        r.setSubmode(null);
+        assertThat(r.getSubmode()).isEmpty();
     }
 
     @Test
@@ -93,6 +108,35 @@ public class QSLRecordTest {
         assertThat(r.getToMaidenGrid()).isEqualTo("IO91wm");
         assertThat(r.getMyMaidenGrid()).isEqualTo("FN31pr");
         assertThat(r.getComment()).isEqualTo("imported");
+    }
+
+    @Test
+    public void mapConstructor_readsSubmode() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("CALL", "W1AW");
+        map.put("COMMENT", "imported");
+        map.put("MODE", "SSTV");
+        map.put("SUBMODE", "Scottie 1");
+
+        QSLRecord r = new QSLRecord(map);
+
+        assertThat(r.getMode()).isEqualTo("SSTV");
+        assertThat(r.getSubmode()).isEqualTo("Scottie 1");
+    }
+
+    @Test
+    public void mapConstructor_nullSubmodeValue_keepsEmptyStringSemantics() {
+        // A map can contain the SUBMODE key with a null value (defensive: ADIF
+        // parsers can produce it); the field must stay "" — never null.
+        HashMap<String, String> map = new HashMap<>();
+        map.put("CALL", "W1AW");
+        map.put("MODE", "SSTV");
+        map.put("SUBMODE", null);
+
+        QSLRecord r = new QSLRecord(map);
+
+        assertThat(r.getSubmode()).isNotNull();
+        assertThat(r.getSubmode()).isEmpty();
     }
 
     @Test

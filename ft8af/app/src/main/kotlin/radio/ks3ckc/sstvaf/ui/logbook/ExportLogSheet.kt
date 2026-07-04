@@ -427,7 +427,7 @@ private fun startSave(
     val adi = makeTempAdi(context) ?: return
     onStateChange(ExportPhase.WORKING, context.getString(R.string.export_preparing), 0, 1)
 
-    val displayName = "ft8af-log-" +
+    val displayName = "sstvaf-log-" +
         SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date()) +
         ".adi"
 

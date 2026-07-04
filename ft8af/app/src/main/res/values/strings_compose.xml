@@ -239,6 +239,18 @@
     <string name="log_sync_cloudlog_accepted">Cloudlog / Wavelog / Nextlog: %1$d accepted</string>
     <string name="log_sync_nothing_to_upload">No QSOs in the logbook to upload yet.</string>
     <string name="log_sync_working">Working…</string>
+    <string name="log_cd_add_qso">Log a QSO manually</string>
+    <string name="log_manual_title">LOG SSTV QSO</string>
+    <string name="log_manual_callsign">Callsign</string>
+    <string name="log_manual_grid">Grid (optional)</string>
+    <string name="log_manual_rsv_sent">RSV sent</string>
+    <string name="log_manual_rsv_rcvd">RSV received</string>
+    <string name="log_manual_freq_mhz">Frequency (MHz)</string>
+    <string name="log_manual_mode">SSTV mode</string>
+    <string name="log_manual_comment">Comment (optional)</string>
+    <string name="log_manual_save">Save QSO</string>
+    <string name="log_manual_cancel">Cancel</string>
+    <string name="log_manual_time_note">Logged at the current UTC time</string>
 
     <!-- ===== POTA ===== -->
     <string name="pota_tab_activate">Activate</string>
@@ -515,9 +527,9 @@
     <string name="alert_cq_reply_title">Calling you: %1$s</string>
     <string name="alert_qso_complete_title">QSO complete</string>
     <string name="rx_service_channel_name">Background receiving</string>
-    <string name="rx_service_channel_desc">Keeps FT8 decoding running while the app is in the background or the screen is off</string>
-    <string name="rx_service_title">SSTVAF is receiving</string>
-    <string name="rx_service_text">Decoding in the background</string>
+    <string name="rx_service_channel_desc">Keeps SSTV decoding running while the app is in the background or the screen is off</string>
+    <string name="rx_service_title">SSTVAF is listening for SSTV images</string>
+    <string name="rx_service_text">Decoding SSTV in the background</string>
 
     <!-- ===== Settings: logging &amp; awards ===== -->
     <string name="settings_save_swl_decodes">Save SWL Decodes</string>

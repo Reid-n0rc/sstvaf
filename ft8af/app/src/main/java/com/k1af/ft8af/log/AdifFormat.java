@@ -40,15 +40,25 @@ public final class AdifFormat {
     private static final int NO_REPORT = -100;
     private static final int NO_REPORT_ALT = -120;
 
+    /** Reports at or above this are classic RST/RSV values (e.g. SSTV {@code 595}), not SNRs. */
+    private static final int RST_STYLE_MIN = 100;
+
     /**
-     * Format an FT8 signal report (SNR in dB) the WSJT-X way: always a sign and at least two
-     * digits, so {@code 5 → "+05"}, {@code -3 → "-03"}, {@code 20 → "+20"}, {@code 0 → "+00"}.
+     * Format a signal report. FT8-heritage SNR reports (in dB) render the WSJT-X way: always a
+     * sign and at least two digits, so {@code 5 → "+05"}, {@code -3 → "-03"}, {@code 0 → "+00"}.
+     *
+     * <p>Classic three-digit RST/RSV reports (SSTV convention, e.g. {@code 595}) are rendered as
+     * plain digits with no sign — a real SNR never reaches +100, so any report ≥ 100 is treated
+     * as RST/RSV.
      *
      * <p>The "no report" sentinels {@code -100} and {@code -120} are returned unchanged so the
      * logbook's empty-report check still recognises them.
      */
     public static String formatReport(int report) {
         if (report == NO_REPORT || report == NO_REPORT_ALT) {
+            return String.valueOf(report);
+        }
+        if (report >= RST_STYLE_MIN) {
             return String.valueOf(report);
         }
         return String.format(Locale.US, "%+03d", report);
