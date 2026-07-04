@@ -1,16 +1,16 @@
 # SSTVAF native module.
 #
-# Builds a single libft8af.so containing:
+# Builds a single libsstvaf.so containing:
+#   - The clean-room SSTV codec (sstv_lib: encoder + push-model decoder)
+#     and its JNI glue (sstvaf_glue/sstv_encode_jni.cpp, sstv_decode_jni.cpp)
 #   - USB Audio Class capture/playback (libusb-backed)
 #   - Waterfall FFT display (kissfft + fft_display)
 #   - Audio resampler JNI (rational resampler / FIR decimator headers)
 #
-# The library is still named "ft8af" this phase so the Java-side
-# System.loadLibrary("ft8af") calls (UsbAudioNative, FT8Resample,
-# SpectrumFragment) stay unchanged; it is renamed together with the Java
-# packages in a later PR. The FT8 DSP (ft8_lib + decode/encode glue) was
-# removed in the SSTVAF transformation; the SSTV codec lands under
-# cpp/sstv_lib/ + cpp/sstvaf_glue/ in a later PR.
+# The Java-side System.loadLibrary("sstvaf") call sites (UsbAudioNative,
+# FT8Resample, SpectrumFragment, NativeSstvCodec) were renamed together with
+# this library; JNI symbol names are derived from the Java class names and are
+# unaffected by the library name.
 #
 # Why libusb: Android's UsbRequest API silently fails to drive
 # isochronous transfers on some kernels (notably automotive Android
@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.18.1)
 
-project(ft8af_native)
+project(sstvaf_native)
 
 # ---------------------------------------------------------------------------
 # libusb 1.0.27 (static)
@@ -63,10 +63,30 @@ target_compile_options(usb1.0 PRIVATE
 )
 
 # ---------------------------------------------------------------------------
-# libft8af.so — unified JNI bridge
+# sstv_dsp — the clean-room SSTV codec (pure C11, host-testable)
+# ---------------------------------------------------------------------------
+# Same sources the host test scripts (sstvaf_glue/run_sstv_host_tests.*)
+# compile; keep the two lists in sync.
+
+add_library(sstv_dsp STATIC
+        sstv_lib/sstv_modes.c
+        sstv_lib/sstv_vis.c
+        sstv_lib/sstv_osc.c
+        sstv_lib/sstv_color.c
+        sstv_lib/sstv_encode.c
+        sstv_lib/sstv_demod.c
+        sstv_lib/sstv_decode.c
+)
+
+target_include_directories(sstv_dsp PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/sstv_lib
+)
+
+# ---------------------------------------------------------------------------
+# libsstvaf.so — unified JNI bridge
 # ---------------------------------------------------------------------------
 
-add_library(ft8af SHARED
+add_library(sstvaf SHARED
         # USB audio
         usb_audio.cpp
         usb_audio_capture.cpp
@@ -78,17 +98,22 @@ add_library(ft8af SHARED
         ft8af_glue/fft_display.c
         # JNI wrappers — audio resampler
         ft8af_glue/ft8_resample_jni.cpp
+        # JNI wrappers — SSTV codec (NativeSstvCodec)
+        sstvaf_glue/sstv_encode_jni.cpp
+        sstvaf_glue/sstv_decode_jni.cpp
 )
 
-target_include_directories(ft8af PRIVATE
+target_include_directories(sstvaf PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/kissfft
 )
 
 find_library(log-lib log)
 
-target_link_options(ft8af PRIVATE "-Wl,-z,max-page-size=16384")
+target_link_options(sstvaf PRIVATE "-Wl,-z,max-page-size=16384")
 
-target_link_libraries(ft8af
+target_link_libraries(sstvaf
         usb1.0
+        sstv_dsp
+        m
         ${log-lib}
 )

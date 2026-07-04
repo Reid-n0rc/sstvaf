@@ -18,11 +18,11 @@ public class SpectrumFragment {
 
     static {
         try {
-            System.loadLibrary("ft8af");
+            System.loadLibrary("sstvaf");
         } catch (UnsatisfiedLinkError e) {
-            // JVM unit tests have no libft8af.so; the native methods throw if
+            // JVM unit tests have no libsstvaf.so; the native methods throw if
             // actually invoked without it.
-            Log.w(TAG, "ft8af native library not loaded: " + e.getMessage());
+            Log.w(TAG, "sstvaf native library not loaded: " + e.getMessage());
         }
     }
 

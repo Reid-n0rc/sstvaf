@@ -1,11 +1,17 @@
 name: Native FT8 tests
 
-# The FT8 host-test suites were removed together with the FT8 engine in the
-# SSTVAF transformation (PR 3): there is no native DSP left to golden-test in
-# this phase. This workflow keeps the same name and job name (golden-encode /
-# "FT8 encode/hash golden vectors") so any required status check on the
-# repository still passes; SSTV host tests (sstv_lib codec golden vectors)
-# land in a later PR and will replace the placeholder step below.
+# Gates on the clean-room SSTV codec host tests (cpp/sstv_lib +
+# cpp/sstvaf_glue/test_sstv_*.c): mode-table/golden-waveform vectors, VIS
+# detection, encode->decode round trips, slant correction, and the Robot 36
+# chroma-parity suite. The build is host-only C11 (seconds), so it runs on
+# every PR to dev/staging/main without a path filter — keeping it a reliable
+# required status check (a path-filtered check that doesn't run would leave
+# branch protection stuck "pending").
+#
+# The workflow/job/check names are historical ("FT8 encode/hash golden
+# vectors"): branch protection requires that exact check name, so it is kept
+# even though the FT8 engine (and its host tests) were replaced by the SSTV
+# codec in the SSTVAF transformation.
 
 on:
   pull_request:
@@ -26,6 +32,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Placeholder: SSTV host tests land in a later PR (cpp/sstv_lib).
-      - name: Native host tests placeholder
-        run: echo "FT8 host tests removed with the FT8 engine; SSTV host tests land in a later PR."
+      - name: Show clang version
+        run: clang --version
+
+      - name: Build & run SSTV host test suites
+        run: bash ft8af/app/src/main/cpp/sstvaf_glue/run_sstv_host_tests.sh

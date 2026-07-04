@@ -8,11 +8,12 @@ import java.io.File
  * Guard test for the release R8 configuration.
  *
  * Enabling minification on the release build is only safe because
- * proguard-rules.pro keeps the names the native libft8af.so (and a couple of
+ * proguard-rules.pro keeps the names the native libsstvaf.so (and a couple of
  * reflection sites) look up by string. If someone deletes minifyEnabled or one
- * of those keep rules, the app still *builds* — it just silently breaks decode
- * (Ft8Message fields obfuscated), USB audio capture (callback methods renamed),
- * or USB serial probing (driver ctor/getSupportedDevices stripped). None of
+ * of those keep rules, the app still *builds* — it just silently breaks the
+ * SSTV codec bridge (NativeSstvCodec methods renamed), USB audio capture
+ * (callback methods renamed), or USB serial probing
+ * (driver ctor/getSupportedDevices stripped). None of
  * that is caught by a normal unit test, so assert the configuration itself
  * stays intact.
  *
@@ -45,6 +46,15 @@ class R8KeepRulesTest {
             .contains("com.k1af.ft8af.wave.UsbAudioNative\$AudioInputCallback")
         assertThat(proguardRules).contains("onAudioData(float[], int)")
         assertThat(proguardRules).contains("onCaptureStopped(int)")
+    }
+
+    @Test
+    fun keepsNativeSstvCodecJniMethods() {
+        // libsstvaf.so resolves Java_radio_ks3ckc_sstvaf_sstv_NativeSstvCodec_*
+        // against this exact class + method names; renaming/stripping them
+        // breaks SSTV encode/decode only at runtime.
+        assertThat(proguardRules).contains("radio.ks3ckc.sstvaf.sstv.NativeSstvCodec")
+        assertThat(proguardRules).contains("native <methods>;")
     }
 
     @Test
