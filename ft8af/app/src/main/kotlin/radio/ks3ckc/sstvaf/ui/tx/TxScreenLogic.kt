@@ -1,6 +1,7 @@
 package radio.ks3ckc.sstvaf.ui.tx
 
 import radio.ks3ckc.sstvaf.sstv.SstvMode
+import java.io.IOException
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -110,18 +111,21 @@ internal fun applyPanZoomGesture(
 
     // Crop geometry at the NEW zoom (so pan deltas mid-pinch track the finger).
     val crop = computeCoverCrop(srcW, srcH, comp.mode.width, comp.mode.height, newZoom, comp.panX, comp.panY)
-    if (crop.isEmpty) return comp.copy(zoom = newZoom)
+    if (crop.isEmpty) return comp.withClampedView(zoom = newZoom)
 
     val overflowX = (srcW - crop.width()).toFloat()
     val overflowY = (srcH - crop.height()).toFloat()
 
-    var panX = comp.panX
-    var panY = comp.panY
+    // Start from clamped values so a NaN smuggled in through corrupted state
+    // degrades to centered instead of surviving forever on a zero-overflow
+    // axis; valid values on a zero-overflow axis stay untouched as before.
+    var panX = clampPan(comp.panX)
+    var panY = clampPan(comp.panY)
     if (overflowX > 0f) {
-        panX = clampPan(comp.panX - panDxPx * (crop.width() / previewW) / (overflowX / 2f))
+        panX = clampPan(panX - panDxPx * (crop.width() / previewW) / (overflowX / 2f))
     }
     if (overflowY > 0f) {
-        panY = clampPan(comp.panY - panDyPx * (crop.height() / previewH) / (overflowY / 2f))
+        panY = clampPan(panY - panDyPx * (crop.height() / previewH) / (overflowY / 2f))
     }
     return comp.copy(zoom = newZoom, panX = panX, panY = panY)
 }
@@ -172,10 +176,12 @@ internal fun performTransmit(
     }
     try {
         saver.save(pixels, width, height, mode, utcMillis, freqHz)
-    } catch (e: Exception) {
-        // Transmission is already on the air; losing the gallery copy is the
-        // lesser failure. Never crash the UI thread over it.
-        log("SSTV TX composer: gallery save failed — ${e.message}")
+    } catch (e: IOException) {
+        // The documented failure mode of ReceivedImageStore.save (encode/
+        // insert failure). Transmission is already on the air; losing the
+        // gallery copy is the lesser failure — log and continue. Anything
+        // else is a programmer error and should surface loudly.
+        log("SSTV TX composer: gallery save failed — $e")
     }
     log(
         "SSTV TX composer: transmit started — mode=${mode.displayName}" +

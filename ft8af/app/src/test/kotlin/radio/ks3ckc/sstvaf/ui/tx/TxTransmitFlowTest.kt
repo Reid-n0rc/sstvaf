@@ -105,6 +105,29 @@ class TxTransmitFlowTest {
     }
 
     @Test
+    fun `non-IOException from the saver propagates as a programmer error`() {
+        // Only the store's documented IOException is swallowed; anything else
+        // must surface loudly rather than vanish into the transmit log.
+        var thrown: IllegalStateException? = null
+        try {
+            performTransmit(
+                pixels = pixels,
+                width = 320,
+                height = 256,
+                mode = SstvMode.SCOTTIE_1,
+                freqHz = 1L,
+                utcMillis = 2L,
+                starter = { _, _, _, _ -> true },
+                saver = { _, _, _, _, _, _ -> throw IllegalStateException("bug") },
+                log = { log.add(it) },
+            )
+        } catch (e: IllegalStateException) {
+            thrown = e
+        }
+        assertThat(thrown).isNotNull()
+    }
+
+    @Test
     fun `rejected start never saves and logs the rejection`() {
         val saver = RecordingSaver()
 

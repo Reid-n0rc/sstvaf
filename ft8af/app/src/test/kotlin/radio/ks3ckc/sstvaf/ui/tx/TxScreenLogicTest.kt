@@ -162,6 +162,15 @@ class TxScreenLogicTest {
     }
 
     @Test
+    fun `NaN pan degrades to centered even on a zero-overflow axis`() {
+        // overflowY = 0 for the full-height crop, so the old code would have
+        // carried a NaN panY through every future copy; it must degrade to 0.
+        val out = gesture(comp.copy(panX = Float.NaN, panY = Float.NaN))
+        assertThat(out.panX).isEqualTo(0f)
+        assertThat(out.panY).isEqualTo(0f)
+    }
+
+    @Test
     fun `pan conversion uses the crop at the new zoom`() {
         // Pinch to 2x while dragging: crop is 320 wide, overflowX = 704.
         val out = gesture(dx = 35.2f, zoomFactor = 2f)

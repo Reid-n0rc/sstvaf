@@ -32,6 +32,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -88,6 +89,16 @@ fun TxComposeScreen(mainViewModel: MainViewModel) {
         )
     }
     var sourceBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    // Release the previous source's pixels when a new photo replaces it and
+    // when the screen leaves composition. Sources are downsampled (~2x the
+    // mode frame at most) but on pre-O devices their pixels live in native
+    // memory the GC can't see, so dispose deterministically. Safe ordering:
+    // onDispose for the old key runs after recomposition, by which point the
+    // preview has already been re-rendered from the new source.
+    DisposableEffect(sourceBitmap) {
+        val owned = sourceBitmap
+        onDispose { owned?.recycle() }
+    }
     var showConfirmSheet by remember { mutableStateOf(false) }
     // Index into composition.overlays being edited, or -1 for a new overlay;
     // null = editor closed.
