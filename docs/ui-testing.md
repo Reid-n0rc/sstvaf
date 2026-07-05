@@ -72,5 +72,7 @@ that tab in that orientation on that device, confirm:
 
 Note in the PR which cells of the matrix were exercised and on what
 hardware/emulator, and file any off-screen/clipped control as its own issue (as
-was done for the TX pick-image regression). A tab that passes portrait but was
+was done for the TX pick-image regression). **Attach the screencap** to the
+issue — a layout bug is far easier to triage from the picture than the prose,
+and you already captured it during the sweep. A tab that passes portrait but was
 never opened in landscape is **not** tested.
