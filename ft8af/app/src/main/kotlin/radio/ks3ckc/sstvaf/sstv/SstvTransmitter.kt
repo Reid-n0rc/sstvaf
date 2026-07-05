@@ -33,6 +33,14 @@ class SstvTransmitter @JvmOverloads constructor(
     private val workerRunner: (Runnable) -> Unit = { body ->
         Thread(body, "SstvTransmit").start()
     },
+    /** Optional CW station-ID tail settings (issue #14). */
+    private val cwIdSource: () -> CwIdSettings = {
+        CwIdSettings(
+            enabled = GeneralVariables.cwIdEnabled,
+            text = GeneralVariables.myCallsign,
+            wpm = GeneralVariables.cwIdWpm,
+        )
+    },
 ) {
 
     /** Rig keying surface (MainViewModel adapts PttController). */
@@ -104,11 +112,20 @@ class SstvTransmitter @JvmOverloads constructor(
         try {
             val sampleRate = sampleRateSource()
             // Encode BEFORE keying: a bad image/mode must never key the rig.
-            val audio = codec.encode(pixels, width, height, mode, sampleRate)
+            val imageAudio = codec.encode(pixels, width, height, mode, sampleRate)
+            // Optional CW station-ID tail (issue #14). Appended to the tail so
+            // the leading SSTV calibration/VIS is never disturbed.
+            val cwId = cwIdSource()
+            val audio = CwId.appendTo(imageAudio, cwId, sampleRate)
             val durationMs = audio.size * 1000L / sampleRate
             log(
                 "SSTV TX: start — mode=${mode.displayName} ${width}x$height" +
-                    " samples=${audio.size} rate=$sampleRate durationMs=$durationMs",
+                    " samples=${audio.size} rate=$sampleRate durationMs=$durationMs" +
+                    if (audio.size > imageAudio.size) {
+                        " cwId=${cwId.text} wpm=${cwId.wpm}"
+                    } else {
+                        ""
+                    },
             )
 
             // A cancel that lands during encode would otherwise be lost: the

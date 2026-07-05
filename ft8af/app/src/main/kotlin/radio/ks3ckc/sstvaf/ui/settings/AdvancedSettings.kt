@@ -63,6 +63,12 @@ import java.util.Locale
 internal data class AppLanguage(val tag: String, @StringRes val nameRes: Int)
 
 /**
+ * Selectable CW-ID keying speeds (words-per-minute) for the picker, in display
+ * order. Capped at 20 WPM per issue #14 ("maximum and default of 20WPM").
+ */
+internal val CW_ID_WPM_OPTIONS: List<Int> = listOf(5, 8, 10, 12, 15, 18, 20)
+
+/**
  * Single source of truth for the in-app Language picker, in display order. Adding
  * a language is one entry here — the tag list, picker labels, and current-language
  * label all derive from it. Keep in sync with res/xml/locales_config.xml and the
@@ -117,9 +123,12 @@ fun AdvancedSettings(
     val context = LocalContext.current
 
     var pttDelay by remember { mutableIntStateOf(GeneralVariables.pttDelay) }
+    var cwIdEnabled by remember { mutableStateOf(GeneralVariables.cwIdEnabled) }
+    var cwIdWpm by remember { mutableIntStateOf(GeneralVariables.cwIdWpm) }
     var currentTheme by remember { mutableStateOf(loadTheme(context)) }
 
     var showPttDelay by remember { mutableStateOf(false) }
+    var showCwIdWpm by remember { mutableStateOf(false) }
     var showLanguagePicker by remember { mutableStateOf(false) }
     var showThemePicker by remember { mutableStateOf(false) }
 
@@ -276,6 +285,28 @@ fun AdvancedSettings(
         )
     }
 
+    // -- CW ID Speed Picker (issue #14) --
+    if (showCwIdWpm) {
+        val wpmLabels = CW_ID_WPM_OPTIONS.map {
+            stringResource(R.string.settings_cw_id_wpm_format, it)
+        }
+        val currentWpmIndex =
+            CW_ID_WPM_OPTIONS.indexOf(cwIdWpm).let { if (it >= 0) it else CW_ID_WPM_OPTIONS.lastIndex }
+        ListPickerDialog(
+            title = stringResource(R.string.settings_cw_id_speed),
+            items = wpmLabels,
+            selectedIndex = currentWpmIndex,
+            onDismiss = { showCwIdWpm = false },
+            onSelect = { index ->
+                showCwIdWpm = false
+                val wpm = CW_ID_WPM_OPTIONS[index]
+                GeneralVariables.cwIdWpm = wpm
+                cwIdWpm = wpm
+                mainViewModel.databaseOpr.writeConfig("cwIdWpm", wpm.toString(), null)
+            },
+        )
+    }
+
     // -- Language Picker --
     // Index 0 = "System default" (empty locale list → follow system). Selecting a
     // language calls AppCompatDelegate.setApplicationLocales, which persists the
@@ -353,6 +384,30 @@ fun AdvancedSettings(
                         showChevron = true,
                         onClick = { showPttDelay = true },
                     )
+                    SectionDivider()
+                    // CW station-ID tail (issue #14)
+                    SettingsRow(
+                        label = stringResource(R.string.settings_cw_id),
+                        description = stringResource(R.string.settings_cw_id_desc),
+                        toggle = cwIdEnabled,
+                        onToggleChange = { enabled ->
+                            GeneralVariables.cwIdEnabled = enabled
+                            cwIdEnabled = enabled
+                            mainViewModel.databaseOpr.writeConfig(
+                                "cwIdEnabled", if (enabled) "1" else "0", null,
+                            )
+                        },
+                    )
+                    if (cwIdEnabled) {
+                        SectionDivider()
+                        SettingsRow(
+                            label = stringResource(R.string.settings_cw_id_speed),
+                            description = stringResource(R.string.settings_cw_id_speed_desc),
+                            value = stringResource(R.string.settings_cw_id_wpm_format, cwIdWpm),
+                            showChevron = true,
+                            onClick = { showCwIdWpm = true },
+                        )
+                    }
                 }
             }
         }

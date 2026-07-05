@@ -51,6 +51,7 @@ class SstvTransmitterTest {
     private fun newTransmitter(
         player: FakePlayer,
         tuneActive: Boolean = false,
+        cwId: CwIdSettings = CwIdSettings(enabled = false, text = "", wpm = 20),
     ) = SstvTransmitter(
         codec,
         keyer,
@@ -61,6 +62,7 @@ class SstvTransmitterTest {
         { logs += it },
         { 42L },
         { body -> body.run() }, // synchronous worker
+        { cwId },
     )
 
     private val pixels = IntArray(SstvMode.ROBOT_36.width * SstvMode.ROBOT_36.height)
@@ -86,6 +88,37 @@ class SstvTransmitterTest {
         assertThat(logs.any { it.contains("SSTV TX: start") }).isTrue()
         assertThat(logs.any { it.contains("SSTV TX: end") && it.contains("completed=true") })
             .isTrue()
+    }
+
+    @Test
+    fun cwIdTailLengthensThePlayedBuffer() {
+        codec.encodeSampleCount = 24000
+        val player = FakePlayer(events)
+        val tx = newTransmitter(
+            player,
+            cwId = CwIdSettings(enabled = true, text = "K1ABC", wpm = 20),
+        )
+
+        assertThat(transmitRobot36(tx)).isTrue()
+
+        // The played buffer is the image plus the gap + CW tone; the image is
+        // untouched at the head, so the play length strictly exceeds 24000.
+        val played = events.single { it.startsWith("play(") }
+        val samples = Regex("samples=(\\d+)").find(played)!!.groupValues[1].toInt()
+        assertThat(samples).isGreaterThan(24000)
+        assertThat(logs.any { it.contains("cwId=K1ABC") && it.contains("wpm=20") }).isTrue()
+    }
+
+    @Test
+    fun cwIdDisabledPlaysImageOnly() {
+        codec.encodeSampleCount = 24000
+        val player = FakePlayer(events)
+        val tx = newTransmitter(player) // CW ID off by default
+
+        transmitRobot36(tx)
+
+        assertThat(events).contains("play(samples=24000, rate=12000)")
+        assertThat(logs.none { it.contains("cwId=") }).isTrue()
     }
 
     @Test
