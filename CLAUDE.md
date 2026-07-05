@@ -108,6 +108,17 @@ export JAVA_HOME=<jdk17-home>
 ./gradlew testDebugUnitTest --tests <fully.qualified.ClassName>
 ```
 
+### UI / responsive-layout testing
+
+Unit tests don't catch layout that breaks by *shape*. Whenever you touch a
+screen's layout, add a tab, or change the app shell, run the per-tab landscape
+pass in **`docs/ui-testing.md`** — force the wide canvas with
+`adb shell wm size 2400x1080` and screencap **every** tab, checking each tab's
+primary control isn't pushed off-screen or hidden behind the TX strip. The
+adaptive shell reflows navigation but not each screen's own content, and a
+control looks fine in portrait while sitting past the fold in landscape (that's
+how the TX pick-image button regressed on tablets — issue #20).
+
 ## Build & Deploy
 
 After making code changes, always build and install on the connected device
