@@ -111,13 +111,18 @@ export JAVA_HOME=<jdk17-home>
 ### UI / responsive-layout testing
 
 Unit tests don't catch layout that breaks by *shape*. Whenever you touch a
-screen's layout, add a tab, or change the app shell, run the per-tab landscape
-pass in **`docs/ui-testing.md`** — force the wide canvas with
-`adb shell wm size 2400x1080` and screencap **every** tab, checking each tab's
-primary control isn't pushed off-screen or hidden behind the TX strip. The
-adaptive shell reflows navigation but not each screen's own content, and a
-control looks fine in portrait while sitting past the fold in landscape (that's
-how the TX pick-image button regressed on tablets — issue #20).
+screen's layout, add a tab, or change the app shell, run the full
+**tab × device × orientation** sweep in **`docs/ui-testing.md`**: for each device
+class (compact phone, the Redmi Redpad 2 tablet, a ≥600dp landscape phone, a
+resizable Chromebook/desktop window), in **both portrait and landscape**, open
+**every** tab (RX/Gallery/TX/Waterfall/Logbook/Settings) and confirm its primary
+control isn't pushed off-screen or hidden behind the TX strip. On the emulator,
+force each cell with `adb shell wm size 2400x1080` (landscape) / `wm size reset`
+rather than trusting portrait alone. The adaptive shell reflows navigation but
+not each screen's own content, and a control looks fine in portrait while sitting
+past the fold in landscape — that's how the TX pick-image button regressed on
+tablets (issue #20). Real hardware (a physical Redmi Redpad 2 on Android 16 at
+minimum) is still required before closing a responsive-layout issue.
 
 ## Build & Deploy
 
