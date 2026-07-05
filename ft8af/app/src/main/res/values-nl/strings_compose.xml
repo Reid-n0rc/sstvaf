@@ -357,18 +357,8 @@
     <string name="settings_cat_logging">Loggen &amp; Onderscheidingen</string>
     <string name="settings_cat_advanced">Geavanceerd</string>
     <string name="settings_cat_about">Over</string>
-    <string name="settings_cat_time_sync">Tijdsynchronisatie</string>
-    <string name="settings_cat_time_sync_desc">Handmatige klokcorrectie voor offline gebruik</string>
 
     <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">Handmatige correctie</string>
-    <string name="settings_time_current_label">Huidige correctie</string>
-    <string name="settings_time_correction_reset">Terugzetten naar 0</string>
-    <string name="settings_time_correction_desc">Stel de app-klok bij wanneer je geen internet hebt om te synchroniseren. FT8 heeft UTC binnen ongeveer 1 seconde nodig. Pas aan tot de DT-kolom bij gedecodeerde stations rond 0 centreert.</string>
-    <string name="settings_time_suggest_section">Voorgesteld op basis van decodes</string>
-    <string name="settings_time_suggest_none">Nog geen decodes — begin met ontvangen om een suggestie te krijgen.</string>
-    <string name="settings_time_suggest_label">Recent gemiddelde DT: %1$s</string>
-    <string name="settings_time_suggest_apply">Voorgestelde correctie toepassen</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Grid automatisch bijwerken (GPS)</string>

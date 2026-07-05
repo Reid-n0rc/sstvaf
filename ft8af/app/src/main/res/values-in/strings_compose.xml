@@ -357,18 +357,8 @@
     <string name="settings_cat_logging">Logging &amp; Penghargaan</string>
     <string name="settings_cat_advanced">Lanjutan</string>
     <string name="settings_cat_about">Tentang</string>
-    <string name="settings_cat_time_sync">Sinkronisasi Waktu</string>
-    <string name="settings_cat_time_sync_desc">Koreksi jam manual untuk operasi offline</string>
 
     <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">Koreksi Manual</string>
-    <string name="settings_time_current_label">Koreksi saat ini</string>
-    <string name="settings_time_correction_reset">Setel ulang ke 0</string>
-    <string name="settings_time_correction_desc">Sesuaikan jam aplikasi saat Anda tidak punya internet untuk sinkronisasi. FT8 perlu UTC dalam sekitar 1 detik. Sesuaikan hingga kolom DT pada stasiun yang didekode berpusat di sekitar 0.</string>
-    <string name="settings_time_suggest_section">Saran dari dekode</string>
-    <string name="settings_time_suggest_none">Belum ada dekode — mulai menerima untuk mendapat saran.</string>
-    <string name="settings_time_suggest_label">Rata-rata DT terbaru: %1$s</string>
-    <string name="settings_time_suggest_apply">Terapkan koreksi yang disarankan</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Perbarui Grid Otomatis (GPS)</string>

@@ -36,7 +36,7 @@ public class LocationSubscriberTest {
         boolean permissionGranted = true;
         boolean prepareResult = true;
         boolean subscribeResult = true;
-        boolean unsubscribeOnPrepare = false; // models GpsClockUpdater's re-tune
+        boolean unsubscribeOnPrepare = false; // models a subclass re-tune (drop + re-subscribe)
 
         int prepareCalls = 0;
         int permissionChecks = 0;
@@ -215,8 +215,8 @@ public class LocationSubscriberTest {
 
     @Test
     public void refresh_whileRunning_prepareFalse_doesNotResubscribe() {
-        // Models GridLocationUpdater / an at-cadence GpsClockUpdater: repeated refreshes
-        // while running must not churn the subscription.
+        // Models GridLocationUpdater: repeated refreshes while running must not churn
+        // the subscription.
         subscriber.enabled = true;
         subscriber.refreshSubscription();
         subscriber.prepareResult = false;
@@ -228,7 +228,7 @@ public class LocationSubscriberTest {
 
     @Test
     public void refresh_whileRunning_retuneViaPrepare_resubscribes() {
-        // Models GpsClockUpdater's interval change: prepareStart() unsubscribes the stale
+        // Models a subclass cadence change: prepareStart() unsubscribes the stale
         // cadence and lets the start proceed to a fresh subscribe.
         subscriber.enabled = true;
         subscriber.refreshSubscription();
@@ -245,7 +245,7 @@ public class LocationSubscriberTest {
     public void stop_dropsListenerBeforeOnUnsubscribed_soLateFixesStillDispatchButGuarded() {
         // After a stop, the base has cleared running; a fix that raced past the disable is
         // still delivered to onFix (the base doesn't filter), so subclasses must gate on
-        // isRunning() — exactly what GpsClockUpdater.computeAppliedOffset does.
+        // isRunning() before acting on a late fix.
         subscriber.enabled = true;
         subscriber.refreshSubscription();
         LocationListener listener = subscriber.capturedListener;

@@ -357,18 +357,8 @@
     <string name="settings_cat_logging">التسجيل &amp; الجوائز</string>
     <string name="settings_cat_advanced">متقدم</string>
     <string name="settings_cat_about">حول</string>
-    <string name="settings_cat_time_sync">مزامنة الوقت</string>
-    <string name="settings_cat_time_sync_desc">تصحيح يدوي للساعة للتشغيل دون اتصال</string>
 
     <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">تصحيح يدوي</string>
-    <string name="settings_time_current_label">التصحيح الحالي</string>
-    <string name="settings_time_correction_reset">إعادة إلى 0</string>
-    <string name="settings_time_correction_desc">عدِّل ساعة التطبيق عندما لا يتوفر إنترنت للمزامنة. يحتاج FT8 إلى UTC ضمن حوالي ثانية واحدة. اضبط حتى يتمركز عمود DT للمحطات المفكوكة قرب 0.</string>
-    <string name="settings_time_suggest_section">مقترح من فك التشفير</string>
-    <string name="settings_time_suggest_none">لا فك تشفير بعد — ابدأ الاستقبال للحصول على اقتراح.</string>
-    <string name="settings_time_suggest_label">متوسط DT الأخير: %1$s</string>
-    <string name="settings_time_suggest_apply">تطبيق التصحيح المقترح</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">تحديث المربع تلقائياً (GPS)</string>

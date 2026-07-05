@@ -346,18 +346,8 @@
     <string name="settings_cat_logging">Dziennik i dyplomy</string>
     <string name="settings_cat_advanced">Zaawansowane</string>
     <string name="settings_cat_about">O aplikacji</string>
-    <string name="settings_cat_time_sync">Synchronizacja czasu</string>
-    <string name="settings_cat_time_sync_desc">Ręczna korekcja zegara do pracy offline</string>
 
     <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">Korekcja ręczna</string>
-    <string name="settings_time_current_label">Bieżąca korekcja</string>
-    <string name="settings_time_correction_reset">Zeruj</string>
-    <string name="settings_time_correction_desc">Skoryguj zegar aplikacji, gdy nie masz internetu do synchronizacji. FT8 wymaga UTC z dokładnością do około 1 sekundy. Dostosuj, aż kolumna DT zdekodowanych stacji wycentruje się blisko 0.</string>
-    <string name="settings_time_suggest_section">Sugerowane z dekodów</string>
-    <string name="settings_time_suggest_none">Brak dekodów — rozpocznij odbiór, aby uzyskać sugestię.</string>
-    <string name="settings_time_suggest_label">Ostatnia średnia DT: %1$s</string>
-    <string name="settings_time_suggest_apply">Zastosuj sugerowaną korekcję</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Auto-aktualizacja lokatora (GPS)</string>

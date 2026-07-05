@@ -64,7 +64,6 @@ import radio.ks3ckc.sstvaf.ui.components.TopBar
 private enum class SettingsCategory {
     RADIO_AUDIO,
     TRANSMISSION,
-    TIME_SYNC,
     LOGGING,
     ADVANCED,
     ABOUT,
@@ -132,8 +131,6 @@ fun SettingsScreen(
                 RadioAudioSettings(mainViewModel, onBack = { currentCategory = null })
             SettingsCategory.TRANSMISSION ->
                 TransmissionSettings(mainViewModel, onBack = { currentCategory = null })
-            SettingsCategory.TIME_SYNC ->
-                TimeSyncSettings(mainViewModel, onBack = { currentCategory = null })
             SettingsCategory.LOGGING ->
                 LoggingSettings(mainViewModel, onBack = { currentCategory = null })
             SettingsCategory.ADVANCED ->
@@ -289,13 +286,6 @@ private fun SettingsLanding(
                         label = stringResource(R.string.settings_cat_transmission),
                         showChevron = true,
                         onClick = { onOpenCategory(SettingsCategory.TRANSMISSION) },
-                    )
-                    SectionDivider()
-                    SettingsRow(
-                        label = stringResource(R.string.settings_cat_time_sync),
-                        description = stringResource(R.string.settings_cat_time_sync_desc),
-                        showChevron = true,
-                        onClick = { onOpenCategory(SettingsCategory.TIME_SYNC) },
                     )
                     SectionDivider()
                     SettingsRow(

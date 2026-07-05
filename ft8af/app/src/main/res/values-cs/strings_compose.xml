@@ -357,18 +357,8 @@
     <string name="settings_cat_logging">Logování &amp; Diplomy</string>
     <string name="settings_cat_advanced">Pokročilé</string>
     <string name="settings_cat_about">O aplikaci</string>
-    <string name="settings_cat_time_sync">Synchronizace času</string>
-    <string name="settings_cat_time_sync_desc">Ruční korekce hodin pro provoz bez připojení</string>
 
     <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">Ruční korekce</string>
-    <string name="settings_time_current_label">Aktuální korekce</string>
-    <string name="settings_time_correction_reset">Vynulovat</string>
-    <string name="settings_time_correction_desc">Posuňte hodiny aplikace, když nemáte internet pro synchronizaci. FT8 potřebuje UTC s přesností asi 1 sekunda. Upravujte, dokud se sloupec DT u dekódovaných stanic nevycentruje blízko 0.</string>
-    <string name="settings_time_suggest_section">Návrh z dekódů</string>
-    <string name="settings_time_suggest_none">Zatím žádné dekódy — začněte přijímat pro získání návrhu.</string>
-    <string name="settings_time_suggest_label">Nedávný průměrný DT: %1$s</string>
-    <string name="settings_time_suggest_apply">Použít navrženou korekci</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Auto-aktualizace lokátoru (GPS)</string>

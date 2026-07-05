@@ -11,10 +11,9 @@ import android.os.Looper;
 import android.util.Log;
 
 /**
- * Shared location-subscription lifecycle for {@link GridLocationUpdater} and
- * {@link GpsClockUpdater} (issue #380).
+ * Shared location-subscription lifecycle for {@link GridLocationUpdater} (issue #380).
  *
- * <p>Owns the half that the two updaters used to duplicate: the toggle-driven
+ * <p>Owns the reusable half of a toggle-driven location updater: the toggle-driven
  * start/stop dispatch, the permission gate, the lazy {@link LocationManager}
  * lookup with null-guard, the four-method {@link LocationListener} where only
  * {@code onLocationChanged} matters, the subscribe/teardown bookkeeping, and the
@@ -28,8 +27,7 @@ import android.util.Log;
  * <p>All lifecycle transitions are serialized on {@code this}; hooks are invoked
  * with the monitor held unless noted otherwise. {@code running} is volatile so a
  * subclass may consult {@link #isRunning()} from a main-looper fix callback
- * without the monitor and still observe a concurrent {@link #stop()} (see
- * {@code GpsClockUpdater#applyFix}).
+ * without the monitor and still observe a concurrent {@link #stop()}.
  */
 abstract class LocationSubscriber {
 
@@ -37,7 +35,7 @@ abstract class LocationSubscriber {
     /** Lazily looked up on first successful start; kept for teardown and last-known reads. */
     protected LocationManager locationManager;
     // Volatile: written under the monitor, but read without it from main-looper fix
-    // callbacks (GpsClockUpdater drops a fix that raced past a disable).
+    // callbacks (a subclass may drop a fix that raced past a disable).
     private volatile boolean running = false;
     private LocationListener listener;
 
@@ -46,7 +44,7 @@ abstract class LocationSubscriber {
     }
 
     // =====================================================================
-    // Template hooks — the parts that differ between the two updaters.
+    // Template hooks — the parts a concrete updater fills in.
     // =====================================================================
 
     /** Log tag for the shared lifecycle messages. */

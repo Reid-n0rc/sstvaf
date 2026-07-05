@@ -346,18 +346,8 @@
     <string name="settings_cat_logging">Günlük &amp; Ödüller</string>
     <string name="settings_cat_advanced">Gelişmiş</string>
     <string name="settings_cat_about">Hakkında</string>
-    <string name="settings_cat_time_sync">Zaman Eşitleme</string>
-    <string name="settings_cat_time_sync_desc">Çevrimdışı çalışma için manuel saat düzeltmesi</string>
 
     <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">Manuel Düzeltme</string>
-    <string name="settings_time_current_label">Geçerli düzeltme</string>
-    <string name="settings_time_correction_reset">0\'a sıfırla</string>
-    <string name="settings_time_correction_desc">Eşitlemek için internetiniz olmadığında uygulama saatini ayarlayın. FT8, UTC için yaklaşık 1 saniye hassasiyet gerektirir. Çözümlenen istasyonların DT sütunu 0\'a yakın ortalanana kadar ayarlayın.</string>
-    <string name="settings_time_suggest_section">Çözümlemelerden önerilen</string>
-    <string name="settings_time_suggest_none">Henüz çözümleme yok — öneri almak için alıma başlayın.</string>
-    <string name="settings_time_suggest_label">Son ortalama DT: %1$s</string>
-    <string name="settings_time_suggest_apply">Önerilen düzeltmeyi uygula</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Grid\'i Otomatik Güncelle (GPS)</string>

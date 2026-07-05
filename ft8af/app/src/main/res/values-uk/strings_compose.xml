@@ -346,18 +346,8 @@
     <string name="settings_cat_logging">Журналювання &amp; Нагороди</string>
     <string name="settings_cat_advanced">Додатково</string>
     <string name="settings_cat_about">Про застосунок</string>
-    <string name="settings_cat_time_sync">Синхронізація часу</string>
-    <string name="settings_cat_time_sync_desc">Ручне коригування годинника для роботи офлайн</string>
 
     <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">Ручне коригування</string>
-    <string name="settings_time_current_label">Поточне коригування</string>
-    <string name="settings_time_correction_reset">Скинути на 0</string>
-    <string name="settings_time_correction_desc">Підлаштуйте годинник застосунку, коли немає інтернету для синхронізації. FT8 потребує UTC з точністю близько 1 секунди. Регулюйте, доки стовпець DT декодованих станцій не зосередиться біля 0.</string>
-    <string name="settings_time_suggest_section">Пропозиція з декодувань</string>
-    <string name="settings_time_suggest_none">Ще немає декодувань — почніть приймати, щоб отримати пропозицію.</string>
-    <string name="settings_time_suggest_label">Нещодавнє середнє DT: %1$s</string>
-    <string name="settings_time_suggest_apply">Застосувати запропоноване коригування</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Автооновлення локатора (GPS)</string>

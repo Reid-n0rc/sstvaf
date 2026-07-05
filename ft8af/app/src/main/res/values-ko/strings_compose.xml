@@ -357,18 +357,8 @@
     <string name="settings_cat_logging">로깅 &amp; 어워드</string>
     <string name="settings_cat_advanced">고급</string>
     <string name="settings_cat_about">정보</string>
-    <string name="settings_cat_time_sync">시간 동기화</string>
-    <string name="settings_cat_time_sync_desc">오프라인 운용을 위한 수동 시계 보정</string>
 
     <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">수동 보정</string>
-    <string name="settings_time_current_label">현재 보정값</string>
-    <string name="settings_time_correction_reset">0으로 초기화</string>
-    <string name="settings_time_correction_desc">인터넷으로 동기화할 수 없을 때 앱 시계를 미세 조정합니다. FT8은 UTC를 약 1초 이내로 맞춰야 합니다. 디코드된 국의 DT 열이 0 근처에 모일 때까지 조정하세요.</string>
-    <string name="settings_time_suggest_section">디코드 기반 제안</string>
-    <string name="settings_time_suggest_none">아직 디코드 없음 — 수신을 시작하면 제안을 받을 수 있습니다.</string>
-    <string name="settings_time_suggest_label">최근 평균 DT: %1$s</string>
-    <string name="settings_time_suggest_apply">제안된 보정 적용</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">그리드 자동 업데이트 (GPS)</string>
