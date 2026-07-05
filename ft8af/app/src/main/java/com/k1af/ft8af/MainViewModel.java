@@ -495,9 +495,11 @@ public class MainViewModel extends ViewModel {
                 () -> tuneOperator.isTuning());
 
         //an SWR halt stops the active transmission (tune carrier + SSTV TX)
+        //immediately: pass sendCwId=false so a safety halt never follows the
+        //cancelled image with a fresh CW station-ID transmission (issue #14).
         meterProtectionController.setOnSwrHalt(() -> {
             tuneOperator.stopTune();
-            sstvTransmitter.cancel();
+            sstvTransmitter.cancel(false);
             transmitAudioSink.cancel();
         });
     }

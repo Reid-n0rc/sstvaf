@@ -151,19 +151,33 @@ object CwId {
     }
 
     /**
-     * Return [imageAudio] with a CW ID tail appended when [settings] is enabled
-     * and its text is keyable; otherwise return [imageAudio] unchanged. A short
-     * [LEAD_GAP_MS] silence separates the image from the ID.
+     * The standalone CW-ID buffer for [settings]: a [LEAD_GAP_MS] lead-in
+     * silence followed by the keyed callsign, or an empty array when the ID is
+     * disabled or the text is not keyable. Kept separate from the image so it
+     * can be played as its own buffer — notably it is still sent after a
+     * user-cancelled image transmission (the operator must still identify).
+     */
+    fun tail(settings: CwIdSettings, sampleRate: Int): FloatArray {
+        if (!settings.enabled) return FloatArray(0)
+        val cw = encode(settings.text, sampleRate, settings.wpm)
+        if (cw.isEmpty()) return FloatArray(0)
+        val gap = (LEAD_GAP_MS.toLong() * sampleRate / 1000L).toInt()
+        val out = FloatArray(gap + cw.size)
+        // [gap] leading samples are already zero-initialised (silence).
+        cw.copyInto(out, gap)
+        return out
+    }
+
+    /**
+     * Return [imageAudio] with a CW ID [tail] appended when [settings] is
+     * enabled and its text is keyable; otherwise return [imageAudio] unchanged.
      */
     fun appendTo(imageAudio: FloatArray, settings: CwIdSettings, sampleRate: Int): FloatArray {
-        if (!settings.enabled) return imageAudio
-        val cw = encode(settings.text, sampleRate, settings.wpm)
-        if (cw.isEmpty()) return imageAudio
-        val gap = (LEAD_GAP_MS.toLong() * sampleRate / 1000L).toInt()
-        val out = FloatArray(imageAudio.size + gap + cw.size)
+        val tail = tail(settings, sampleRate)
+        if (tail.isEmpty()) return imageAudio
+        val out = FloatArray(imageAudio.size + tail.size)
         imageAudio.copyInto(out, 0)
-        // [gap] samples of silence are already zero-initialised.
-        cw.copyInto(out, imageAudio.size + gap)
+        tail.copyInto(out, imageAudio.size)
         return out
     }
 }

@@ -90,8 +90,12 @@ class SstvTransmitterTest {
             .isTrue()
     }
 
+    private fun playSampleCounts(): List<Int> =
+        events.filter { it.startsWith("play(") }
+            .map { Regex("samples=(\\d+)").find(it)!!.groupValues[1].toInt() }
+
     @Test
-    fun cwIdTailLengthensThePlayedBuffer() {
+    fun cwIdTailPlaysAsSeparateBufferAfterImage() {
         codec.encodeSampleCount = 24000
         val player = FakePlayer(events)
         val tx = newTransmitter(
@@ -101,12 +105,15 @@ class SstvTransmitterTest {
 
         assertThat(transmitRobot36(tx)).isTrue()
 
-        // The played buffer is the image plus the gap + CW tone; the image is
-        // untouched at the head, so the play length strictly exceeds 24000.
-        val played = events.single { it.startsWith("play(") }
-        val samples = Regex("samples=(\\d+)").find(played)!!.groupValues[1].toInt()
-        assertThat(samples).isGreaterThan(24000)
+        // Two plays: the untouched image, then a separate non-empty CW-ID buffer.
+        val plays = playSampleCounts()
+        assertThat(plays).hasSize(2)
+        assertThat(plays[0]).isEqualTo(24000)
+        assertThat(plays[1]).isGreaterThan(0)
+        assertThat(events.first()).isEqualTo("keyDown")
+        assertThat(events.last()).isEqualTo("keyUp")
         assertThat(logs.any { it.contains("cwId=K1ABC") && it.contains("wpm=20") }).isTrue()
+        assertThat(logs.any { it == "SSTV TX: sending CW ID" }).isTrue()
     }
 
     @Test
@@ -117,8 +124,43 @@ class SstvTransmitterTest {
 
         transmitRobot36(tx)
 
-        assertThat(events).contains("play(samples=24000, rate=12000)")
+        assertThat(playSampleCounts()).containsExactly(24000)
         assertThat(logs.none { it.contains("cwId=") }).isTrue()
+        assertThat(logs.none { it.contains("sending CW ID") }).isTrue()
+    }
+
+    @Test
+    fun userCancelStillSendsCwId() {
+        lateinit var tx: SstvTransmitter
+        var firstPlay = true
+        val player = FakePlayer(events, playResult = false)
+        // Operator hits Stop while the image is playing; the ID must still go out.
+        player.onPlay = { if (firstPlay) { firstPlay = false; tx.cancel() } }
+        tx = newTransmitter(player, cwId = CwIdSettings(enabled = true, text = "K1ABC", wpm = 20))
+
+        transmitRobot36(tx)
+
+        // Image play, then a second play for the CW ID, then key-up.
+        assertThat(playSampleCounts()).hasSize(2)
+        assertThat(events.last()).isEqualTo("keyUp")
+        assertThat(logs.any { it == "SSTV TX: sending CW ID after cancel" }).isTrue()
+    }
+
+    @Test
+    fun safetyHaltSuppressesCwId() {
+        lateinit var tx: SstvTransmitter
+        var firstPlay = true
+        val player = FakePlayer(events, playResult = false)
+        // An SWR/ALC halt must drop RF now — no follow-up CW keying.
+        player.onPlay = { if (firstPlay) { firstPlay = false; tx.cancel(sendCwId = false) } }
+        tx = newTransmitter(player, cwId = CwIdSettings(enabled = true, text = "K1ABC", wpm = 20))
+
+        transmitRobot36(tx)
+
+        // Only the image played; the ID was suppressed.
+        assertThat(playSampleCounts()).hasSize(1)
+        assertThat(events.last()).isEqualTo("keyUp")
+        assertThat(logs.none { it.contains("sending CW ID") }).isTrue()
     }
 
     @Test
