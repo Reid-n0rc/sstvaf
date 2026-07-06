@@ -132,7 +132,7 @@ fun TxComposeScreen(mainViewModel: MainViewModel) {
     // The URI the camera app is writing the in-flight capture into; read back
     // by the TakePicture callback (the contract only reports success/failure,
     // not the target). Cleared once consumed.
-    var pendingCaptureUri by remember { mutableStateOf<Uri?>(null) }
+var pendingCaptureUri by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<Uri?>(null) }
     val takePicture = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
     ) { success ->
