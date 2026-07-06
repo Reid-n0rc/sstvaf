@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,11 +38,13 @@ import com.k1af.ft8af.database.OperationBand
 import com.k1af.ft8af.rigs.CatConnectionState
 import com.k1af.ft8af.rigs.BaseRigOperation
 import radio.ks3ckc.sstvaf.theme.BgApp
+import radio.ks3ckc.sstvaf.ui.components.AdaptiveShell
 import radio.ks3ckc.sstvaf.ui.components.shouldShowCatChip
 import radio.ks3ckc.sstvaf.ui.components.SstvTab
 import radio.ks3ckc.sstvaf.ui.components.FrequencyPickerSheet
 import radio.ks3ckc.sstvaf.ui.components.formatMhz
 import radio.ks3ckc.sstvaf.ui.components.TabBar
+import radio.ks3ckc.sstvaf.ui.components.TabRail
 import radio.ks3ckc.sstvaf.ui.components.TransmitGlow
 import radio.ks3ckc.sstvaf.ui.components.TxStrip
 import radio.ks3ckc.sstvaf.ui.components.selectBandIndex
@@ -119,11 +124,77 @@ fun SstvAfApp(mainViewModel: MainViewModel) {
     val swrLocked by mainViewModel.meterProtectionController.swrLockout.observeAsState(false)
     val lockoutSwrRatio by mainViewModel.meterProtectionController.lockoutSwrRatio.observeAsState("")
 
+    // Wide canvases (tablets in either orientation, phones in landscape) move
+    // navigation to a side rail so the short landscape content area keeps its
+    // full height instead of losing it to the bottom bar + TX strip (issue #20).
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp
+    val useRail = AdaptiveShell.useNavigationRail(screenWidthDp)
+
+    // Content + TX strip are wrapped in movableContentOf so switching between the
+    // bottom-bar and rail layouts (e.g. on rotation) re-parents the live screen
+    // and its scroll/decode state instead of recomposing it from scratch. The
+    // content [Box]'s weight modifier is applied at each call site because
+    // `Modifier.weight` is only in scope inside the enclosing Column.
+    val content = remember {
+        movableContentOf {
+            // Note: AndroidView-wrapped legacy views (waterfall/columnar) interact badly with
+            // AnimatedContent's graphicsLayer translations during enter/exit, so tab switching
+            // here is a plain swap. The TabBar/TabRail selection itself still animates.
+            when (activeTab) {
+                SstvTab.RX -> RxScreen(
+                    mainViewModel,
+                    onViewInGallery = { activeTab = SstvTab.GALLERY },
+                )
+                SstvTab.GALLERY -> GalleryScreen(mainViewModel)
+                SstvTab.TX -> TxComposeScreen(mainViewModel)
+                SstvTab.WATERFALL -> WaterfallScreen(mainViewModel)
+                SstvTab.LOG -> LogbookScreen(mainViewModel)
+                SstvTab.SETTINGS -> SettingsScreen(mainViewModel)
+            }
+        }
+    }
+    val txStrip = remember {
+        movableContentOf {
+            // TX status strip — always visible above the bottom bar / below content.
+            TxStrip(
+                isTransmitting = isTuning,
+                frequencyLabel = frequencyLabel,
+                catState = catState,
+                showCatChip = showCatChip,
+                txVolume = txVolume,
+                showVolumeSlider = showVolumeSlider,
+                isTuning = isTuning,
+                tuneRemainingSec = tuneRemainingSec,
+                onToggleTune = {
+                    // Toggle (WSJT-X style latching Tune): tap to key the carrier,
+                    // tap again to stop. startTune() toasts the reason when blocked.
+                    if (isTuning) {
+                        mainViewModel.tuneOperator.stopTune()
+                    } else {
+                        mainViewModel.tuneOperator.startTune()
+                    }
+                },
+                onVolumeChange = { newVolume ->
+                    txVolume = newVolume
+                    GeneralVariables.volumePercent = newVolume / 100f
+                    GeneralVariables.mutableVolumePercent.postValue(newVolume / 100f)
+                },
+                onVolumeChangeFinished = {
+                    mainViewModel.databaseOpr.writeConfig("volumeValue", txVolume.toString(), null)
+                    mainViewModel.baseRig?.connector?.setRFVolume(txVolume)
+                    saveOutputLevelForCurrentBand(mainViewModel.databaseOpr, txVolume)
+                },
+                onReconnectCat = { mainViewModel.reconnectRig() },
+                onOpenFrequencyPicker = { showFrequencyPicker = true },
+            )
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize().background(BgApp)) {
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
-            // SWR lockout banner — red warning at top when SWR halt triggered
+            // SWR lockout banner — red warning spanning the top in both layouts.
             if (swrLocked) {
                 Row(
                     modifier = Modifier
@@ -161,66 +232,27 @@ fun SstvAfApp(mainViewModel: MainViewModel) {
                 }
             }
 
-            // Main content area (takes remaining space).
-            // Note: AndroidView-wrapped legacy views (waterfall/columnar) interact badly with
-            // AnimatedContent's graphicsLayer translations during enter/exit, so tab switching
-            // here is a plain swap. The TabBar selection itself still animates.
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            ) {
-                when (activeTab) {
-                    SstvTab.RX -> RxScreen(
-                        mainViewModel,
-                        onViewInGallery = { activeTab = SstvTab.GALLERY },
+            if (useRail) {
+                // Wide layout: rail on the left, content + TX strip fill the rest.
+                Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    TabRail(
+                        activeTab = activeTab,
+                        onTabSelected = { activeTab = it },
                     )
-                    SstvTab.GALLERY -> GalleryScreen(mainViewModel)
-                    SstvTab.TX -> TxComposeScreen(mainViewModel)
-                    SstvTab.WATERFALL -> WaterfallScreen(mainViewModel)
-                    SstvTab.LOG -> LogbookScreen(mainViewModel)
-                    SstvTab.SETTINGS -> SettingsScreen(mainViewModel)
-                }
-            }
-
-            // TX status strip — always visible above tab bar
-            TxStrip(
-                isTransmitting = isTuning,
-                frequencyLabel = frequencyLabel,
-                catState = catState,
-                showCatChip = showCatChip,
-                txVolume = txVolume,
-                showVolumeSlider = showVolumeSlider,
-                isTuning = isTuning,
-                tuneRemainingSec = tuneRemainingSec,
-                onToggleTune = {
-                    // Toggle (WSJT-X style latching Tune): tap to key the carrier,
-                    // tap again to stop. startTune() toasts the reason when blocked.
-                    if (isTuning) {
-                        mainViewModel.tuneOperator.stopTune()
-                    } else {
-                        mainViewModel.tuneOperator.startTune()
+                    Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                        Box(modifier = Modifier.weight(1f).fillMaxWidth()) { content() }
+                        txStrip()
                     }
-                },
-                onVolumeChange = { newVolume ->
-                    txVolume = newVolume
-                    GeneralVariables.volumePercent = newVolume / 100f
-                    GeneralVariables.mutableVolumePercent.postValue(newVolume / 100f)
-                },
-                onVolumeChangeFinished = {
-                    mainViewModel.databaseOpr.writeConfig("volumeValue", txVolume.toString(), null)
-                    mainViewModel.baseRig?.connector?.setRFVolume(txVolume)
-                    saveOutputLevelForCurrentBand(mainViewModel.databaseOpr, txVolume)
-                },
-                onReconnectCat = { mainViewModel.reconnectRig() },
-                onOpenFrequencyPicker = { showFrequencyPicker = true },
-            )
-
-            // Bottom tab bar
-            TabBar(
-                activeTab = activeTab,
-                onTabSelected = { activeTab = it },
-            )
+                }
+            } else {
+                // Compact layout: content, TX strip, then the bottom tab bar.
+                Box(modifier = Modifier.weight(1f).fillMaxWidth()) { content() }
+                txStrip()
+                TabBar(
+                    activeTab = activeTab,
+                    onTabSelected = { activeTab = it },
+                )
+            }
         }
 
         // Transmit breathing border — sibling overlay so its per-frame invalidations
