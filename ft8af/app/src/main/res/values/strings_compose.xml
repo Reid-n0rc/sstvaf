@@ -519,6 +519,11 @@
     <!-- ===== Settings: advanced ===== -->
     <string name="settings_ptt_delay">PTT Delay</string>
     <string name="settings_ptt_delay_desc">Delay after PTT before transmit audio begins</string>
+    <string name="settings_cw_id">CW station ID</string>
+    <string name="settings_cw_id_desc">Send your callsign in Morse code after each SSTV image</string>
+    <string name="settings_cw_id_speed">CW ID speed</string>
+    <string name="settings_cw_id_speed_desc">Morse keying speed for the station ID</string>
+    <string name="settings_cw_id_wpm_format">%1$d WPM</string>
     <string name="settings_tx_delay">TX Delay</string>
     <string name="settings_tx_delay_desc">Delay before transmit to allow prior-cycle decode</string>
     <string name="settings_late_start_tolerance">Late-start Tolerance</string>

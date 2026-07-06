@@ -33,6 +33,14 @@ class SstvTransmitter @JvmOverloads constructor(
     private val workerRunner: (Runnable) -> Unit = { body ->
         Thread(body, "SstvTransmit").start()
     },
+    /** Optional CW station-ID tail settings (issue #14). */
+    private val cwIdSource: () -> CwIdSettings = {
+        CwIdSettings(
+            enabled = GeneralVariables.cwIdEnabled,
+            text = GeneralVariables.myCallsign,
+            wpm = GeneralVariables.cwIdWpm,
+        )
+    },
 ) {
 
     /** Rig keying surface (MainViewModel adapts PttController). */
@@ -59,6 +67,14 @@ class SstvTransmitter @JvmOverloads constructor(
     private val transmitting = AtomicBoolean(false)
     private val cancelled = AtomicBoolean(false)
 
+    /**
+     * When a cancel must also skip the CW station-ID tail — an SWR/ALC safety
+     * halt has to stop keying the rig immediately, so it must not follow a
+     * cancelled image with a fresh CW transmission. A user Stop leaves this
+     * false so the operator still identifies.
+     */
+    private val suppressCwId = AtomicBoolean(false)
+
     private val mutableIsTransmitting = MutableLiveData(false)
     val isTransmitting: LiveData<Boolean> get() = mutableIsTransmitting
 
@@ -80,15 +96,23 @@ class SstvTransmitter @JvmOverloads constructor(
             return false
         }
         cancelled.set(false)
+        suppressCwId.set(false)
         mutableIsTransmitting.postValue(true)
         mutableTxProgress.postValue(0f)
         workerRunner(Runnable { runTransmission(pixels, width, height, mode) })
         return true
     }
 
-    /** Abort an in-flight transmission; the worker's finally un-keys PTT. */
-    fun cancel() {
+    /**
+     * Abort an in-flight transmission; the worker's finally un-keys PTT. When
+     * [sendCwId] is true (the default — a user Stop), the CW station-ID tail
+     * still goes out so the operator identifies; a safety halt passes false to
+     * drop RF immediately without any further keying.
+     */
+    @JvmOverloads
+    fun cancel(sendCwId: Boolean = true) {
         if (!transmitting.get()) return
+        if (!sendCwId) suppressCwId.set(true)
         cancelled.set(true)
         player.cancel()
     }
@@ -104,11 +128,18 @@ class SstvTransmitter @JvmOverloads constructor(
         try {
             val sampleRate = sampleRateSource()
             // Encode BEFORE keying: a bad image/mode must never key the rig.
-            val audio = codec.encode(pixels, width, height, mode, sampleRate)
-            val durationMs = audio.size * 1000L / sampleRate
+            val imageAudio = codec.encode(pixels, width, height, mode, sampleRate)
+            // Optional CW station-ID tail (issue #14) kept as its own buffer so
+            // it can still be keyed after a user-cancelled image (the operator
+            // must identify). The image itself is untouched, so the leading
+            // SSTV calibration/VIS the receiver needs is never disturbed.
+            val cwId = cwIdSource()
+            val cwTail = CwId.tail(cwId, sampleRate)
+            val durationMs = (imageAudio.size + cwTail.size) * 1000L / sampleRate
             log(
                 "SSTV TX: start — mode=${mode.displayName} ${width}x$height" +
-                    " samples=${audio.size} rate=$sampleRate durationMs=$durationMs",
+                    " samples=${imageAudio.size} rate=$sampleRate durationMs=$durationMs" +
+                    if (cwTail.isNotEmpty()) " cwId=${cwId.text} wpm=${cwId.wpm}" else "",
             )
 
             // A cancel that lands during encode would otherwise be lost: the
@@ -124,14 +155,28 @@ class SstvTransmitter @JvmOverloads constructor(
             val settleMs = settleDelayMsSource()
             if (settleMs > 0) Thread.sleep(settleMs)
 
-            if (cancelled.get()) {
-                log("SSTV TX: cancelled during PTT settle")
-                return
-            }
-
             val ticker = startProgressTicker(durationMs)
             try {
-                completed = player.play(audio, sampleRate)
+                if (cancelled.get()) {
+                    log("SSTV TX: cancelled during PTT settle")
+                } else {
+                    completed = player.play(imageAudio, sampleRate)
+                }
+                // Identify even on a user Stop: a cancelled image is still an
+                // on-air transmission. A safety halt sets suppressCwId, which
+                // drops the rig immediately with no further keying.
+                if (cwTail.isNotEmpty() && !suppressCwId.get()) {
+                    log(
+                        if (completed) "SSTV TX: sending CW ID"
+                        else "SSTV TX: sending CW ID after cancel",
+                    )
+                    // The CW ID is part of the transmission duration, so the
+                    // TX is only "complete" when the tail plays to the end
+                    // too. A cancel landing during the ID (return false)
+                    // must not still report 1.0 progress.
+                    val cwCompleted = player.play(cwTail, sampleRate)
+                    completed = completed && cwCompleted
+                }
             } finally {
                 // Stop-and-join so a late ticker post can never overwrite the
                 // final progress value published below.
