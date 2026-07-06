@@ -2354,6 +2354,23 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 if (name.equalsIgnoreCase("pttDelay")) {//PTT delay setting
                     GeneralVariables.pttDelay = result.equals("") ? 100 : Integer.parseInt(result);
                 }
+                if (name.equalsIgnoreCase("cwIdEnabled")) {//Append CW station-ID after SSTV image (issue #14)
+                    GeneralVariables.cwIdEnabled = result.equals("1");
+                }
+                if (name.equalsIgnoreCase("cwIdWpm")) {//CW ID keying speed (WPM), max/default 20
+                    //Defensive parse: settings import (#382) can feed a
+                    //corrupted/non-numeric value here at startup. Blank or
+                    //non-numeric falls back to the 20 WPM default; numeric is
+                    //clamped to 1..20.
+                    int wpm = 20;
+                    if (!result.equals("")) {
+                        try {
+                            wpm = Integer.parseInt(result.trim());
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                    GeneralVariables.cwIdWpm = Math.max(1, Math.min(20, wpm));
+                }
                 if (name.equalsIgnoreCase("icomIp")) {//ICOM IP address
                     GeneralVariables.icomIp = result.equals("") ? "255.255.255.255" : result;
                 }

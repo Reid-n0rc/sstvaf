@@ -358,6 +358,8 @@ public class GeneralVariables {
     public static String cloudlogApiKey = "";//Cloudlog API key
     public static String cloudlogStationID = "";//Cloudlog station ID
     public static int pttDelay = 100;//PTT response time; radios typically need some response time after PTT command, default 100ms
+    public static boolean cwIdEnabled = false;//Append a CW (Morse) station-ID after each SSTV image (issue #14)
+    public static int cwIdWpm = 20;//CW ID keying speed, words-per-minute (max/default 20)
     public static int manualTimeCorrectionMs = 0;//Manual clock correction (ms) applied to UtcTimer.delay; for field use without internet NTP. Range -2000..2000. See TimeSyncSettings.
     public static int civAddress = 0xa4;//CI-V address
     public static int baudRate = 19200;//Baud rate
