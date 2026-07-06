@@ -147,6 +147,34 @@ class SstvTransmitterTest {
     }
 
     @Test
+    fun cancelDuringCwIdTailDoesNotReportFullProgress() {
+        lateinit var tx: SstvTransmitter
+        var playCount = 0
+        val player = FakePlayer(events, playResult = true)
+        // The image plays to completion, but the operator hits Stop while the
+        // CW ID is keying, so the tail play returns false. Completion (and thus
+        // final progress) must reflect the tail, not just the image.
+        player.onPlay = {
+            playCount++
+            if (playCount == 2) {
+                player.playResult = false
+                tx.cancel()
+            }
+        }
+        tx = newTransmitter(player, cwId = CwIdSettings(enabled = true, text = "K1ABC", wpm = 20))
+
+        transmitRobot36(tx)
+
+        assertThat(playSampleCounts()).hasSize(2)
+        assertThat(events.last()).isEqualTo("keyUp")
+        shadowOf(Looper.getMainLooper()).idle()
+        // Image finished but the ID was cut short — not a fully completed TX.
+        assertThat(tx.txProgress.value).isEqualTo(0f)
+        assertThat(logs.any { it.contains("SSTV TX: end") && it.contains("completed=false") })
+            .isTrue()
+    }
+
+    @Test
     fun safetyHaltSuppressesCwId() {
         lateinit var tx: SstvTransmitter
         var firstPlay = true

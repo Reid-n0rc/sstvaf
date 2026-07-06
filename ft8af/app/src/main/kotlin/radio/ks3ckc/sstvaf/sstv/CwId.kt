@@ -79,7 +79,10 @@ object CwId {
      * result is empty for blank/uncodeable input.
      */
     internal fun keyingUnits(text: String): List<Segment> {
-        val cleaned = text.trim().uppercase()
+        // Locale-independent upper-casing: the Morse table is ASCII only, so a
+        // device locale (e.g. Turkish, where 'i' upper-cases to 'İ') must not
+        // change which characters key. International Morse is never localized.
+        val cleaned = text.trim().uppercase(java.util.Locale.ROOT)
         if (cleaned.isEmpty()) return emptyList()
         val out = mutableListOf<Segment>()
         var prevWasChar = false

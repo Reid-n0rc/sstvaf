@@ -170,7 +170,12 @@ class SstvTransmitter @JvmOverloads constructor(
                         if (completed) "SSTV TX: sending CW ID"
                         else "SSTV TX: sending CW ID after cancel",
                     )
-                    player.play(cwTail, sampleRate)
+                    // The CW ID is part of the transmission duration, so the
+                    // TX is only "complete" when the tail plays to the end
+                    // too. A cancel landing during the ID (return false)
+                    // must not still report 1.0 progress.
+                    val cwCompleted = player.play(cwTail, sampleRate)
+                    completed = completed && cwCompleted
                 }
             } finally {
                 // Stop-and-join so a late ticker post can never overwrite the

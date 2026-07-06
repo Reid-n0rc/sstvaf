@@ -73,6 +73,22 @@ class CwIdTest {
         assertThat(CwId.keyingUnits("cq")).isEqualTo(CwId.keyingUnits("CQ"))
     }
 
+    @Test
+    fun caseFoldingIsLocaleIndependent() {
+        // International Morse is never localized: in a Turkish locale the JVM
+        // default upper-cases 'i' to 'İ' (dotted capital I), which is not in
+        // the ASCII Morse table. keyingUnits() must key 'i' regardless.
+        val previous = java.util.Locale.getDefault()
+        try {
+            java.util.Locale.setDefault(java.util.Locale("tr", "TR"))
+            assertThat(CwId.keyingUnits("wi5")).isEqualTo(CwId.keyingUnits("WI5"))
+            // 'I' is di-dit: two keyed elements survive the fold.
+            assertThat(CwId.keyingUnits("i").count { it.keyed }).isEqualTo(2)
+        } finally {
+            java.util.Locale.setDefault(previous)
+        }
+    }
+
     // ----- audio synthesis -----
 
     @Test
