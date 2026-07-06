@@ -346,18 +346,6 @@
     <string name="settings_cat_logging">Logging &amp; Diplomi</string>
     <string name="settings_cat_advanced">Avanzate</string>
     <string name="settings_cat_about">Info</string>
-    <string name="settings_cat_time_sync">Sincronizzazione ora</string>
-    <string name="settings_cat_time_sync_desc">Correzione manuale dell\'orologio per l\'uso offline</string>
-
-    <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-    <string name="settings_time_correction_section">Correzione manuale</string>
-    <string name="settings_time_current_label">Correzione attuale</string>
-    <string name="settings_time_correction_reset">Azzera</string>
-    <string name="settings_time_correction_desc">Regola l\'orologio dell\'app quando non hai internet per sincronizzare. FT8 richiede UTC entro circa 1 secondo. Regola finché la colonna DT delle stazioni decodificate si centra vicino a 0.</string>
-    <string name="settings_time_suggest_section">Suggerito dalle decodifiche</string>
-    <string name="settings_time_suggest_none">Ancora nessuna decodifica — inizia a ricevere per ottenere un suggerimento.</string>
-    <string name="settings_time_suggest_label">DT medio recente: %1$s</string>
-    <string name="settings_time_suggest_apply">Applica correzione suggerita</string>
 
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Aggiorna grid automaticamente (GPS)</string>

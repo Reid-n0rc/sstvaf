@@ -30,7 +30,6 @@ import com.k1af.ft8af.log.QSLCallsignRecord;
 import com.k1af.ft8af.log.QSLRecord;
 import com.k1af.ft8af.log.QSLRecordStr;
 import com.k1af.ft8af.rigs.BaseRigOperation;
-import com.k1af.ft8af.timer.UtcTimer;
 import com.k1af.ft8af.wave.InputAudioLevel;
 
 import org.jetbrains.annotations.Nullable;
@@ -2289,21 +2288,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                     //GeneralVariables.setBaseFrequency(result.equals("") ? 1000 : Float.parseFloat(result));
                     GeneralVariables.setBaseFrequency(freq);
                 }
-                //Manual time correction (ms). Re-applied to UtcTimer.delay at startup so a
-                //field operator's offline clock nudge survives a relaunch. delay is read live
-                //by the running timers, so this takes effect immediately.
-                if (name.equalsIgnoreCase("timeCorrectionMs")) {
-                    int ms;
-                    try {
-                        ms = Integer.parseInt(result.trim());
-                    } catch (NumberFormatException e) {
-                        ms = 0;
-                    }
-                    ms = Math.max(-2000, Math.min(2000, ms));
-                    GeneralVariables.manualTimeCorrectionMs = ms;
-                    UtcTimer.delay = ms;
-                }
-
                 if (name.equalsIgnoreCase("civ")) {
                     GeneralVariables.civAddress = result.equals("") ? 0xa4 : Integer.parseInt(result, 16);
                 }
@@ -2343,13 +2327,6 @@ public class DatabaseOpr extends SQLiteOpenHelper {
                 }
                 if (name.equalsIgnoreCase("autoGridFromGPS")) {//Auto-update grid from GPS
                     GeneralVariables.autoUpdateGridFromGPS = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("disciplineClockFromGPS")) {//Discipline clock from GPS (issue #373)
-                    GeneralVariables.disciplineClockFromGPS = result.equals("1");
-                }
-                if (name.equalsIgnoreCase("gpsClockIntervalMin")) {//GPS discipline update interval (minutes)
-                    GeneralVariables.gpsClockIntervalMinutes =
-                            com.k1af.ft8af.location.GpsClockUpdater.parseIntervalMinutes(result);
                 }
                 if (name.equalsIgnoreCase("pttDelay")) {//PTT delay setting
                     GeneralVariables.pttDelay = result.equals("") ? 100 : Integer.parseInt(result);

@@ -48,7 +48,6 @@ import com.k1af.ft8af.callsign.CallsignDatabase
 import com.k1af.ft8af.database.DatabaseOpr
 import com.k1af.ft8af.database.OnAfterQueryConfig
 import com.k1af.ft8af.database.OperationBand
-import com.k1af.ft8af.location.GpsClockUpdater
 import com.k1af.ft8af.location.GridLocationUpdater
 import com.k1af.ft8af.log.ImportSharedLogs
 import com.k1af.ft8af.wave.UsbAudioNative
@@ -291,15 +290,6 @@ class ComposeMainActivity : AppCompatActivity() {
             GridLocationUpdater.refresh(applicationContext, mainViewModel)
         }
 
-        // Same first-grant race for GPS clock discipline (issue #373): if the user just
-        // granted location while the toggle is on, start disciplining in this session.
-        if (locationGrantedIn(permissions, grantResults)
-            && GeneralVariables.disciplineClockFromGPS
-        ) {
-            fileLog("onRequestPermissionsResult: location granted, starting GPS clock discipline")
-            GpsClockUpdater.refresh(applicationContext)
-        }
-
         // On Android 12+ the BT auto-connect at config-load time may have bailed with
         // NO_PERMISSION because BLUETOOTH_CONNECT was still pending. Once the user grants it,
         // retry the SPP/CAT auto-reconnect in the same session (issue #223). The rigConnected
@@ -347,9 +337,6 @@ class ComposeMainActivity : AppCompatActivity() {
                         mainViewModel.databaseOpr.writeConfig("grid", grid, null)
                     }
                     GridLocationUpdater.refresh(applicationContext, mainViewModel)
-                }
-                if (GeneralVariables.disciplineClockFromGPS) {
-                    GpsClockUpdater.refresh(applicationContext)
                 }
                 // Scan for USB devices AFTER config is loaded
                 fileLog("initData: scanning USB devices")
