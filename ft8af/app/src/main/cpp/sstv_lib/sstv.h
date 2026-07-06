@@ -31,6 +31,15 @@ enum {
     SSTV_MODE_PD50,
     SSTV_MODE_PD90,
     SSTV_MODE_PD120,
+    // Appended in a later batch (issue #16). New ids MUST be appended, never
+    // renumbered — the id crosses the JNI boundary verbatim (see SstvMode.kt).
+    SSTV_MODE_SCOTTIEDX,
+    SSTV_MODE_MARTIN3,
+    SSTV_MODE_MARTIN4,
+    SSTV_MODE_PD160,
+    SSTV_MODE_PD180,
+    SSTV_MODE_PD240,
+    SSTV_MODE_PD290,
     SSTV_NUM_MODES
 };
 

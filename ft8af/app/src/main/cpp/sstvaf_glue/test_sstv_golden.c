@@ -40,6 +40,13 @@ static const struct {
     { SSTV_MODE_PD50,     "PD 50",     0xcc7d745baf6c7a5dull,  607134 },
     { SSTV_MODE_PD90,     "PD 90",     0x10cd021bcd945bb7ull, 1090790 },
     { SSTV_MODE_PD120,    "PD 120",    0xa5d7ccbda46e5316ull, 1524157 },
+    { SSTV_MODE_SCOTTIEDX, "Scottie DX", 0xe8ff205b37af4212ull, 3237550 },
+    { SSTV_MODE_MARTIN3,   "Martin 3",   0xe91c427cf235a5e0ull,  696662 },
+    { SSTV_MODE_MARTIN4,   "Martin 4",   0x02de19123e25c86bull,  359282 },
+    { SSTV_MODE_PD160,     "PD 160",     0x38db67d7bf30aea9ull, 1941519 },
+    { SSTV_MODE_PD180,     "PD 180",     0x7635d2b786cdb648ull, 2255539 },
+    { SSTV_MODE_PD240,     "PD 240",     0x25289d532e3e29e7ull, 2986920 },
+    { SSTV_MODE_PD290,     "PD 290",     0x8848b28005d4d72full, 3475107 },
 };
 
 // Measure the tone frequency around absolute time t_us (window fully inside
@@ -86,7 +93,14 @@ int main(int argc, char** argv)
                    mode_id == SSTV_MODE_SCOTTIE1 ? "SCOTTIE1" :
                    mode_id == SSTV_MODE_SCOTTIE2 ? "SCOTTIE2" :
                    mode_id == SSTV_MODE_PD50 ? "PD50" :
-                   mode_id == SSTV_MODE_PD90 ? "PD90" : "PD120",
+                   mode_id == SSTV_MODE_PD90 ? "PD90" :
+                   mode_id == SSTV_MODE_PD120 ? "PD120" :
+                   mode_id == SSTV_MODE_SCOTTIEDX ? "SCOTTIEDX" :
+                   mode_id == SSTV_MODE_MARTIN3 ? "MARTIN3" :
+                   mode_id == SSTV_MODE_MARTIN4 ? "MARTIN4" :
+                   mode_id == SSTV_MODE_PD160 ? "PD160" :
+                   mode_id == SSTV_MODE_PD180 ? "PD180" :
+                   mode_id == SSTV_MODE_PD240 ? "PD240" : "PD290",
                    m->name, (unsigned long long)h, got);
             free(q);
             free(buf);
@@ -136,8 +150,8 @@ int main(int argc, char** argv)
         check_near(freq_at(buf, got, sync_t + m->sync_us * 0.25, win), 1200.0,
                    6.0, label);
 
-        if (m->id == SSTV_MODE_SCOTTIE1 || m->id == SSTV_MODE_SCOTTIE2) {
-            // Scottie: one-off 9 ms starting sync right after the VIS.
+        if (m->sync_pos == SSTV_SYNC_BEFORE_RED) {
+            // Scottie (incl. DX): one-off 9 ms starting sync right after VIS.
             snprintf(label, sizeof(label), "%s: 9 ms starting sync after VIS",
                      m->name);
             check_near(freq_at(buf, got, 910000.0 + 2000.0, 5000.0), 1200.0,
@@ -159,7 +173,7 @@ int main(int argc, char** argv)
             // so a gradient row's whole B scan is one constant tone. This
             // pins the G,B,R scan ordering AND the line period: get either
             // wrong and the measured tone is a moving pixel ramp instead.
-            int row = 200;
+            int row = m->height > 200 ? 200 : m->height / 2;
             double boff = 0.0;
             const sstv_segment_t* bscan = 0;
             for (int s = 0; s < m->n_segments; s++) {
