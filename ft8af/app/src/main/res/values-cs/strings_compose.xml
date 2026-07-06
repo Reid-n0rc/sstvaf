@@ -358,8 +358,6 @@
     <string name="settings_cat_advanced">Pokročilé</string>
     <string name="settings_cat_about">O aplikaci</string>
 
-    <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Auto-aktualizace lokátoru (GPS)</string>
     <string name="settings_auto_update_grid_desc">Použít GPS zařízení pro udržení aktuálního lokátoru Maidenhead</string>

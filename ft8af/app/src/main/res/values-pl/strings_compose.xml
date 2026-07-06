@@ -347,8 +347,6 @@
     <string name="settings_cat_advanced">Zaawansowane</string>
     <string name="settings_cat_about">O aplikacji</string>
 
-    <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Auto-aktualizacja lokatora (GPS)</string>
     <string name="settings_auto_update_grid_desc">Użyj GPS urządzenia, aby utrzymywać aktualny lokator Maidenhead</string>

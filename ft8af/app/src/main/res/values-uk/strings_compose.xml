@@ -347,8 +347,6 @@
     <string name="settings_cat_advanced">Додатково</string>
     <string name="settings_cat_about">Про застосунок</string>
 
-    <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Автооновлення локатора (GPS)</string>
     <string name="settings_auto_update_grid_desc">Використовувати GPS пристрою для актуалізації вашого локатора Maidenhead</string>

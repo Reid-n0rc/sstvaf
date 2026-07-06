@@ -347,8 +347,6 @@
     <string name="settings_cat_advanced">Avanzate</string>
     <string name="settings_cat_about">Info</string>
 
-    <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Aggiorna grid automaticamente (GPS)</string>
     <string name="settings_auto_update_grid_desc">Usa il GPS del dispositivo per mantenere aggiornato il grid Maidenhead</string>

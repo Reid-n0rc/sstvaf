@@ -347,8 +347,6 @@
     <string name="settings_cat_advanced">Gelişmiş</string>
     <string name="settings_cat_about">Hakkında</string>
 
-    <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Grid\'i Otomatik Güncelle (GPS)</string>
     <string name="settings_auto_update_grid_desc">Maidenhead grid\'inizi güncel tutmak için cihaz GPS\'ini kullanın</string>

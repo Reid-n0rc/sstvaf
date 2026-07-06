@@ -358,8 +358,6 @@
     <string name="settings_cat_advanced">Geavanceerd</string>
     <string name="settings_cat_about">Over</string>
 
-    <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Grid automatisch bijwerken (GPS)</string>
     <string name="settings_auto_update_grid_desc">Gebruik GPS van het apparaat om je Maidenhead-grid actueel te houden</string>

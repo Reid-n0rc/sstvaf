@@ -473,7 +473,6 @@
     <string name="swr_lockout_dismiss">关闭</string>
     <string name="swr_lockout_toast">发射已阻止 — 驻波比锁定中，请先关闭锁定横幅。</string>
 
-    <!-- ===== Time sync / manual correction ===== -->
     <!-- Untranslated — added for parity; translate when localization pass runs -->
     <string name="settings_show_volume_slider">Show Volume Slider</string>
     <string name="settings_show_volume_slider_desc">Display TX volume slider on main screen</string>

@@ -473,7 +473,6 @@
     <string name="swr_lockout_dismiss">ЗАКРЫТЬ</string>
     <string name="swr_lockout_toast">TX заблокирован — блокировка КСВ активна. Сначала закройте баннер.</string>
 
-    <!-- ===== Time sync / manual correction ===== -->
     <!-- Untranslated — added for parity; translate when localization pass runs -->
     <string name="settings_show_volume_slider">Show Volume Slider</string>
     <string name="settings_show_volume_slider_desc">Display TX volume slider on main screen</string>

@@ -358,8 +358,6 @@
     <string name="settings_cat_advanced">Lanjutan</string>
     <string name="settings_cat_about">Tentang</string>
 
-    <!-- ===== Settings: Time Sync (manual clock correction) ===== -->
-
     <!-- ===== Settings: operator identity ===== -->
     <string name="settings_auto_update_grid">Perbarui Grid Otomatis (GPS)</string>
     <string name="settings_auto_update_grid_desc">Gunakan GPS perangkat untuk menjaga grid Maidenhead tetap terkini</string>
