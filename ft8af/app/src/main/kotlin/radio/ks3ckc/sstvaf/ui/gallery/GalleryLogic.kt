@@ -101,13 +101,16 @@ internal val TxStripApproxHeight: Dp = 78.dp
 /**
  * Bottom padding for the Gallery empty-state container (issue #24).
  *
- * The TX strip is a sibling drawn *after* — and therefore on top of — the tab
- * content in the app shell (see [radio.ks3ckc.sstvaf.SstvAfApp]). In a short /
- * landscape canvas the empty-state illustration + caption is taller than the
- * remaining content area, and when centered in the *full* area its lower half
- * spills below the content bounds where the always-on TX strip paints over it,
- * clipping the caption. Reserving the strip's height as bottom padding shifts
- * the centered content up into the visible band above the strip.
+ * In the app shell (see [radio.ks3ckc.sstvaf.SstvAfApp]) the tab content sits
+ * in a `weight(1f)` Box and the always-on TX strip is the *next* sibling in the
+ * Column, so the content area's height already excludes the strip. The problem
+ * is that a Box does not clip its children: in a short / landscape canvas the
+ * empty-state illustration + caption is taller than that content Box, so
+ * centering it overflows the Box's bottom edge — and because the strip is
+ * composed after the content, it draws over that spilled-out lower portion,
+ * clipping the caption. Reserving the strip's height as bottom padding shrinks
+ * the centering region to the visible band, biasing the content up so it no
+ * longer overflows into the strip.
  *
  * A non-positive height (defensive against a bad measurement) yields no
  * padding, leaving the plain centered layout unchanged.

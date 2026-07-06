@@ -122,9 +122,11 @@ fun GalleryScreen(mainViewModel: MainViewModel) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    // Center within the region *above* the always-on TX strip: in a
-                    // short/landscape canvas the illustration would otherwise spill
-                    // below the content bounds and be clipped behind the strip (#24).
+                    // Center within the visible band, not the full content Box: in a
+                    // short/landscape canvas the illustration is taller than this Box
+                    // and (a Box doesn't clip) overflows its bottom edge, where the
+                    // later-composed TX strip draws over the spill. See
+                    // emptyStateBottomPadding (#24).
                     .padding(bottom = emptyStateBottomPadding()),
                 contentAlignment = Alignment.Center,
             ) {
