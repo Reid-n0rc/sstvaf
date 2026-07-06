@@ -62,10 +62,12 @@ fun TabRail(
             .fillMaxHeight()
             .width(84.dp)
             .background(
+                // No explicit startX/endX: those are *pixel* coordinates, so a
+                // fixed endX (84) would fade out after 84px — barely a third of
+                // the 84.dp rail on a 3x-density screen. Defaulting endX to the
+                // draw width keeps the fade spanning the whole rail at any DPI.
                 Brush.horizontalGradient(
                     listOf(BgApp.copy(alpha = 0.95f), Color.Transparent),
-                    startX = 0f,
-                    endX = 84f,
                 )
             )
             .verticalScroll(rememberScrollState())
