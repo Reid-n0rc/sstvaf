@@ -30,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.k1af.ft8af.R
 import radio.ks3ckc.sstvaf.theme.Accent
 import radio.ks3ckc.sstvaf.theme.BgApp
 import radio.ks3ckc.sstvaf.theme.TextFaint
