@@ -17,7 +17,7 @@ import radio.ks3ckc.sstvaf.ComposeMainActivity
  *
  * Runs in CI on an emulator via the `instrumented` job in
  * .github/workflows/build-release.yml. Local invocation:
- *   cd ft8af && cmd.exe /c "gradlew.bat connectedDebugAndroidTest"
+ *   cd sstvaf && cmd.exe /c "gradlew.bat connectedDebugAndroidTest"
  */
 @RunWith(AndroidJUnit4::class)
 class AppSmokeTest {

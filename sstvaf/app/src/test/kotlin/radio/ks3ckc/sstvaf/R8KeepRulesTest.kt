@@ -17,7 +17,7 @@ import java.io.File
  * that is caught by a normal unit test, so assert the configuration itself
  * stays intact.
  *
- * Unit tests run with the working directory at the module root (ft8af/app), so
+ * Unit tests run with the working directory at the module root (sstvaf/app), so
  * both files resolve relative to it.
  */
 class R8KeepRulesTest {
