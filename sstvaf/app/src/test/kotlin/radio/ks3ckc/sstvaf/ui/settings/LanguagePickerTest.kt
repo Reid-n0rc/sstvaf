@@ -108,7 +108,7 @@ class LanguagePickerTest {
         var dir: File? = File("").absoluteFile
         repeat(8) {
             val d = dir ?: return@repeat
-            for (base in listOf(File(d, "src/main/res"), File(d, "ft8af/app/src/main/res"))) {
+            for (base in listOf(File(d, "src/main/res"), File(d, "sstvaf/app/src/main/res"))) {
                 if (base.isDirectory) return File(base, rel)
             }
             dir = d.parentFile
