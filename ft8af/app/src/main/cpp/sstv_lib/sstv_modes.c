@@ -60,6 +60,17 @@ static const sstv_segment_t kScottie2Segs[] = {
     SCAN(88064.0, SSTV_COMP_R),
 };
 
+// Scottie DX: same line structure as S1/S2, 1.0800 ms/pixel -> 345.6 ms scan.
+static const sstv_segment_t kScottieDXSegs[] = {
+    TONE(1500.0, SSTV_FREQ_BLACK),
+    SCAN(345600.0, SSTV_COMP_G),
+    TONE(1500.0, SSTV_FREQ_BLACK),
+    SCAN(345600.0, SSTV_COMP_B),
+    TONE(9000.0, SSTV_FREQ_SYNC),
+    TONE(1500.0, SSTV_FREQ_BLACK),
+    SCAN(345600.0, SSTV_COMP_R),
+};
+
 // ---------------------------------------------------------------------------
 // Robot 36 (Y + alternating chroma). Line: sync 9000 -> porch 3000 (1500) ->
 // Y 88000 -> sep 4500 (1500 on even frames = R-Y follows, 2300 on odd =
@@ -109,6 +120,10 @@ static const sstv_segment_t kRobot72Segs[] = {
 static const sstv_segment_t kPd50Segs[]  = { PD_SEGS(91520.0) };
 static const sstv_segment_t kPd90Segs[]  = { PD_SEGS(170240.0) };
 static const sstv_segment_t kPd120Segs[] = { PD_SEGS(121600.0) };
+static const sstv_segment_t kPd160Segs[] = { PD_SEGS(195584.0) };
+static const sstv_segment_t kPd180Segs[] = { PD_SEGS(183040.0) };
+static const sstv_segment_t kPd240Segs[] = { PD_SEGS(244480.0) };
+static const sstv_segment_t kPd290Segs[] = { PD_SEGS(228800.0) };
 
 #define NSEG(a) ((int)(sizeof(a) / sizeof((a)[0])))
 
@@ -152,6 +167,40 @@ static const sstv_mode_t kModes[SSTV_NUM_MODES] = {
     { SSTV_MODE_PD120, "PD 120", 95, 640, 496,
       SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
       0.0, 508480.0, 20000.0, 0.0, NSEG(kPd120Segs), kPd120Segs },
+
+    // ---- appended batch (issue #16) ---------------------------------------
+
+    { SSTV_MODE_SCOTTIEDX, "Scottie DX", 76, 320, 256,
+      SSTV_COLOR_GBR, SSTV_SYNC_BEFORE_RED, 1,
+      9000.0, 1050300.0, 9000.0,
+      1500.0 + 345600.0 + 1500.0 + 345600.0,  // 694200
+      NSEG(kScottieDXSegs), kScottieDXSegs },
+
+    // Martin 3 / 4: identical horizontal timing to Martin 1 / 2 (same lpm in
+    // the SSTV mode list), transmitted for 128 lines instead of 256.
+    { SSTV_MODE_MARTIN3, "Martin 3", 36, 320, 128,
+      SSTV_COLOR_GBR, SSTV_SYNC_LINE_START, 1,
+      0.0, 446446.0, 4862.0, 0.0, NSEG(kMartin1Segs), kMartin1Segs },
+
+    { SSTV_MODE_MARTIN4, "Martin 4", 32, 320, 128,
+      SSTV_COLOR_GBR, SSTV_SYNC_LINE_START, 1,
+      0.0, 226798.0, 4862.0, 0.0, NSEG(kMartin2Segs), kMartin2Segs },
+
+    { SSTV_MODE_PD160, "PD 160", 98, 512, 400,
+      SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
+      0.0, 804416.0, 20000.0, 0.0, NSEG(kPd160Segs), kPd160Segs },
+
+    { SSTV_MODE_PD180, "PD 180", 96, 640, 496,
+      SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
+      0.0, 754240.0, 20000.0, 0.0, NSEG(kPd180Segs), kPd180Segs },
+
+    { SSTV_MODE_PD240, "PD 240", 97, 640, 496,
+      SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
+      0.0, 1000000.0, 20000.0, 0.0, NSEG(kPd240Segs), kPd240Segs },
+
+    { SSTV_MODE_PD290, "PD 290", 94, 800, 616,
+      SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
+      0.0, 937280.0, 20000.0, 0.0, NSEG(kPd290Segs), kPd290Segs },
 };
 
 const sstv_mode_t* sstv_mode_get(int mode_id)

@@ -42,6 +42,13 @@ static const golden_t kGolden[] = {
     { SSTV_MODE_PD50,     "PD 50",     93, 1, 320, 256, 2, 388160.0, 0.0,  49684480.0 },
     { SSTV_MODE_PD90,     "PD 90",     99, 0, 320, 256, 2, 703040.0, 0.0,  89989120.0 },
     { SSTV_MODE_PD120,    "PD 120",    95, 0, 640, 496, 2, 508480.0, 0.0, 126103040.0 },
+    { SSTV_MODE_SCOTTIEDX,"Scottie DX",76, 1, 320, 256, 1,1050300.0, 9000.0, 268885800.0 },
+    { SSTV_MODE_MARTIN3,  "Martin 3",  36, 0, 320, 128, 1, 446446.0, 0.0,  57145088.0 },
+    { SSTV_MODE_MARTIN4,  "Martin 4",  32, 1, 320, 128, 1, 226798.0, 0.0,  29030144.0 },
+    { SSTV_MODE_PD160,    "PD 160",    98, 1, 512, 400, 2, 804416.0, 0.0, 160883200.0 },
+    { SSTV_MODE_PD180,    "PD 180",    96, 0, 640, 496, 2, 754240.0, 0.0, 187051520.0 },
+    { SSTV_MODE_PD240,    "PD 240",    97, 1, 640, 496, 2,1000000.0, 0.0, 248000000.0 },
+    { SSTV_MODE_PD290,    "PD 290",    94, 1, 800, 616, 2, 937280.0, 0.0, 288682240.0 },
 };
 #define N_GOLD ((int)(sizeof(kGolden) / sizeof(kGolden[0])))
 
@@ -59,7 +66,7 @@ int main(void)
     printf("sstv_modes tests:\n");
     char label[160];
 
-    check(SSTV_NUM_MODES == N_GOLD, "mode count is 9");
+    check(SSTV_NUM_MODES == N_GOLD, "mode count is 16");
 
     for (int i = 0; i < N_GOLD; i++) {
         const golden_t* g = &kGolden[i];

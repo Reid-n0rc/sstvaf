@@ -40,6 +40,16 @@ static const rt_case_t kCases[] = {
     { SSTV_MODE_PD50,     33.0 },
     { SSTV_MODE_PD90,     45.0 },
     { SSTV_MODE_PD120,    30.0 },
+    // Appended batch (issue #16). Floors set ~3 dB below the clean measured
+    // PSNR (printed by the info lines); GBR modes carry channels verbatim,
+    // PD modes lose chroma to averaging.
+    { SSTV_MODE_SCOTTIEDX, 58.0 },  // clean min ~63 dB (1.08 ms/px, near-lossless)
+    { SSTV_MODE_MARTIN3,   44.0 },  // clean min ~47.7 (M1 timing)
+    { SSTV_MODE_MARTIN4,   30.0 },  // clean min ~32.9 (M2 timing)
+    { SSTV_MODE_PD160,     39.0 },  // clean min ~43.4
+    { SSTV_MODE_PD180,     36.0 },  // clean min ~40.3
+    { SSTV_MODE_PD240,     39.0 },  // clean min ~43.0
+    { SSTV_MODE_PD290,     36.0 },  // clean min ~40.2
 };
 #define N_CASES ((int)(sizeof(kCases) / sizeof(kCases[0])))
 
