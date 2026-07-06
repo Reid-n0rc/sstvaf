@@ -121,7 +121,11 @@ fun GalleryScreen(mainViewModel: MainViewModel) {
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    // Center within the region *above* the always-on TX strip: in a
+                    // short/landscape canvas the illustration would otherwise spill
+                    // below the content bounds and be clipped behind the strip (#24).
+                    .padding(bottom = emptyStateBottomPadding()),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {

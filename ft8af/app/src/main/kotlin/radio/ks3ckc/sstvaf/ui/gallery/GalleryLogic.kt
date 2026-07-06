@@ -1,5 +1,7 @@
 package radio.ks3ckc.sstvaf.ui.gallery
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.k1af.ft8af.R
 import radio.ks3ckc.sstvaf.gallery.ImageDirection
 import radio.ks3ckc.sstvaf.gallery.SavedImage
@@ -82,6 +84,36 @@ internal fun galleryEmptyStateRes(filter: GalleryFilter): Int = when (filter) {
     GalleryFilter.TX -> R.string.gallery_empty_tx
     else -> R.string.gallery_empty_rx
 }
+
+/**
+ * Approximate collapsed height of the always-on TX status strip
+ * (radio.ks3ckc.sstvaf.ui.components.TxStrip) with its volume slider hidden.
+ * The strip has no fixed height — its size comes from its Column vertical
+ * padding (8dp + 8dp) + 10dp inter-row spacing, plus the status row (~22dp
+ * indicator) and the frequency/TUNE chip row (~30dp: 7dp+7dp padding around a
+ * ~16dp label). That totals ~78dp, so this is a measured approximation used
+ * only to bias the Gallery empty state up out from behind the strip (issue
+ * #24). With the volume slider shown the strip is taller (~+46dp); the extra
+ * spill in that rarer case is acceptable for a cosmetic empty state.
+ */
+internal val TxStripApproxHeight: Dp = 78.dp
+
+/**
+ * Bottom padding for the Gallery empty-state container (issue #24).
+ *
+ * The TX strip is a sibling drawn *after* — and therefore on top of — the tab
+ * content in the app shell (see [radio.ks3ckc.sstvaf.SstvAfApp]). In a short /
+ * landscape canvas the empty-state illustration + caption is taller than the
+ * remaining content area, and when centered in the *full* area its lower half
+ * spills below the content bounds where the always-on TX strip paints over it,
+ * clipping the caption. Reserving the strip's height as bottom padding shifts
+ * the centered content up into the visible band above the strip.
+ *
+ * A non-positive height (defensive against a bad measurement) yields no
+ * padding, leaving the plain centered layout unchanged.
+ */
+internal fun emptyStateBottomPadding(txStripHeight: Dp = TxStripApproxHeight): Dp =
+    txStripHeight.coerceAtLeast(0.dp)
 
 // ---------------------------------------------------------------------------
 // Viewer-sheet metadata formatting
