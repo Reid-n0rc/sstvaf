@@ -42,4 +42,25 @@ class TxCameraCaptureTest {
         val b = cameraCaptureFile(cache, nowMs = 200L)
         assertThat(a).isNotEqualTo(b)
     }
+
+    @Test
+    fun `same timestamp never returns a path already in flight`() {
+        val cache = freshCacheDir()
+        val first = cameraCaptureFile(cache, nowMs = 100L)
+        first.writeBytes(byteArrayOf(1)) // an earlier capture already staged here
+        // A second launch in the same millisecond must not reuse the path.
+        val second = cameraCaptureFile(cache, nowMs = 100L)
+        assertThat(second).isNotEqualTo(first)
+        assertThat(second.exists()).isFalse()
+    }
+
+    @Test
+    fun `reuses an existing camera_captures subdir`() {
+        val cache = freshCacheDir()
+        assertThat(File(cache, CAMERA_CAPTURE_DIR).mkdirs()).isTrue() // pre-create
+        // mkdirs() now returns false, but the function must still succeed.
+        val file = cameraCaptureFile(cache, nowMs = 1L)
+        assertThat(file.parentFile!!.isDirectory).isTrue()
+        assertThat(file.name).isEqualTo("capture_1.jpg")
+    }
 }

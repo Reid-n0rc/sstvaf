@@ -51,6 +51,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -387,7 +388,9 @@ private fun CornerAffordance(text: String, enabled: Boolean, onClick: () -> Unit
         modifier = Modifier
             .clip(RoundedCornerShape(6.dp))
             .background(Color.Black.copy(alpha = 0.55f))
-            .clickable(enabled = enabled) { onClick() }
+            // Role.Button so TalkBack announces this pill as a button rather
+            // than plain text (CHANGE / CAMERA are actionable, not labels).
+            .clickable(enabled = enabled, role = Role.Button) { onClick() }
             .padding(horizontal = 8.dp, vertical = 4.dp),
     )
 }

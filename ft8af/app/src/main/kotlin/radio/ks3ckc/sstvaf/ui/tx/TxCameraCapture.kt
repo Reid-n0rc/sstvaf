@@ -26,16 +26,27 @@ import java.io.File
 internal const val CAMERA_CAPTURE_DIR = "camera_captures"
 
 /**
- * A fresh file to receive a camera capture, named by [nowMs] so back-to-back
- * shots never collide. Creates the [CAMERA_CAPTURE_DIR] subdir under
- * [cacheDir] if needed. The capture is throwaway staging — once loaded into
- * the composer's downsampled source bitmap it is no longer needed — so it
- * lives in the cache dir (evictable) rather than filesDir.
+ * A fresh file to receive a camera capture, named by [nowMs]. Creates the
+ * [CAMERA_CAPTURE_DIR] subdir under [cacheDir] if needed and never returns a
+ * path that already exists, so two shots in the same millisecond (or a
+ * lingering capture) can't collide. The capture is throwaway staging — once
+ * loaded into the composer's downsampled source bitmap it is no longer needed
+ * — so it lives in the cache dir (evictable) rather than filesDir.
  */
 internal fun cameraCaptureFile(cacheDir: File, nowMs: Long): File {
     val dir = File(cacheDir, CAMERA_CAPTURE_DIR)
-    dir.mkdirs()
-    return File(dir, "capture_$nowMs.jpg")
+    // mkdirs() returns false when the dir already exists (the common case), so
+    // gate on the actual outcome — we only need it to end up a directory.
+    if (!dir.isDirectory) dir.mkdirs()
+    // Suffix until the name is free: nowMs alone isn't unique across two
+    // launches within the same millisecond, and we must never hand back a path
+    // that's mid-flight for an earlier capture.
+    var candidate = File(dir, "capture_$nowMs.jpg")
+    var suffix = 1
+    while (candidate.exists()) {
+        candidate = File(dir, "capture_${nowMs}_${suffix++}.jpg")
+    }
+    return candidate
 }
 
 /**
