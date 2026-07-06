@@ -47,6 +47,40 @@ class TxScreenLogicTest {
             .isEqualTo(TxGate.READY)
     }
 
+    // -- previewMaxHeightDp ------------------------------------------------------
+
+    @Test
+    fun `portrait returns null so the frame fills the width`() {
+        assertThat(previewMaxHeightDp(screenWidthDp = 393, screenHeightDp = 851, aspect = 1.25f))
+            .isNull()
+    }
+
+    @Test
+    fun `square returns null`() {
+        assertThat(previewMaxHeightDp(screenWidthDp = 600, screenHeightDp = 600, aspect = 1.25f))
+            .isNull()
+    }
+
+    @Test
+    fun `landscape caps at half the screen height when width allows`() {
+        // 851x393 landscape: half-height 196.5 < width bound 851/1.25=680.8.
+        assertThat(previewMaxHeightDp(screenWidthDp = 851, screenHeightDp = 393, aspect = 1.25f))
+            .isWithin(0.01f).of(196.5f)
+    }
+
+    @Test
+    fun `landscape width bound wins for a very wide frame on a short screen`() {
+        // aspect 4.0: width bound 400/4=100 < half-height 150 → width wins.
+        assertThat(previewMaxHeightDp(screenWidthDp = 400, screenHeightDp = 300, aspect = 4.0f))
+            .isWithin(0.01f).of(100f)
+    }
+
+    @Test
+    fun `non-positive aspect returns null`() {
+        assertThat(previewMaxHeightDp(screenWidthDp = 851, screenHeightDp = 393, aspect = 0f))
+            .isNull()
+    }
+
     // -- labels ------------------------------------------------------------------
 
     @Test

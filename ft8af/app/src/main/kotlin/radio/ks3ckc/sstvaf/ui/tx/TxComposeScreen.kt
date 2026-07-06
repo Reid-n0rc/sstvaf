@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -290,10 +291,20 @@ private fun TxPreviewFrame(
     onTakePhoto: () -> Unit,
     onGesture: (panDx: Float, panDy: Float, zoomFactor: Float, previewW: Float, previewH: Float) -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(mode.width.toFloat() / mode.height.toFloat())
+    val aspect = mode.width.toFloat() / mode.height.toFloat()
+    val config = LocalConfiguration.current
+    // Landscape gets a height cap so the frame doesn't stretch to full width
+    // and push the controls off-screen; portrait fills the width as before.
+    val maxHeightDp = previewMaxHeightDp(config.screenWidthDp, config.screenHeightDp, aspect)
+    val sizeModifier = if (maxHeightDp == null) {
+        Modifier.fillMaxWidth()
+    } else {
+        Modifier.height(maxHeightDp.dp)
+    }
+    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+      Box(
+        modifier = sizeModifier
+            .aspectRatio(aspect)
             .clip(RoundedCornerShape(12.dp))
             .background(BgSurface)
             .border(1.dp, BgSurface3, RoundedCornerShape(12.dp)),
@@ -361,6 +372,7 @@ private fun TxPreviewFrame(
                 )
             }
         }
+      }
     }
 }
 
