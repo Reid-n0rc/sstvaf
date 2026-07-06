@@ -540,7 +540,7 @@ jobs:
             ls -la >&2
             exit 1
           fi
-          mv "$src" "FT8AF-${{ steps.tag.outputs.release_tag }}.apk"
+          mv "$src" "SSTVAF-${{ steps.tag.outputs.release_tag }}.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v7
@@ -576,7 +576,7 @@ jobs:
           # releases got tagged on main's HEAD and sorted under its old date on
           # the Releases page.
           target_commitish: ${{ github.sha }}
-          files: ft8af/app/build/outputs/apk/release/FT8AF-*.apk
+          files: ft8af/app/build/outputs/apk/release/SSTVAF-*.apk
           generate_release_notes: true
           # android-dev.* releases are flagged as prerelease so they sort under
           # the latest android-v* and don't get picked up by downstream tooling
