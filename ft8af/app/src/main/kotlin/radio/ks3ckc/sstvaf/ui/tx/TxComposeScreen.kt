@@ -1,6 +1,7 @@
 package radio.ks3ckc.sstvaf.ui.tx
 
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,8 +48,10 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -108,21 +111,40 @@ fun TxComposeScreen(mainViewModel: MainViewModel) {
     val txProgress by mainViewModel.sstvTransmitter.txProgress.observeAsState(0f)
     val isTuning by mainViewModel.tuneOperator.mutableIsTuning.observeAsState(false)
 
+    // Load a picked/captured image into the source bitmap and reset the crop.
+    // Shared by the photo picker and the camera capture below.
+    val applyImageUri: (Uri) -> Unit = { uri ->
+        val bitmap = loadSourceBitmap(
+            context.contentResolver, uri,
+            composition.mode.width, composition.mode.height,
+        )
+        if (bitmap != null) {
+            sourceBitmap = bitmap
+            composition = composition.copy(
+                sourceUri = uri.toString(), zoom = 1f, panX = 0f, panY = 0f,
+            )
+        }
+    }
+
     val pickImage = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia(),
-    ) { uri ->
-        if (uri != null) {
-            val bitmap = loadSourceBitmap(
-                context.contentResolver, uri,
-                composition.mode.width, composition.mode.height,
-            )
-            if (bitmap != null) {
-                sourceBitmap = bitmap
-                composition = composition.copy(
-                    sourceUri = uri.toString(), zoom = 1f, panX = 0f, panY = 0f,
-                )
-            }
-        }
+    ) { uri -> if (uri != null) applyImageUri(uri) }
+
+    // The URI the camera app is writing the in-flight capture into; read back
+    // by the TakePicture callback (the contract only reports success/failure,
+    // not the target). Cleared once consumed.
+var pendingCaptureUri by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<Uri?>(null) }
+    val takePicture = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture(),
+    ) { success ->
+        pendingCaptureUri?.let { uri -> if (success) applyImageUri(uri) }
+        pendingCaptureUri = null
+    }
+    val launchCamera: () -> Unit = {
+        val file = cameraCaptureFile(context.cacheDir, System.currentTimeMillis())
+        val uri = cameraCaptureUri(context, file)
+        pendingCaptureUri = uri
+        takePicture.launch(uri)
     }
 
     // The live preview composite, re-rendered on every edit. The bitmaps are
@@ -160,6 +182,7 @@ fun TxComposeScreen(mainViewModel: MainViewModel) {
                 mode = composition.mode,
                 gesturesEnabled = !isTransmitting,
                 onPickImage = { pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                onTakePhoto = launchCamera,
                 onGesture = { panDx, panDy, zoomFactor, previewW, previewH ->
                     val src = sourceBitmap ?: return@TxPreviewFrame
                     composition = applyPanZoomGesture(
@@ -266,12 +289,23 @@ private fun TxPreviewFrame(
     mode: SstvMode,
     gesturesEnabled: Boolean,
     onPickImage: () -> Unit,
+    onTakePhoto: () -> Unit,
     onGesture: (panDx: Float, panDy: Float, zoomFactor: Float, previewW: Float, previewH: Float) -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(mode.width.toFloat() / mode.height.toFloat())
+    val aspect = mode.width.toFloat() / mode.height.toFloat()
+    val config = LocalConfiguration.current
+    // Landscape gets a height cap so the frame doesn't stretch to full width
+    // and push the controls off-screen; portrait fills the width as before.
+    val maxHeightDp = previewMaxHeightDp(config.screenWidthDp, config.screenHeightDp, aspect)
+    val sizeModifier = if (maxHeightDp == null) {
+        Modifier.fillMaxWidth()
+    } else {
+        Modifier.height(maxHeightDp.dp)
+    }
+    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+      Box(
+        modifier = sizeModifier
+            .aspectRatio(aspect)
             .clip(RoundedCornerShape(12.dp))
             .background(BgSurface)
             .border(1.dp, BgSurface3, RoundedCornerShape(12.dp)),
@@ -292,11 +326,16 @@ private fun TxPreviewFrame(
                     fontSize = 13.sp,
                 )
                 Spacer(Modifier.height(16.dp))
-                Button(
-                    onClick = onPickImage,
-                    colors = ButtonDefaults.buttonColors(containerColor = Accent),
-                ) {
-                    Text(stringResource(R.string.tx_pick_button), color = Color.Black)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Button(
+                        onClick = onPickImage,
+                        colors = ButtonDefaults.buttonColors(containerColor = Accent),
+                    ) {
+                        Text(stringResource(R.string.tx_pick_button), color = Color.Black)
+                    }
+                    OutlinedButton(onClick = onTakePhoto) {
+                        Text(stringResource(R.string.tx_camera_button), color = TextPrimary)
+                    }
                 }
             }
         } else {
@@ -315,22 +354,45 @@ private fun TxPreviewFrame(
                         }
                     },
             )
-            // Re-pick affordance in the corner.
-            Text(
-                text = stringResource(R.string.tx_change_photo),
-                color = TextPrimary,
-                fontSize = 11.sp,
-                fontFamily = GeistMonoFamily,
+            // Re-pick affordances in the corner: library (CHANGE) and camera.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(Color.Black.copy(alpha = 0.55f))
-                    .clickable(enabled = gesturesEnabled) { onPickImage() }
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-            )
+                    .padding(8.dp),
+            ) {
+                CornerAffordance(
+                    text = stringResource(R.string.tx_camera_photo),
+                    enabled = gesturesEnabled,
+                    onClick = onTakePhoto,
+                )
+                CornerAffordance(
+                    text = stringResource(R.string.tx_change_photo),
+                    enabled = gesturesEnabled,
+                    onClick = onPickImage,
+                )
+            }
         }
+      }
     }
+}
+
+/** A small dark-pill tap target over the preview corner (CHANGE / CAMERA). */
+@Composable
+private fun CornerAffordance(text: String, enabled: Boolean, onClick: () -> Unit) {
+    Text(
+        text = text,
+        color = TextPrimary,
+        fontSize = 11.sp,
+        fontFamily = GeistMonoFamily,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(Color.Black.copy(alpha = 0.55f))
+            // Role.Button so TalkBack announces this pill as a button rather
+            // than plain text (CHANGE / CAMERA are actionable, not labels).
+            .clickable(enabled = enabled, role = Role.Button) { onClick() }
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+    )
 }
 
 /** Horizontal mode selector, labels like "Scottie 1 · 111 s". */

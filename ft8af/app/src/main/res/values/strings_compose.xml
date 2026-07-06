@@ -678,8 +678,10 @@
     <string name="tx_empty_title">Pick a picture to send</string>
     <string name="tx_empty_body">Photos are cropped to the SSTV mode\'s frame</string>
     <string name="tx_pick_button">Pick picture</string>
+    <string name="tx_camera_button">Camera</string>
     <string name="tx_preview_description">Transmit preview</string>
     <string name="tx_change_photo">CHANGE</string>
+    <string name="tx_camera_photo">CAMERA</string>
     <string name="tx_overlay_add">Add text</string>
     <string name="tx_overlay_edit">Edit text</string>
     <string name="tx_overlay_remove">Remove</string>

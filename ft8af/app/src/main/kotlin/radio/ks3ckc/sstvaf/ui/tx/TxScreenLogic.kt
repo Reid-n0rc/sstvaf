@@ -81,6 +81,32 @@ internal fun initialTxMode(configValue: String?): SstvMode =
     SstvMode.entries.firstOrNull { it.name == configValue } ?: SstvMode.SCOTTIE_1
 
 // ---------------------------------------------------------------------------
+// Preview frame sizing
+// ---------------------------------------------------------------------------
+
+/**
+ * Height cap (dp) for the mode-aspect preview frame so the pick/camera
+ * buttons, mode chips and TRANSMIT stay reachable.
+ *
+ * Portrait (or square) returns null: the frame fills the width as before, and
+ * its aspect-derived height is comfortably shorter than the tall screen.
+ *
+ * Landscape returns a bound — the frame is then sized by height and centered,
+ * so a very wide screen no longer stretches it to full width (which made it
+ * taller than the whole screen and shoved every control off the bottom). The
+ * cap is ~half the screen height, further limited so the aspect-derived width
+ * (`height * aspect`) still fits the screen width.
+ *
+ * @param aspect frame width / height (e.g. 320/256 = 1.25).
+ */
+internal fun previewMaxHeightDp(screenWidthDp: Int, screenHeightDp: Int, aspect: Float): Float? {
+    if (screenHeightDp >= screenWidthDp || aspect <= 0f) return null
+    val byHeight = screenHeightDp * 0.5f
+    val byWidth = screenWidthDp / aspect
+    return minOf(byHeight, byWidth)
+}
+
+// ---------------------------------------------------------------------------
 // Gestures
 // ---------------------------------------------------------------------------
 
