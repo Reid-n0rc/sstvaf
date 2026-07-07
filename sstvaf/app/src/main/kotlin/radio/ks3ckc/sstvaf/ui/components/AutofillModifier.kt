@@ -82,7 +82,9 @@ fun Modifier.autofill(
 
     androidx.compose.runtime.DisposableEffect(autofillTree, node) {
         autofillTree += node
-        onDispose { autofillTree -= node }
+        // AutofillTree exposes a `plusAssign` operator but no `minusAssign`; remove
+        // the node from its public children map keyed by the node's id instead.
+        onDispose { autofillTree.children.remove(node.id) }
     }
 
     return this
