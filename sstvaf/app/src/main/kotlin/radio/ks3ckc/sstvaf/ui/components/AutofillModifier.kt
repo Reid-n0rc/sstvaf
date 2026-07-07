@@ -71,8 +71,20 @@ fun Modifier.autofill(
     onFill: (String) -> Unit,
 ): Modifier {
     val autofill = LocalAutofill.current
-    val node = AutofillNode(autofillTypes = credentialAutofillTypes(role), onFill = onFill)
-    LocalAutofillTree.current += node
+    val autofillTree = LocalAutofillTree.current
+    val updatedOnFill = androidx.compose.runtime.rememberUpdatedState(onFill)
+    val node = androidx.compose.runtime.remember(role) {
+        AutofillNode(
+            autofillTypes = credentialAutofillTypes(role),
+            onFill = { updatedOnFill.value(it) },
+        )
+    }
+
+    androidx.compose.runtime.DisposableEffect(autofillTree, node) {
+        autofillTree += node
+        onDispose { autofillTree -= node }
+    }
+
     return this
         .onGloballyPositioned { node.boundingBox = it.boundsInWindow() }
         .onFocusChanged { state ->
