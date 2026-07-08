@@ -27,8 +27,9 @@ Android phone or tablet.
 - **Pre-transmit confirmation** with mode and duration, plus a live progress
   bar while the image is on the air
 
-### Nine SSTV modes
-Scottie 1 / 2 · Martin 1 / 2 · Robot 36 / 72 · PD 50 / 90 / 120
+### Sixteen SSTV modes
+Scottie 1 / 2 / DX · Martin 1 / 2 / 3 / 4 · Robot 36 / 72 ·
+PD 50 / 90 / 120 / 160 / 180 / 240 / 290
 
 ### Radio control
 - USB CAT control for the same rig set as FT8AF (Icom, Yaesu, Kenwood,

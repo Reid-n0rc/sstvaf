@@ -40,6 +40,13 @@ static const struct {
     { SSTV_MODE_PD50,     "PD 50",     0xcc7d745baf6c7a5dull,  607134 },
     { SSTV_MODE_PD90,     "PD 90",     0x10cd021bcd945bb7ull, 1090790 },
     { SSTV_MODE_PD120,    "PD 120",    0xa5d7ccbda46e5316ull, 1524157 },
+    { SSTV_MODE_SCOTTIEDX, "Scottie DX", 0xe8ff205b37af4212ull, 3237550 },
+    { SSTV_MODE_MARTIN3,  "Martin 3",  0xa40ed8b4e6644a5eull,  370265 },
+    { SSTV_MODE_MARTIN4,  "Martin 4",  0xf76fe6a733f9cde3ull,  201575 },
+    { SSTV_MODE_PD160,    "PD 160",    0x38db67d7bf30aea9ull, 1941519 },
+    { SSTV_MODE_PD180,    "PD 180",    0x7635d2b786cdb648ull, 2255539 },
+    { SSTV_MODE_PD240,    "PD 240",    0x92e2fab704adfecfull, 2986920 },
+    { SSTV_MODE_PD290,    "PD 290",    0xfd58975843c432c7ull, 3475107 },
 };
 
 // Measure the tone frequency around absolute time t_us (window fully inside
@@ -86,7 +93,14 @@ int main(int argc, char** argv)
                    mode_id == SSTV_MODE_SCOTTIE1 ? "SCOTTIE1" :
                    mode_id == SSTV_MODE_SCOTTIE2 ? "SCOTTIE2" :
                    mode_id == SSTV_MODE_PD50 ? "PD50" :
-                   mode_id == SSTV_MODE_PD90 ? "PD90" : "PD120",
+                   mode_id == SSTV_MODE_PD90 ? "PD90" :
+                   mode_id == SSTV_MODE_PD120 ? "PD120" :
+                   mode_id == SSTV_MODE_SCOTTIEDX ? "SCOTTIEDX" :
+                   mode_id == SSTV_MODE_MARTIN3 ? "MARTIN3" :
+                   mode_id == SSTV_MODE_MARTIN4 ? "MARTIN4" :
+                   mode_id == SSTV_MODE_PD160 ? "PD160" :
+                   mode_id == SSTV_MODE_PD180 ? "PD180" :
+                   mode_id == SSTV_MODE_PD240 ? "PD240" : "PD290",
                    m->name, (unsigned long long)h, got);
             free(q);
             free(buf);
@@ -136,7 +150,8 @@ int main(int argc, char** argv)
         check_near(freq_at(buf, got, sync_t + m->sync_us * 0.25, win), 1200.0,
                    6.0, label);
 
-        if (m->id == SSTV_MODE_SCOTTIE1 || m->id == SSTV_MODE_SCOTTIE2) {
+        if (m->id == SSTV_MODE_SCOTTIE1 || m->id == SSTV_MODE_SCOTTIE2 ||
+            m->id == SSTV_MODE_SCOTTIEDX) {
             // Scottie: one-off 9 ms starting sync right after the VIS.
             snprintf(label, sizeof(label), "%s: 9 ms starting sync after VIS",
                      m->name);

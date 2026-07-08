@@ -25,6 +25,13 @@ class SstvModeTest {
             SstvMode.PD_50 to 6,
             SstvMode.PD_90 to 7,
             SstvMode.PD_120 to 8,
+            SstvMode.SCOTTIE_DX to 9,
+            SstvMode.MARTIN_3 to 10,
+            SstvMode.MARTIN_4 to 11,
+            SstvMode.PD_160 to 12,
+            SstvMode.PD_180 to 13,
+            SstvMode.PD_240 to 14,
+            SstvMode.PD_290 to 15,
         )
         assertThat(expected).hasSize(SstvMode.entries.size)
         for ((mode, id) in expected) {
@@ -56,6 +63,13 @@ class SstvModeTest {
         assertThat(SstvMode.PD_50.width to SstvMode.PD_50.height).isEqualTo(320 to 256)
         assertThat(SstvMode.PD_90.width to SstvMode.PD_90.height).isEqualTo(320 to 256)
         assertThat(SstvMode.PD_120.width to SstvMode.PD_120.height).isEqualTo(640 to 496)
+        assertThat(SstvMode.SCOTTIE_DX.width to SstvMode.SCOTTIE_DX.height).isEqualTo(320 to 256)
+        assertThat(SstvMode.MARTIN_3.width to SstvMode.MARTIN_3.height).isEqualTo(320 to 256)
+        assertThat(SstvMode.MARTIN_4.width to SstvMode.MARTIN_4.height).isEqualTo(320 to 256)
+        assertThat(SstvMode.PD_160.width to SstvMode.PD_160.height).isEqualTo(512 to 400)
+        assertThat(SstvMode.PD_180.width to SstvMode.PD_180.height).isEqualTo(640 to 496)
+        assertThat(SstvMode.PD_240.width to SstvMode.PD_240.height).isEqualTo(640 to 496)
+        assertThat(SstvMode.PD_290.width to SstvMode.PD_290.height).isEqualTo(800 to 616)
     }
 
     @Test
@@ -69,6 +83,13 @@ class SstvModeTest {
         assertThat(SstvMode.PD_50.visCode).isEqualTo(93)
         assertThat(SstvMode.PD_90.visCode).isEqualTo(99)
         assertThat(SstvMode.PD_120.visCode).isEqualTo(95)
+        assertThat(SstvMode.SCOTTIE_DX.visCode).isEqualTo(76)
+        assertThat(SstvMode.MARTIN_3.visCode).isEqualTo(36)
+        assertThat(SstvMode.MARTIN_4.visCode).isEqualTo(32)
+        assertThat(SstvMode.PD_160.visCode).isEqualTo(98)
+        assertThat(SstvMode.PD_180.visCode).isEqualTo(96)
+        assertThat(SstvMode.PD_240.visCode).isEqualTo(94)
+        assertThat(SstvMode.PD_290.visCode).isEqualTo(97)
     }
 
     @Test
@@ -89,6 +110,13 @@ class SstvModeTest {
             SstvMode.PD_50 to "PD50",
             SstvMode.PD_90 to "PD90",
             SstvMode.PD_120 to "PD120",
+            SstvMode.SCOTTIE_DX to "SDX",
+            SstvMode.MARTIN_3 to "M3",
+            SstvMode.MARTIN_4 to "M4",
+            SstvMode.PD_160 to "PD160",
+            SstvMode.PD_180 to "PD180",
+            SstvMode.PD_240 to "PD240",
+            SstvMode.PD_290 to "PD290",
         )
         for ((mode, code) in expected) {
             assertThat(mode.shortCode).isEqualTo(code)
@@ -111,6 +139,13 @@ class SstvModeTest {
             SstvMode.PD_50 to 50.59448,
             SstvMode.PD_90 to 90.89912,
             SstvMode.PD_120 to 127.01304,
+            SstvMode.SCOTTIE_DX to 269.7958,
+            SstvMode.MARTIN_3 to 30.855344,
+            SstvMode.MARTIN_4 to 16.797872,
+            SstvMode.PD_160 to 161.7932,
+            SstvMode.PD_180 to 187.96152,
+            SstvMode.PD_240 to 248.91,
+            SstvMode.PD_290 to 289.59224,
         )
         for ((mode, seconds) in expectedSeconds) {
             assertThat(mode.txDurationSeconds).isWithin(0.001).of(seconds)
@@ -130,6 +165,6 @@ class SstvModeTest {
             assertThat(SstvMode.fromModeId(mode.modeId)).isEqualTo(mode)
         }
         assertThat(SstvMode.fromModeId(-1)).isNull()
-        assertThat(SstvMode.fromModeId(9)).isNull()
+        assertThat(SstvMode.fromModeId(16)).isNull()
     }
 }

@@ -1,7 +1,7 @@
 package radio.ks3ckc.sstvaf.sstv
 
 /**
- * The nine SSTV modes implemented by the native codec (cpp/sstv_lib).
+ * The sixteen SSTV modes implemented by the native codec (cpp/sstv_lib).
  *
  * [modeId] MUST match the `SSTV_MODE_*` enum in `cpp/sstv_lib/sstv.h` — the
  * id crosses the JNI boundary verbatim. The rest of the fields mirror the
@@ -28,6 +28,13 @@ enum class SstvMode(
     PD_50(6, "PD 50", "PD50", 320, 256, 93, 50.59448),
     PD_90(7, "PD 90", "PD90", 320, 256, 99, 90.89912),
     PD_120(8, "PD 120", "PD120", 640, 496, 95, 127.01304),
+    SCOTTIE_DX(9, "Scottie DX", "SDX", 320, 256, 76, 269.7958),
+    MARTIN_3(10, "Martin 3", "M3", 320, 256, 36, 30.855344),
+    MARTIN_4(11, "Martin 4", "M4", 320, 256, 32, 16.797872),
+    PD_160(12, "PD 160", "PD160", 512, 400, 98, 161.7932),
+    PD_180(13, "PD 180", "PD180", 640, 496, 96, 187.96152),
+    PD_240(14, "PD 240", "PD240", 640, 496, 94, 248.91),
+    PD_290(15, "PD 290", "PD290", 800, 616, 97, 289.59224),
     ;
 
     /** Total scan lines in a full image (== [height]). */

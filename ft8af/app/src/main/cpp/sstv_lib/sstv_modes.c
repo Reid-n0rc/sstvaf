@@ -35,6 +35,31 @@ static const sstv_segment_t kMartin2Segs[] = {
     TONE(572.0, SSTV_FREQ_BLACK),
 };
 
+// Martin 3 / 4 continue the Martin 2x scan-rate progression: each halves the
+// per-pixel scan time of the previous mode (M1 457.6 µs/px, M2 228.8, M3 114.4,
+// M4 57.2), keeping the 4.862 ms sync and 0.572 ms porch/separators.
+static const sstv_segment_t kMartin3Segs[] = {
+    TONE(4862.0, SSTV_FREQ_SYNC),
+    TONE(572.0, SSTV_FREQ_BLACK),
+    SCAN(36608.0, SSTV_COMP_G),
+    TONE(572.0, SSTV_FREQ_BLACK),
+    SCAN(36608.0, SSTV_COMP_B),
+    TONE(572.0, SSTV_FREQ_BLACK),
+    SCAN(36608.0, SSTV_COMP_R),
+    TONE(572.0, SSTV_FREQ_BLACK),
+};
+
+static const sstv_segment_t kMartin4Segs[] = {
+    TONE(4862.0, SSTV_FREQ_SYNC),
+    TONE(572.0, SSTV_FREQ_BLACK),
+    SCAN(18304.0, SSTV_COMP_G),
+    TONE(572.0, SSTV_FREQ_BLACK),
+    SCAN(18304.0, SSTV_COMP_B),
+    TONE(572.0, SSTV_FREQ_BLACK),
+    SCAN(18304.0, SSTV_COMP_R),
+    TONE(572.0, SSTV_FREQ_BLACK),
+};
+
 // ---------------------------------------------------------------------------
 // Scottie (GBR, sync before the red scan). Line: sep 1500 -> G -> sep 1500 ->
 // B -> sync 9000 -> porch 1500 -> R. One-off 9 ms sync after the VIS, before
@@ -58,6 +83,17 @@ static const sstv_segment_t kScottie2Segs[] = {
     TONE(9000.0, SSTV_FREQ_SYNC),
     TONE(1500.0, SSTV_FREQ_BLACK),
     SCAN(88064.0, SSTV_COMP_R),
+};
+
+// Scottie DX: same layout as Scottie 1/2, with a much longer 345.6 ms scan.
+static const sstv_segment_t kScottieDxSegs[] = {
+    TONE(1500.0, SSTV_FREQ_BLACK),
+    SCAN(345600.0, SSTV_COMP_G),
+    TONE(1500.0, SSTV_FREQ_BLACK),
+    SCAN(345600.0, SSTV_COMP_B),
+    TONE(9000.0, SSTV_FREQ_SYNC),
+    TONE(1500.0, SSTV_FREQ_BLACK),
+    SCAN(345600.0, SSTV_COMP_R),
 };
 
 // ---------------------------------------------------------------------------
@@ -109,6 +145,14 @@ static const sstv_segment_t kRobot72Segs[] = {
 static const sstv_segment_t kPd50Segs[]  = { PD_SEGS(91520.0) };
 static const sstv_segment_t kPd90Segs[]  = { PD_SEGS(170240.0) };
 static const sstv_segment_t kPd120Segs[] = { PD_SEGS(121600.0) };
+// Higher-resolution PD modes. Same frame structure; the scan time is
+// per-pixel-time x width, so wider modes have proportionally longer scans:
+// PD160 512x400 @382 µs/px, PD180 640x496 @286, PD240 640x496 @382
+// (frame == 1.000 s exactly), PD290 800x616 @286.
+static const sstv_segment_t kPd160Segs[] = { PD_SEGS(195584.0) };
+static const sstv_segment_t kPd180Segs[] = { PD_SEGS(183040.0) };
+static const sstv_segment_t kPd240Segs[] = { PD_SEGS(244480.0) };
+static const sstv_segment_t kPd290Segs[] = { PD_SEGS(228800.0) };
 
 #define NSEG(a) ((int)(sizeof(a) / sizeof((a)[0])))
 
@@ -152,6 +196,36 @@ static const sstv_mode_t kModes[SSTV_NUM_MODES] = {
     { SSTV_MODE_PD120, "PD 120", 95, 640, 496,
       SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
       0.0, 508480.0, 20000.0, 0.0, NSEG(kPd120Segs), kPd120Segs },
+
+    { SSTV_MODE_SCOTTIEDX, "Scottie DX", 76, 320, 256,
+      SSTV_COLOR_GBR, SSTV_SYNC_BEFORE_RED, 1,
+      9000.0, 1050300.0, 9000.0,
+      1500.0 + 345600.0 + 1500.0 + 345600.0,   // 694200
+      NSEG(kScottieDxSegs), kScottieDxSegs },
+
+    { SSTV_MODE_MARTIN3, "Martin 3", 36, 320, 256,
+      SSTV_COLOR_GBR, SSTV_SYNC_LINE_START, 1,
+      0.0, 116974.0, 4862.0, 0.0, NSEG(kMartin3Segs), kMartin3Segs },
+
+    { SSTV_MODE_MARTIN4, "Martin 4", 32, 320, 256,
+      SSTV_COLOR_GBR, SSTV_SYNC_LINE_START, 1,
+      0.0, 62062.0, 4862.0, 0.0, NSEG(kMartin4Segs), kMartin4Segs },
+
+    { SSTV_MODE_PD160, "PD 160", 98, 512, 400,
+      SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
+      0.0, 804416.0, 20000.0, 0.0, NSEG(kPd160Segs), kPd160Segs },
+
+    { SSTV_MODE_PD180, "PD 180", 96, 640, 496,
+      SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
+      0.0, 754240.0, 20000.0, 0.0, NSEG(kPd180Segs), kPd180Segs },
+
+    { SSTV_MODE_PD240, "PD 240", 94, 640, 496,
+      SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
+      0.0, 1000000.0, 20000.0, 0.0, NSEG(kPd240Segs), kPd240Segs },
+
+    { SSTV_MODE_PD290, "PD 290", 97, 800, 616,
+      SSTV_COLOR_YC_PD, SSTV_SYNC_LINE_START, 2,
+      0.0, 937280.0, 20000.0, 0.0, NSEG(kPd290Segs), kPd290Segs },
 };
 
 const sstv_mode_t* sstv_mode_get(int mode_id)

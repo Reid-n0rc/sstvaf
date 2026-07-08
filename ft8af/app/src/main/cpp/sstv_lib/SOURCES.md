@@ -11,7 +11,7 @@ from any existing SSTV codec source code. In particular, no GPL SSTV source
 1. **JL Barber, N7CXI, "Proposal for SSTV Mode Specifications", presented at
    the Dayton SSTV forum, May 20 2000.**
    The primary source. Provides, for each mode implemented here (Robot 36/72,
-   Martin M1/M2, Scottie S1/S2, PD-50/90/120):
+   Martin M1/M2, Scottie S1/S2/DX, PD-50/90/120/160/180/240/290):
    - the per-line segment structure and all segment durations in µs,
    - sync (1200 Hz), black (1500 Hz), white (2300 Hz) reference frequencies,
    - the calibration header layout (300 ms 1900 Hz leader, 10 ms 1200 Hz
@@ -19,7 +19,25 @@ from any existing SSTV codec source code. In particular, no GPL SSTV source
    - the VIS format (30 ms cells, 1200 Hz start/stop bits, 1100 Hz = bit 1,
      1300 Hz = bit 0, 7 data bits LSB first, even parity), and
    - the 7-bit VIS code assignments (Robot36=8, Robot72=12, Martin2=40,
-     Martin1=44, Scottie2=56, Scottie1=60, PD50=93, PD120=95, PD90=99).
+     Martin1=44, Scottie2=56, Scottie1=60, PD50=93, PD120=95, PD90=99,
+     Martin4=32, Martin3=36, ScottieDX=76, PD240=94, PD180=96, PD290=97,
+     PD160=98).
+
+   The additional modes added on top of the original nine reuse the same
+   line structures and reference frequencies as their family:
+
+   - **Scottie DX** (VIS 76): the Scottie line layout (sep → G → sep → B →
+     9 ms sync → porch → R, with a one-off 9 ms starting sync) with a
+     345.6 ms per-channel scan (1080 µs/pixel over 320 px).
+   - **Martin 3 / Martin 4** (VIS 36 / 32): the Martin line layout with the
+     family's 2× scan-rate progression. Martin's per-pixel scan time halves
+     across the series (M1 457.6 µs, M2 228.8, M3 114.4, M4 57.2 µs/pixel);
+     the 4.862 ms sync and 0.572 ms porch/separators are unchanged.
+   - **PD 160/180/240/290** (VIS 98/96/94/97): the PD frame layout (20 ms
+     sync → 2.08 ms porch → Y(odd) → R-Y → B-Y → Y(even)) at higher
+     resolutions. Per-pixel scan time × width sets each scan segment:
+     PD160 512×400 @382 µs/px, PD180 640×496 @286, PD240 640×496 @382
+     (a frame is exactly 1.000 s), PD290 800×616 @286.
 
 2. **ITU-R Recommendation BT.601** (studio-swing YCbCr conversion constants,
    as tabulated in standard references, e.g. C. Poynton, "Digital Video and
