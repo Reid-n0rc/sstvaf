@@ -18,7 +18,7 @@ import kotlin.math.ceil
  * A [DigitalSstvReceiver] accumulates blocks across an initial transmission
  * and any retransmissions until the whole image is present.
  */
-class DigitalSstvCodec(val mode: DigitalSstvMode = DigitalSstvMode.STANDARD) {
+internal class DigitalSstvCodec(val mode: DigitalSstvMode = DigitalSstvMode.STANDARD) {
 
     private val modem = OfdmModem(mode.ofdm)
     private val interleaver = BitInterleaver(mode.interleaveRows.coerceAtLeast(1))
@@ -194,7 +194,7 @@ class DigitalSstvCodec(val mode: DigitalSstvMode = DigitalSstvMode.STANDARD) {
  * Block-Sequence-Report retransmit request) and the finished payload once the
  * whole image is present and its CRC checks out.
  */
-class DigitalSstvReceiver {
+internal class DigitalSstvReceiver {
     private var meta: DigitalSstvContainer.Meta? = null
     private val blocks = HashMap<Int, ByteArray>()
 

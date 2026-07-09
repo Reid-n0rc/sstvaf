@@ -161,8 +161,14 @@ internal class OfdmModem(val params: OfdmParams = OfdmParams()) {
 
     private fun interpolatedGain(k: Int, gainR: DoubleArray, gainI: DoubleArray): Pair<Double, Double> {
         // Interpolate the channel gain between the two pilots that enclose k.
-        val lo = pilotBins.filter { it <= k }.maxOrNull() ?: pilotBins.first()
-        val hi = pilotBins.filter { it >= k }.minOrNull() ?: pilotBins.last()
+        // pilotBins is sorted ascending (built from the ascending carrier list),
+        // so find the enclosing pilots with binarySearch instead of two
+        // allocating filter scans — this runs per data carrier per symbol.
+        val idx = pilotBins.binarySearch(k)
+        if (idx >= 0) return gainR[k] to gainI[k] // k is itself a pilot
+        val ins = -idx - 1 // pilots below k; also the index of the first pilot above k
+        val lo = pilotBins[(ins - 1).coerceAtLeast(0)]
+        val hi = pilotBins[ins.coerceAtMost(pilotBins.size - 1)]
         if (lo == hi) return gainR[lo] to gainI[lo]
         val frac = (k - lo).toDouble() / (hi - lo).toDouble()
         val gr = gainR[lo] * (1 - frac) + gainR[hi] * frac

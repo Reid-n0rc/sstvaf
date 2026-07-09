@@ -56,6 +56,18 @@ class ReedSolomonTest {
     }
 
     @Test
+    fun `rejects oversize codeword rather than wrapping mod 255`() {
+        val rs = ReedSolomon(16)
+        // 256 symbols exceeds the RS(255, k) block length; the GF(256) Chien
+        // search would wrap and potentially miscorrect, so decode must reject.
+        assertThat(rs.decode(IntArray(256))).isNull()
+        assertThat(rs.decode(IntArray(300) { it and 0xFF })).isNull()
+        // A maximal 255-symbol codeword is still accepted.
+        val data = IntArray(255 - 16) { (it * 3) and 0xFF }
+        assertThat(rs.decode(rs.encode(data))).isEqualTo(data)
+    }
+
+    @Test
     fun `rejects invalid nsym`() {
         try {
             ReedSolomon(15)

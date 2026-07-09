@@ -50,6 +50,10 @@ internal class ReedSolomon(val nsym: Int) {
      *   the codeword carries more errors than [correctable].
      */
     fun decode(codeword: IntArray): IntArray? {
+        // GF(256) log/exp arithmetic and the Chien search assume the RS(255, k)
+        // block length; a longer codeword would wrap mod 255 and miscorrect, so
+        // reject it rather than returning a plausible-but-wrong result.
+        if (codeword.size > 255) return null
         val k = codeword.size - nsym
         if (k <= 0) return null
         val synd = syndromes(codeword)

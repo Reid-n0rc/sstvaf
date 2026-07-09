@@ -105,6 +105,23 @@ class DigitalSstvContainerTest {
     }
 
     @Test
+    fun `decodeHeader rejects payloadLen beyond the block span`() {
+        // A corrupt-but-FEC-valid header must not yield a payloadLen that
+        // exceeds the declared block span — that would over-allocate or wrap
+        // in assemble()'s ByteArray(payloadLen).
+        val span = 3 * DigitalSstvContainer.BLOCK_DATA_LEN
+        val bad = DigitalSstvContainer.Meta(
+            format = 1, width = 320, height = 256,
+            payloadLen = span + 1, // one byte past what 3 blocks can hold
+            payloadCrc32 = 0L, blockCount = 3, blocksInFrame = 3,
+        )
+        assertThat(DigitalSstvContainer.decodeHeader(DigitalSstvContainer.encodeHeader(bad))).isNull()
+        // Exactly the block span is still accepted.
+        val ok = bad.copy(payloadLen = span)
+        assertThat(DigitalSstvContainer.decodeHeader(DigitalSstvContainer.encodeHeader(ok))).isNotNull()
+    }
+
+    @Test
     fun `subset frame carries only requested blocks`() {
         val p = payload(600, seed = 3)
         val meta = DigitalSstvContainer.metadataFor(1, 320, 256, p)

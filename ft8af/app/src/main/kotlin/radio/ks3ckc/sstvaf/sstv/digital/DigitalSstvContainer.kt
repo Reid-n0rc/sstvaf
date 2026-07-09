@@ -97,13 +97,20 @@ internal object DigitalSstvContainer {
         if (d[0] != MAGIC0 || d[1] != MAGIC1 || d[2] != VERSION) return null
         val blockDataLen = getU16(d, 18)
         if (blockDataLen != BLOCK_DATA_LEN) return null
+        val blockCount = getU16(d, 16)
+        // A corrupt-but-FEC-valid header must not produce a payloadLen that
+        // wraps negative or blows up an allocation (e.g. ByteArray(payloadLen)
+        // in assemble()). Parse it as unsigned and require it to fit the
+        // declared block span before trusting it.
+        val payloadLen = getU32(d, 8)
+        if (payloadLen < 0L || payloadLen > blockCount.toLong() * BLOCK_DATA_LEN) return null
         return Meta(
             format = d[3],
             width = getU16(d, 4),
             height = getU16(d, 6),
-            payloadLen = getU32(d, 8).toInt(),
+            payloadLen = payloadLen.toInt(),
             payloadCrc32 = getU32(d, 12),
-            blockCount = getU16(d, 16),
+            blockCount = blockCount,
             blocksInFrame = getU16(d, 20),
         )
     }
@@ -139,7 +146,7 @@ internal object DigitalSstvContainer {
 
     /**
      * Byte stream for a frame carrying [indices] (in order). The returned
-     * [Meta] reflects [indices]`.size` as `blocksInFrame`.
+     * [Meta] reflects `indices.size` as `blocksInFrame`.
      */
     fun encodeFrame(baseMeta: Meta, payload: ByteArray, indices: List<Int>): ByteArray {
         val meta = baseMeta.copy(blocksInFrame = indices.size)
