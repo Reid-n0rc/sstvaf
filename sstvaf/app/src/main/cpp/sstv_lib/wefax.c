@@ -397,6 +397,19 @@ void wefax_decoder_push(wefax_decoder_t* d, const float* samples, int n)
 void wefax_decoder_finish(wefax_decoder_t* d)
 {
     if (!d) return;
+    // Flush a partial final line so a stream that ends mid-line (common with
+    // live audio capture) doesn't drop its last row. Only once locked and only
+    // when most of the line is present; pad the tail by repeating the last
+    // sample so the renderer sees a full line_samples-length buffer, then run
+    // the normal completion path. line_samples <= ceil(spl) < linecap, so the
+    // pad never overruns linebuf.
+    if (d->status != WEFAX_STATUS_DONE && d->locked && d->resync_skip == 0 &&
+        d->linelen > 0 && d->linelen < d->line_samples &&
+        d->linelen >= d->line_samples / 2 && d->line_samples <= d->linecap) {
+        double last = d->linebuf[d->linelen - 1];
+        while (d->linelen < d->line_samples) d->linebuf[d->linelen++] = last;
+        complete_line(d);
+    }
     d->status = WEFAX_STATUS_DONE;
 }
 
@@ -431,7 +444,13 @@ void wefax_decoder_reset(wefax_decoder_t* d)
 {
     if (!d) return;
     sstv_demod_free(&d->demod);
-    sstv_demod_init(&d->demod, d->sample_rate);
+    if (sstv_demod_init(&d->demod, d->sample_rate) != 0) {
+        // Re-init failed (e.g. OOM). sstv_demod_init zeroed the demod on the
+        // way out, so leave the decoder in a terminal state — push() bails on
+        // DONE before touching the demod, and destroy() frees NULLs safely.
+        d->status = WEFAX_STATUS_DONE;
+        return;
+    }
     d->linelen = 0;
     d->carry = 0.0;
     d->sample_index = 0;

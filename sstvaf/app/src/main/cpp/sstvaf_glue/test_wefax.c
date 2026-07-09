@@ -223,6 +223,51 @@ static void test_roundtrip(void)
 }
 
 // ---------------------------------------------------------------------------
+// A live stream that ends mid-line must not drop its last row: finish() pads
+// the partial line and runs the normal completion path.
+static void test_finish_flushes_partial_line(void)
+{
+    printf("wefax finish flushes partial final line:\n");
+    const int lpm = 120, ioc = WEFAX_IOC_576, rate = 12000;
+    const int H = 48, start_sec = 1, phasing = 6, stop_sec = 0;
+    const int W = wefax_pixels_per_line(ioc);
+
+    uint8_t* img = (uint8_t*)malloc((size_t)W * H);
+    for (int y = 0; y < H; y++) wefax_make_row(img + (size_t)y * W, W);
+
+    int need = wefax_encode_num_samples(lpm, ioc, H, rate, start_sec, phasing, stop_sec);
+    float* buf = (float*)malloc((size_t)need * sizeof(float));
+    int got = wefax_encode(lpm, ioc, img, W, H, rate, 0.7f, start_sec, phasing,
+                           stop_sec, buf, need);
+    check(got == need, "encode fills exactly num_samples");
+
+    wefax_decoder_t* d = wefax_decoder_create(rate, lpm, ioc);
+    // Drop the final quarter-line of samples so the stream ends partway through
+    // the last picture line (line is 6000 samples at 120 lpm @ 12 kHz), leaving
+    // well over half a line buffered.
+    const int trim = 1500;
+    int pushed = got - trim;
+    check(pushed > 0, "trimmed stream still non-empty");
+    const int chunk = 2048;
+    for (int off = 0; off < pushed; off += chunk) {
+        int c = (pushed - off < chunk) ? (pushed - off) : chunk;
+        wefax_decoder_push(d, buf + off, c);
+    }
+    check(wefax_decoder_status(d) == WEFAX_STATUS_IMAGE, "locked before finish");
+
+    int before = wefax_decoder_rows_ready(d);
+    wefax_decoder_finish(d);
+    int after = wefax_decoder_rows_ready(d);
+    check(wefax_decoder_status(d) == WEFAX_STATUS_DONE, "finish -> DONE");
+    printf("  info: rows %d -> %d across finish()\n", before, after);
+    check(after == before + 1, "finish flushes exactly the one partial line");
+
+    wefax_decoder_destroy(d);
+    free(buf);
+    free(img);
+}
+
+// ---------------------------------------------------------------------------
 static void test_api_surface(void)
 {
     printf("wefax API surface:\n");
@@ -261,6 +306,7 @@ int main(void)
     test_render();
     test_classify();
     test_roundtrip();
+    test_finish_flushes_partial_line();
     test_api_surface();
 
     if (g_failures) {

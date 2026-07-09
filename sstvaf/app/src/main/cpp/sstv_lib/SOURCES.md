@@ -71,7 +71,7 @@ of scan lines whose left margin is set by a *phasing* signal. It was
 implemented clean-room from the published marine/aviation radiofax
 specifications, not from any existing decoder source.
 
-4. **ITU-R Recommendation M.1171 / M.633 and the WMO "Manual on the Global
+1. **ITU-R Recommendation M.1171 / M.633 and the WMO "Manual on the Global
    Telecommunication System" (radiofacsimile / HF WEFAX)**, as summarised in
    standard amateur-radio references (e.g. the operating notes distributed
    with NOAA/DWD/marine HF fax schedules). These give:
@@ -81,7 +81,7 @@ specifications, not from any existing decoder source.
      is deliberately the same band the SSTV pixel scan uses, so the SSTV FM
      discriminator (`sstv_demod.c`) is reused verbatim and a WeFax pixel maps
      to the identical `f = 1500 + v·(800/255)` Hz used by the SSTV scan
-     (source 3 above).
+     (source 4 above).
 
    - **Line rate:** given in lines per minute (LPM); the common HF value is
      **120 lpm** (⇒ 0.5 s per line, 2 lines/s). Samples per line at a given
