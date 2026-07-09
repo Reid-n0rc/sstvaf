@@ -72,6 +72,11 @@ for the exact specification sources. The codec and its JNI glue
 tests (golden waveform vectors, VIS detection, encode→decode round trips,
 slant correction) run in CI on every PR.
 
+Because the codec is plain, Android-free C11, it also builds as a small desktop
+command-line tool. See [`desktop/`](desktop/README.md) for `sstvaf encode` /
+`sstvaf decode` and a **cross-compiled 32-bit Windows MSI** (built from Linux
+with the i686 MinGW toolchain + `wixl`).
+
 ---
 
 ## Heritage
