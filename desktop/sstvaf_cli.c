@@ -3,6 +3,7 @@
 
 #include "sstvaf_cli.h"
 
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,7 +83,13 @@ unsigned char* sstvaf_cli_wav_serialize(const float* samples, int n,
     if (!samples || n < 0 || sample_rate <= 0 || !len_out) return NULL;
 
     const unsigned channels = 1, bits = 16;
-    unsigned long data_bytes = (unsigned long)n * (bits / 8) * channels;
+    const unsigned bytes_per_sample = (bits / 8) * channels;
+    // Guard the size math in size_t: n frames * bytes_per_sample must fit, and
+    // the RIFF/data 32-bit length fields (36 + data_bytes, data_bytes) must be
+    // representable. On a 32-bit host this is where a large n would wrap.
+    if ((size_t)n > (SIZE_MAX - 44) / bytes_per_sample) return NULL;
+    size_t data_bytes = (size_t)n * bytes_per_sample;
+    if (data_bytes > 0xFFFFFFFFul - 36) return NULL;  // RIFF length is u32
     size_t total = 44 + data_bytes;
     unsigned char* buf = (unsigned char*)malloc(total ? total : 1);
     if (!buf) return NULL;
@@ -164,7 +171,11 @@ float* sstvaf_cli_wav_parse(const unsigned char* data, size_t len,
     if (bits != 16 || channels < 1 || rate <= 0) return NULL;
 
     size_t frame_bytes = (size_t)channels * 2;
-    int frames = frame_bytes ? (int)(data_len / frame_bytes) : 0;
+    size_t frame_count = frame_bytes ? (data_len / frame_bytes) : 0;
+    // n_out is an int; refuse inputs whose frame count can't be represented
+    // rather than truncating to a negative/huge value.
+    if (frame_count > (size_t)INT_MAX) return NULL;
+    int frames = (int)frame_count;
     float* out = (float*)malloc((size_t)(frames ? frames : 1) * sizeof(float));
     if (!out) return NULL;
 
@@ -192,7 +203,13 @@ unsigned char* sstvaf_cli_ppm_serialize(const uint32_t* argb, int w, int h,
     if (!argb || w <= 0 || h <= 0 || !len_out) return NULL;
     char header[64];
     int hn = snprintf(header, sizeof(header), "P6\n%d %d\n255\n", w, h);
-    if (hn <= 0) return NULL;
+    // Treat truncation (hn >= sizeof(header)) as an error so the buffer stays
+    // well-formed.
+    if (hn <= 0 || (size_t)hn >= sizeof(header)) return NULL;
+    // Guard w*h*3 against size_t overflow before allocating.
+    if ((size_t)w > SIZE_MAX / (size_t)h ||
+        (size_t)w * (size_t)h > (SIZE_MAX - (size_t)hn) / 3)
+        return NULL;
     size_t body = (size_t)w * h * 3;
     size_t total = (size_t)hn + body;
     unsigned char* buf = (unsigned char*)malloc(total);
@@ -250,15 +267,23 @@ uint32_t* sstvaf_cli_ppm_parse(const unsigned char* data, size_t len,
     long maxv = ppm_read_int(data, len, &off);
     if (w <= 0 || h <= 0 || maxv != 255) return NULL;
     // Exactly one whitespace byte separates the header from binary data.
+    // Verify it actually is whitespace so a malformed header doesn't cause the
+    // first pixel byte to be consumed as the separator.
     if (off >= len) return NULL;
+    unsigned char sep = data[off];
+    if (sep != ' ' && sep != '\t' && sep != '\n' && sep != '\r') return NULL;
     off++;
-    size_t need = (size_t)w * h * 3;
+    // Compute the pixel count once, guarding w*h and the *3 / *4 scalings
+    // against size_t overflow before any allocation.
+    if ((size_t)w > SIZE_MAX / (size_t)h) return NULL;
+    size_t npx = (size_t)w * (size_t)h;
+    if (npx > SIZE_MAX / 4) return NULL;  // covers *3 (body) and *4 (uint32_t)
+    size_t need = npx * 3;
     if (len - off < need) return NULL;
 
-    uint32_t* img = (uint32_t*)malloc((size_t)w * h * sizeof(uint32_t));
+    uint32_t* img = (uint32_t*)malloc(npx * sizeof(uint32_t));
     if (!img) return NULL;
     const unsigned char* p = data + off;
-    size_t npx = (size_t)w * h;
     for (size_t i = 0; i < npx; i++) {
         uint32_t r = p[i * 3 + 0], g = p[i * 3 + 1], b = p[i * 3 + 2];
         img[i] = 0xFF000000u | (r << 16) | (g << 8) | b;

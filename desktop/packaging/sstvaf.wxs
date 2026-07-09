@@ -52,7 +52,7 @@
                          Name="PATH"
                          Value="[INSTALLDIR]"
                          Permanent="no"
-                         Part="last"
+                         Part="first"
                          Action="set"
                          System="yes" />
           </Component>

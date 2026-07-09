@@ -50,6 +50,7 @@ static void test_wav(void)
     size_t len = 0;
     unsigned char* wav = sstvaf_cli_wav_serialize(in, N, 12000, &len);
     check(wav != 0, "serialize succeeds");
+    if (!wav) { free(in); return; }  // bail before dereferencing on failure
     check(len == 44 + (size_t)N * 2, "serialized length = 44 + 2*N");
     check(memcmp(wav, "RIFF", 4) == 0 && memcmp(wav + 8, "WAVE", 4) == 0,
           "RIFF/WAVE magic present");
